@@ -5,7 +5,7 @@ Plugin URI: http://www.daobydesign.com/free-plugins/honeypot-module-for-contact-
 Description: Add honeypot functionality to the popular Contact Form 7 plugin.
 Author: Dao By Design
 Author URI: http://www.daobydesign.com
-Version: 1.3
+Version: 1.4
 */
 
 /*  Copyright 2013  Dao By Design  (email : info@daobydesign.com)
@@ -29,7 +29,7 @@ Version: 1.3
 	Thanks to Katz Web Services, Inc. (http://www.katzwebservices.com) for basic plugin structure.
 */
 
-add_action('plugins_loaded', 'wpcf7_honeypot_loader', 10);
+add_action('wpcf7_init', 'wpcf7_honeypot_loader', 10);
 
 function wpcf7_honeypot_loader() {
 	global $pagenow;
