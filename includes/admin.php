@@ -9,9 +9,11 @@
 add_action( 'admin_init', 'honeypot4cf7_has_parent_plugin' );
 function honeypot4cf7_has_parent_plugin() {
 	// Get Options
-	$default_options = array('honeypot4cf7_version', HONEYPOT4CF7_VERSION);
-	$honeypot4cf7_config = ($honeypot4cf7_config = get_option('honeypot4cf7_config')) ? $honeypot4cf7_config : add_option('honeypot4cf7_config',$default_options);
-
+	if ($honeypot4cf7_config = get_option('honeypot4cf7_config')) {
+		$honeypot4cf7_config = $honeypot4cf7_config;
+	} else {
+		$honeypot4cf7_config = honeypot4cf7_restore_config();
+	}
 
 	if ( is_admin() && current_user_can( 'activate_plugins' ) &&  !is_plugin_active( HONEYPOT4CF7_DEP_PLUGIN ) && empty( $honeypot4cf7_config['honeypot_cf7_req_msg_dismissed'])) {
 		add_action( 'admin_notices', 'honeypot4cf7_nocf7_notice' );
@@ -124,6 +126,8 @@ function honeypot4cf7_restore_config($type=false) {
 	}
 
 	update_option( 'honeypot4cf7_config', $honeypot4cf7_config );
+
+	return $honeypot4cf7_config;
 }
 
 
@@ -146,8 +150,7 @@ function honeypot4cf7_admin_page() {
 	}
 
 	// Get Options
-	$default_options = array('honeypot4cf7_version', HONEYPOT4CF7_VERSION);
-	$honeypot4cf7_config = ($honeypot4cf7_config = get_option('honeypot4cf7_config')) ? $honeypot4cf7_config : add_option('honeypot4cf7_config', $default_options);
+	$honeypot4cf7_config = $honeypot4cf7_config = get_option('honeypot4cf7_config');
 
 	// Save Values
 	if (!empty($_POST['save'])) {
