@@ -1,7 +1,7 @@
 === Honeypot for Contact Form 7 ===
 Tags: honeypot, antispam, anti-spam, captcha, spam, bots, form, forms, contact form 7, contactform7, contact form, cf7
 Requires at least: 4.8
-Tested up to: 5.7
+Tested up to: 6.0
 Stable tag: trunk
 Requires PHP: 5.6
 Contributors: nocean, DaoByDesign
@@ -65,6 +65,9 @@ Probably not. But it should reduce it to a level whereby you don't require any a
 
 This largely depends on the quality of the CAPTCHA. Unfortunately the more difficult a CAPTCHA is to break, the more unfriendly it is to the end user. This honeypot module was created because I don't like CAPTCHAs cluttering up my forms. My recommendation is to try this module first, and if you find that it doesn't stop enough spam, then employ more challenging anti-spam techniques.
 
+= Can I use more than one Honeypot field in my forms? =
+You sure can, and many users have indicated this helps stop even more spam, as it increases your chances a bot will get caught in the trap. Just make sure each Honeypot field has a unique name.
+
 = Can I modify the HTML this plugin outputs? =
 
 Yep! See the **Installation** section for more details and [this Gist](https://gist.github.com/nocean/953b1362b63bd3ecf68c) for examples.
@@ -87,6 +90,9 @@ I realize not everyone loves ads, but daddy's gotta pay the bills. I'm extremely
 2. Honeypot CF7 Form Tag Settings
 
 == Changelog ==
+= 2.1.1 =
+Fixes small bug when enabling in bulk with other plugins.
+
 = 2.1 =
 Added new feature: additional submission time check to improve bot-stopping power! Also, fixed small HTML issue and tidied up shortcode interface.
 
