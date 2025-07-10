@@ -37,7 +37,7 @@ Each feature is designed as a standalone module, which gives you full control ov
 
 Right out of the box, CF7Apps includes:
 
-✅ **hCaptcha App ([Available in Beta](https://downloads.wordpress.org/plugin/contact-form-7-honeypot.2.2.0-beta.1.zip))**
+✅ **hCaptcha App**
 ✅ **Honeypot App**
 
 And that’s just the beginning.
@@ -151,6 +151,10 @@ Yep! See the **Installation** section for more details and [this Gist](https://g
 3. Honeypot CF7 Form Tag settings
 
 == Changelog ==
+= 2.2.0 - July 14, 2025 =
+* NEW - Introducing CF7Apps, All new Dashboard.
+* NEW - Introducing hCaptcha.
+
 = 2.1.7 October, 13, 2024 =
 * Fixed compatibility issues with CF7 6.0
 * Tested compatibility with latest WordPress (Version 6.7)
