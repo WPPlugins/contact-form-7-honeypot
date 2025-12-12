@@ -27,7 +27,7 @@ if ( ! class_exists( 'CF7Apps_Webhook' ) && class_exists( 'CF7Apps_App' ) ) :
             $this->id                    = 'webhook';
             $this->priority              = 2;
             $this->title                 = __( 'Webhook', 'cf7apps' );
-            $this->description           = __( 'Add hCaptcha to Contact Form 7 for secure, spam-free forms.', 'cf7apps' );
+            $this->description           = __( 'Send Contact Form 7 data to third-party apps instantly using webhook endpoints.', 'cf7apps' );
             $this->icon                  = plugin_dir_url( __FILE__ ) . 'assets/images/logo.png';
             $this->has_admin_settings    = true;
             $this->is_pro                = false;
