@@ -2,7 +2,7 @@
 Tags: anti-spam, spam protection, captcha, honeypot, cf7 database
 Requires at least: 4.8
 Tested up to: 6.9
-Stable tag: 3.3.1
+Stable tag: 3.3.2
 Requires PHP: 5.6
 Contributors: wpexpertsio
 License: GPLv2 or later
@@ -156,6 +156,13 @@ CF7 Apps is a third-party plugin and is not officially associated with or endors
 5. CF7 Apps Tags.
 
 == Changelog ==
+
+= 3.3.2 - Jan 05, 2026 =
+* IMPROVEMENT - CF7 Apps were not visible on individual forms during form creation.
+* IMPROVEMENT - Added Roadmap and Documentation icons to the CF7 Apps dashboard header.
+* IMPROVEMENT - Added a "Spam Stopped" count message in the new Settings section.
+* FIX - Dropdown improvement in Entries.
+* FIX - CF7 entries were not displaying when using the Plain permalink structure.
 
 = 3.3.1 - December 11, 2025 =
 * IMPROVEMENT: Updated the Webhook App Card Description.
