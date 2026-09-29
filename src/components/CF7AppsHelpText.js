@@ -13,13 +13,16 @@ const CF7AppsHelpText = (props) => {
                         {typeof description === 'string' && description.length > 90 ? (
                             <>
                                 {showMore ? description : `${description.substring(0, 90)} ...`}
-                                <button
-                                    type="button"
+                                <a
+                                    href="#"
                                     className="cf7apps-show-more-text"
-                                    onClick={() => setShowMore(!showMore)}
+                                    onClick={(event) => {
+                                        event.preventDefault();
+                                        setShowMore(!showMore);
+                                    }}
                                 >
                                     {showMore ? ` ${__('Show Less', 'cf7apps')}` : ` ${__('Show More', 'cf7apps')}`}
-                                </button>
+                                </a>
                             </>
                         ) : (
                             description

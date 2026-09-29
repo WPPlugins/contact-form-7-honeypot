@@ -153,13 +153,41 @@ const CF7AppsApp = ( { settings, onShowAcfNotice } ) => {
 		</Link>
 	) : null;
 
+	const handleCardClick = ( event ) => {
+		if ( ! isProTeaser ) {
+			return;
+		}
+
+		if ( event.target.closest( 'a' ) ) {
+			return;
+		}
+
+		switchApp();
+	};
+
 	return (
 		<article
 			className={ `cf7apps-app cf7apps-app-${ settings.id }${
 				isEnabled ? ' is-enabled' : ''
 			}${ isProTeaser ? ' is-pro-teaser' : '' }` }
 		>
-			<div className="cf7apps-app-card" style={ cardStyle }>
+			<div
+				className="cf7apps-app-card"
+				style={ cardStyle }
+				onClick={ isProTeaser ? handleCardClick : undefined }
+				onKeyDown={
+					isProTeaser
+						? ( event ) => {
+								if ( event.key === 'Enter' || event.key === ' ' ) {
+									event.preventDefault();
+									switchApp();
+								}
+						  }
+						: undefined
+				}
+				role={ isProTeaser ? 'button' : undefined }
+				tabIndex={ isProTeaser ? 0 : undefined }
+			>
 				{ theme.decorationLayers?.length > 0 && (
 					<div
 						className="cf7apps-app-card__decor"
@@ -207,6 +235,13 @@ const CF7AppsApp = ( { settings, onShowAcfNotice } ) => {
 									{ theme.label }
 								</span>
 							</span>
+							{ theme.isNew && (
+								<span className="cf7apps-app-card__new-tag">
+									<span className="cf7apps-app-card__new-tag-label">
+										{ __( 'NEW', 'cf7apps' ) }
+									</span>
+								</span>
+							) }
 							{ theme.isBeta && (
 								<span className="cf7apps-app-card__beta-tag">
 									{ theme.betaIconUrl && (

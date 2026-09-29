@@ -31,12 +31,17 @@ const CF7AppsAppSettingsHeader = ( {
 	backLabel = __( 'Back to Dashboard', 'cf7apps' ),
 	assetsBase = getCF7AppsAssetsURL(),
 	showBack = true,
+	title,
+	subtitle,
+	showDescription = true,
+	documentationUrl,
 } ) => {
 	const settingsTitle =
-		appSettings?.id === 'acf-integration'
+		title ??
+		( appSettings?.id === 'acf-integration'
 			? appSettings.title
-			: sprintf( __( '%s Settings', 'cf7apps' ), appSettings?.title || '' );
-	const docUrl = appSettings?.documentation_url;
+			: sprintf( __( '%s Settings', 'cf7apps' ), appSettings?.title || '' ) );
+	const docUrl = documentationUrl ?? appSettings?.documentation_url;
 	const iconSrc = getAppSettingsHeaderIcon( appSettings, assetsBase );
 
 	return (
@@ -53,10 +58,25 @@ const CF7AppsAppSettingsHeader = ( {
 						/>
 					) }
 					<div className="cf7apps-app-settings-header__copy">
-						<h2 className="cf7apps-app-settings-header__title">
-							{ settingsTitle }
-						</h2>
-						{ appSettings?.description && (
+						{ subtitle ? (
+							<div className="cf7apps-app-settings-header__heading">
+								<div
+									className="cf7apps-app-settings-header__title"
+									role="heading"
+									aria-level="2"
+								>
+									{ settingsTitle }
+								</div>
+								<div className="cf7apps-app-settings-header__subtitle">
+									{ subtitle }
+								</div>
+							</div>
+						) : (
+							<h2 className="cf7apps-app-settings-header__title">
+								{ settingsTitle }
+							</h2>
+						) }
+						{ showDescription && appSettings?.description && (
 							<p className="cf7apps-app-settings-header__desc">
 								<span className="cf7apps-app-settings-header__desc-text">
 									{ appSettings.description }

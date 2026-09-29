@@ -68,7 +68,7 @@ if ( ! class_exists( 'CF7Apps_Webhook' ) && class_exists( 'CF7Apps_App' ) ) :
                         ),
 
                         'webhook_url' => array(
-                            'title'       => __( 'Webhook URL *', 'cf7apps' ),
+                            'title'       => __( 'Webhook URL', 'cf7apps' ),
                             'type'        => 'text',
                             'default'     => '',
                             'placeholder' => 'Webhook URL',
@@ -176,7 +176,7 @@ if ( ! class_exists( 'CF7Apps_Webhook' ) && class_exists( 'CF7Apps_App' ) ) :
             );
 
             $settings['general']['fields']['webhook_url'] = array(
-                'title'       => __( 'Webhook URL *', 'cf7apps' ),
+                'title'       => __( 'Webhook URL', 'cf7apps' ),
                 'type'        => 'text',
                 'default'     => '',
                 'placeholder' => 'Webhook URL',

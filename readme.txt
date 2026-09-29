@@ -1,9 +1,9 @@
 === CF7 Apps – Honeypot, Database, Redirection, Webhook, and Addons for Contact Form 7 ===
 Tags: anti-spam, spam protection, captcha, honeypot, cf7 database
-Requires at least: 6.7
-Tested up to: 7.0.2
-Stable tag: 3.7.2
-Requires PHP: 7.4
+Requires at least: 6.7 or higher
+Tested up to: 7.1.2
+Stable tag: 3.8.0
+Requires PHP: 7.4 or higher
 Contributors: wpexpertsio
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -26,6 +26,9 @@ Right out of the box, CF7 Apps includes:
 ✅ **Honeypot App**
 ✅ **hCaptcha App**
 ✅ **Database Entries App**
+✅ **Export CSV Entries**
+✅ **Weekly Summary Reports**
+✅ **Centralized Dashboard**
 ✅ **Redirection App**
 ✅ **Webhook App**
 ✅ **ACF Integeration**
@@ -41,6 +44,18 @@ The Entries Database App stores all Contact Form 7 submissions directly to your 
 🌟 **Add a Honeypot Field to Prevent Spam**
 
 Our **Honeypot Contact Form 7 extension** creates a hidden field inside your Contact Form 7 forms. Real users never see it, but bots do—and that's how the bots fall for the trap. It blocks automated spam before it even hits your inbox.
+
+🌟 **Export Contact Form 7 Entries to CSV**
+
+Easily export your stored form submissions directly into CSV format with a single click. Download your submission records filtered by form or date range for seamless offline analysis, backups, and CRM importing.
+
+🌟 **Automated Weekly Summary Emails**
+
+Stay updated on your form performance without logging into WordPress every day. Receive automated weekly email reports highlighting your total form submissions, new inquiries, and blocked spam attempts.
+
+🌟 **Modern Centralized Dashboard & Quick Access**
+
+Monitor your form ecosystem from a single unified hub. View real-time submission statistics, verify Domain Authentication health (SPF, DKIM, DMARC, BIMI), and navigate quickly across settings using the floating Quick Access dock widget.
 
 🌟 **Add hCaptcha to Contact Form 7**
 
@@ -74,11 +89,14 @@ The best thing is that both features work independently. You can run them alone 
 With the CF7 Apps, you can do the following:
   ✔️ Trap bots using a honeypot field without affecting users
   ✔️ Add hCaptcha to Contact Form 7 for privacy-first anti-spam
+  ✔️ Export form entries to CSV for offline reporting, spreadsheet analysis, or CRM imports
+  ✔️ Receive automated weekly summary emails with form submission totals and spam metrics
+  ✔️ Manage form health, domain authentication, and app controls from a centralized dashboard
   ✔️ Store and manage Contact Form 7 entries directly in WordPress
   ✔️ Redirect your Contact Form 7 submissions to any internal or external page.
   ✔️ Send your form data to any third-party service or custom endpoint through our Webhook.
   ✔️ Display dynamic ACF field values inside your Contact Form 7 forms for personalized entries.
-✔️ Instantly generate dynamic, ready-to-use forms with AI based on your input and requirements.
+  ✔️ Instantly generate dynamic, ready-to-use forms with AI based on your input and requirements.
 
 ==Why Should You Install CF7 Apps?==
 
@@ -145,6 +163,15 @@ Contact Form 7 is a long-standing WordPress plugin that lets you build and manag
 = Will CF7 Apps slow down my site? =
 No. Each addon works independently. You only activate the features you want. That keeps your website fast and your backend clean.
 
+= How do I export Contact Form 7 entries to CSV? =
+Navigate to the **Entries** tab in the CF7 Apps dashboard, filter submissions by form or date range if needed, and click the **Export CSV** button to download your entries instantly.
+
+= What are Weekly Summary Reports? =
+Weekly Summary Reports automatically send an email overview to the administrator email address detailing total form submissions received and spam attempts blocked during the week.
+
+= What does the CF7 Apps Dashboard offer? =
+The redesigned dashboard provides an overview of submission statistics, domain authentication checks (SPF, DKIM, DMARC, BIMI), Post SMTP integration status, and a floating Quick Access dock widget for faster navigation.
+
 = What is the Redirection App? =
 The Redirection App allows you to redirect users to any internal or external page after they submit a Contact Form 7 form. You can easily set custom redirection URLs per form creating smooth user flows without adding any custom code.
 
@@ -195,6 +222,17 @@ CF7 Apps is a third-party plugin and is not officially associated with or endors
 5. CF7 Apps Tags.
 
 == Changelog ==
+
+= 3.8.0 - Sep 29, 2026 =
+* NEW - Introduced Weekly Summary Reports to receive automated weekly email summaries of form submissions and blocked spam.
+* NEW - Added CSV Export functionality in the Entries App to easily export form entries.
+* IMPROVEMENT - Redesigned CF7 Apps Dashboard layout featuring Domain Authentication status (SPF, DKIM, DMARC, BIMI), Post SMTP integration card, and unified statistics overview.
+* IMPROVEMENT - Added a Quick Access dock widget on the dashboard.
+* FIX - Resolved false positive spam classifications caused by dynamic honeypot fields.
+* FIX - Resolved global currency fetching and dropdown selection issues.
+* FIX - Resolved PHP debug log warnings and notice placement flow across app settings.
+* TWEAK - Updated dashboard card icons, layout spacing, and add-on links.
+* COMPATIBILITY - Tested and verified compatibility with WordPress 7.1.2 and PHP 8.4.
 
 = 3.7.2 - Aug 6, 2026 =
 * UPDATED - AI Forms Server URL

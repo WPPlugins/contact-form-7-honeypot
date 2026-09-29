@@ -76,7 +76,7 @@ const CF7AppsRecommendedPlugins = () => {
 
 	const visiblePlugins = plugins.filter( ( plugin ) => plugin.status !== 'active' );
 
-	if ( ! isLoading && visiblePlugins.length === 0 ) {
+	if ( ! isLoading && visiblePlugins.filter( ( plugin ) => plugin.slug !== 'post-smtp' ).length === 0 ) {
 		return null;
 	}
 
@@ -91,7 +91,9 @@ const CF7AppsRecommendedPlugins = () => {
 			{ isLoading ? (
 				<CF7AppsSkeletonLoader count={ 2 } height={ 88 } width="100%" />
 			) : (
-				visiblePlugins.map( ( plugin ) => {
+				visiblePlugins
+					.filter( ( plugin ) => plugin.slug !== 'post-smtp' )
+					.map( ( plugin ) => {
 					const promo = PROMO_COPY[ plugin.slug ] || {};
 
 					return (

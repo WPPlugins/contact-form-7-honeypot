@@ -64,6 +64,14 @@ if ( ! class_exists( 'CF7Apps_Form_Entries' ) ) :
 		public $data;
 
 		/**
+		 * Payment metadata attached for Entries API responses.
+		 *
+		 * @since 3.8.0
+		 * @var array|null $payment Payment details (gateway status, log link, etc.).
+		 */
+		public $payment;
+
+		/**
 		 * Constructor for the CF7Apps_Form_Entries class.
 		 *
 		 * @since 3.1.0
@@ -188,11 +196,11 @@ if ( ! class_exists( 'CF7Apps_Form_Entries' ) ) :
 			}
 
 			if ( ! empty( $start_date ) && ! empty( $end_date ) ) {
-				$sql .= $wpdb->prepare( ' AND date_time BETWEEN %d AND %d', $start_date, $end_date );
+				$sql .= $wpdb->prepare( ' AND CAST(date_time AS UNSIGNED) BETWEEN %d AND %d', $start_date, $end_date );
 			} elseif ( ! empty( $start_date ) ) {
-				$sql .= $wpdb->prepare( ' AND date_time >= %d', $start_date );
+				$sql .= $wpdb->prepare( ' AND CAST(date_time AS UNSIGNED) >= %d', $start_date );
 			} elseif ( ! empty( $end_date ) ) {
-				$sql .= $wpdb->prepare( ' AND date_time <= %d', $end_date );
+				$sql .= $wpdb->prepare( ' AND CAST(date_time AS UNSIGNED) <= %d', $end_date );
 			}
 
 			$sql = $wpdb->prepare( $sql, $table_name );
@@ -200,6 +208,89 @@ if ( ! class_exists( 'CF7Apps_Form_Entries' ) ) :
 			$count      = $wpdb->get_var( $sql );
 
 			return absint( $count );
+		}
+
+		/**
+		 * Count entries grouped by form name for a date range.
+		 *
+		 * @since 3.8.0
+		 *
+		 * @param int $start_date Unix timestamp.
+		 * @param int $end_date   Unix timestamp.
+		 * @return array<int,array{form_name:string,entry_count:string}>
+		 */
+		public static function get_entry_counts_by_form( $start_date = 0, $end_date = 0 ) {
+			global $wpdb;
+
+			$table_name = $wpdb->prefix . 'cf7apps_form_entries';
+
+			if ( ! self::table_exists( $table_name ) ) {
+				return array();
+			}
+
+			$sql = "SELECT form_name, COUNT(*) AS entry_count FROM %i WHERE 1=1";
+
+			if ( ! empty( $start_date ) && ! empty( $end_date ) ) {
+				$sql .= $wpdb->prepare( ' AND CAST(date_time AS UNSIGNED) BETWEEN %d AND %d', $start_date, $end_date );
+			} elseif ( ! empty( $start_date ) ) {
+				$sql .= $wpdb->prepare( ' AND CAST(date_time AS UNSIGNED) >= %d', $start_date );
+			} elseif ( ! empty( $end_date ) ) {
+				$sql .= $wpdb->prepare( ' AND CAST(date_time AS UNSIGNED) <= %d', $end_date );
+			}
+
+			$sql .= ' GROUP BY form_name ORDER BY entry_count DESC';
+			$sql  = $wpdb->prepare( $sql, $table_name );
+
+			$rows = $wpdb->get_results( $sql, ARRAY_A );
+
+			return is_array( $rows ) ? $rows : array();
+		}
+
+		/**
+		 * Entries table name (`wp_cf7apps_form_entries`).
+		 *
+		 * @since 3.8.0
+		 * @return string
+		 */
+		public static function get_table_name() {
+			global $wpdb;
+
+			return $wpdb->prefix . 'cf7apps_form_entries';
+		}
+
+		/**
+		 * Whether the entries table exists.
+		 *
+		 * @since 3.8.0
+		 * @return bool
+		 */
+		public static function entries_table_exists() {
+			return self::table_exists( self::get_table_name() );
+		}
+
+		/**
+		 * Weekly summary stats from wp_cf7apps_form_entries for a date range.
+		 *
+		 * @since 3.8.0
+		 *
+		 * @param int $start_date Unix timestamp (inclusive).
+		 * @param int $end_date   Unix timestamp (inclusive).
+		 * @return array{total:int,by_form:array,available:bool}
+		 */
+		public static function get_weekly_stats_for_range( $start_date, $end_date ) {
+			if ( ! self::entries_table_exists() ) {
+				return array(
+					'total'     => 0,
+					'by_form'   => array(),
+					'available' => false,
+				);
+			}
+
+			return array(
+				'total'     => self::get_total_entries( 0, '', $start_date, $end_date ),
+				'by_form'   => self::get_entry_counts_by_form( $start_date, $end_date ),
+				'available' => true,
+			);
 		}
 
 		/**
@@ -312,6 +403,179 @@ if ( ! class_exists( 'CF7Apps_Form_Entries' ) ) :
 			}
 
 			return true;
+		}
+
+		/**
+		 * Get multiple entries by IDs.
+		 *
+		 * @since 3.8.0
+		 * @param int[] $ids Entry IDs.
+		 * @return self[]
+		 */
+		public static function get_entries_by_ids( $ids ) {
+			global $wpdb;
+
+			$ids = array_values( array_filter( array_map( 'absint', (array) $ids ) ) );
+			if ( empty( $ids ) ) {
+				return array();
+			}
+
+			$table_name = $wpdb->prefix . 'cf7apps_form_entries';
+
+			if ( ! self::table_exists( $table_name ) ) {
+				return array();
+			}
+
+			$in_clause = implode( ',', $ids );
+			$results   = $wpdb->get_results(
+				"SELECT * FROM {$table_name} WHERE id IN ({$in_clause}) ORDER BY id DESC",
+				ARRAY_A
+			);
+
+			if ( empty( $results ) ) {
+				return array();
+			}
+
+			return array_map( array( self::class, 'create_instance' ), $results );
+		}
+
+		/**
+		 * Build a CSV string from entry records.
+		 *
+		 * @since 3.8.0
+		 * @param self[] $entries Entry objects.
+		 * @return string
+		 */
+		public static function entries_to_csv( array $entries ) {
+			if ( empty( $entries ) ) {
+				return '';
+			}
+
+			$field_keys = array();
+			foreach ( $entries as $entry ) {
+				if ( ! empty( $entry->data ) && is_array( $entry->data ) ) {
+					$field_keys = array_merge( $field_keys, array_keys( $entry->data ) );
+				}
+			}
+			$field_keys = array_values( array_unique( $field_keys ) );
+			sort( $field_keys );
+
+			$headers = array_merge(
+				array( 'ID', 'Form Name', 'Email', 'Date & Time' ),
+				$field_keys
+			);
+
+			$rows = array( $headers );
+
+			foreach ( $entries as $entry ) {
+				$row = array(
+					(string) $entry->id,
+					(string) $entry->form_name,
+					(string) $entry->email,
+					(string) $entry->date_time,
+				);
+
+				foreach ( $field_keys as $field_key ) {
+					$value = '';
+					if ( ! empty( $entry->data ) && is_array( $entry->data ) && array_key_exists( $field_key, $entry->data ) ) {
+						$value = self::flatten_field_value( $entry->data[ $field_key ] );
+					}
+					$row[] = $value;
+				}
+
+				$rows[] = $row;
+			}
+
+			$output = fopen( 'php://temp', 'r+' );
+			if ( false === $output ) {
+				return '';
+			}
+
+			// UTF-8 BOM helps Excel open non-ASCII characters correctly.
+			fwrite( $output, "\xEF\xBB\xBF" );
+
+			foreach ( $rows as $row ) {
+				fputcsv( $output, $row, ',', '"', '\\' );
+			}
+
+			rewind( $output );
+			$csv = stream_get_contents( $output );
+			fclose( $output );
+
+			return false === $csv ? '' : $csv;
+		}
+
+		/**
+		 * Build export filename: {form-name}-entries-{date}.csv
+		 *
+		 * @since 3.8.0
+		 * @param self[] $entries  Entry objects.
+		 * @param int    $form_id  Optional filtered form ID.
+		 * @return string
+		 */
+		public static function get_export_filename( array $entries, $form_id = 0 ) {
+			$form_name = '';
+			$form_id   = absint( $form_id );
+
+			if ( $form_id ) {
+				$form_name = (string) get_the_title( $form_id );
+			} elseif ( ! empty( $entries ) ) {
+				$names = array_unique(
+					array_filter(
+						array_map(
+							static function ( $entry ) {
+								return is_object( $entry ) ? (string) $entry->form_name : '';
+							},
+							$entries
+						)
+					)
+				);
+
+				if ( 1 === count( $names ) ) {
+					$form_name = (string) reset( $names );
+				}
+			}
+
+			if ( '' === $form_name ) {
+				return 'entries-' . gmdate( 'Y-m-d' ) . '.csv';
+			}
+
+			$slug = sanitize_title( $form_name );
+			if ( '' === $slug ) {
+				return 'entries-' . gmdate( 'Y-m-d' ) . '.csv';
+			}
+
+			return $slug . '-entries-' . gmdate( 'Y-m-d' ) . '.csv';
+		}
+
+		/**
+		 * Normalize a stored field value for CSV output.
+		 *
+		 * @since 3.8.0
+		 * @param mixed $value Field value.
+		 * @return string
+		 */
+		private static function flatten_field_value( $value ) {
+			if ( is_array( $value ) ) {
+				$parts = array_map(
+					static function ( $item ) {
+						return self::flatten_field_value( $item );
+					},
+					$value
+				);
+
+				return implode( ', ', array_filter( $parts, 'strlen' ) );
+			}
+
+			if ( is_bool( $value ) ) {
+				return $value ? '1' : '0';
+			}
+
+			if ( null === $value ) {
+				return '';
+			}
+
+			return (string) $value;
 		}
 
 		/**

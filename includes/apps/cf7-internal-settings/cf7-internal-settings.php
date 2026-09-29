@@ -57,23 +57,8 @@ if ( ! class_exists( 'CF7Apps_Internal_Settings_Apps' ) ) :
         public function admin_enqueue_scripts( $hook ) {
             if ( 'toplevel_page_wpcf7' === $hook  || 'contact_page_wpcf7-new' === $hook ) {
 
-                $form_id  = isset( $_GET['post'] ) ? intval( $_GET['post'] ) : 0;
-                $options                 = get_option( 'cf7apps_settings' );
-                $redirection_app_enabled = false;
-                $webhook_app_enabled     = false;
-
-                if ( ! empty( $options ) ) {
-                    if ( isset( $options['cf7-redirection'] ) ) {
-                        if ( isset( $options['cf7-redirection']['is_enabled'] ) && $options['cf7-redirection']['is_enabled'] ) {
-                            $redirection_app_enabled = true;
-                        }
-                    }
-                    if ( isset( $options['webhook'] ) ) {
-                        if ( isset( $options['webhook']['is_enabled'] ) && $options['webhook']['is_enabled'] ) {
-                            $webhook_app_enabled = true;
-                        }
-                    }
-                }
+                $form_id = isset( $_GET['post'] ) ? intval( $_GET['post'] ) : 0;
+                $internal_settings_enabled = cf7apps_has_enabled_internal_settings_app();
 
                 $dir_url  = CF7APPS_PLUGIN_DIR_URL . '/includes/apps/cf7-internal-settings/';
                 $dir_path = CF7APPS_PLUGIN_DIR . '/includes/apps/cf7-internal-settings/';
@@ -83,8 +68,7 @@ if ( ! class_exists( 'CF7Apps_Internal_Settings_Apps' ) ) :
                     'enqueue-wrapper',
                     'cf7appsWrapperObjects',
                     array(
-                        'cf7appsRedirectionEnabled' => $redirection_app_enabled,
-                        'cf7appsWebhookEnabled'     => $webhook_app_enabled,
+                        'cf7appsInternalSettingsEnabled' => $internal_settings_enabled,
                     )
                 );
 
@@ -135,6 +119,11 @@ if ( ! class_exists( 'CF7Apps_Internal_Settings_Apps' ) ) :
                             'formPromoAssetsURL'  => $dir_url . 'assets/images/form-promo/',
                             'postSmtpIconUrl'     => CF7APPS_PLUGIN_DIR_URL . '/assets/images/dashboard/recommended/post-smtp.gif',
                             'pluginVersion' => CF7APPS_VERSION,
+                            'paymentGlobalCurrency' => array(
+                                'stripe' => cf7apps_get_global_payment_currency( 'stripe' ),
+                                'paypal' => cf7apps_get_global_payment_currency( 'paypal' ),
+                            ),
+                            'hasPro' => cf7apps_has_pro(),
                         )
                     );
                 }

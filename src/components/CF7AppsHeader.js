@@ -1,14 +1,12 @@
 import { useEffect, useState } from "@wordpress/element";
 import CF7AppsSkeletonLoader from "./CF7AppsSkeletonLoader";
-import { Link, useLocation, useNavigate } from "react-router";
+import { Link } from "react-router";
 import { Tooltip } from "@wordpress/components";
 import { ChevronLeft, MenuIcon } from "@mui/icons-material";
 import { __ } from "@wordpress/i18n";
 import { useCF7AppsNav } from "../context/CF7AppsNavContext";
 
 const CF7AppsHeader = ( { showNavToggle = true } ) => {
-	const path = useLocation();
-	const navigate = useNavigate();
 	const { isPinnedExpanded, togglePinned } = useCF7AppsNav();
 	const [isLoading, setIsLoading] = useState(true);
 
@@ -19,16 +17,6 @@ const CF7AppsHeader = ( { showNavToggle = true } ) => {
 		
 		return () => clearTimeout(timer);
 	}, []);
-
-	const handleBackClick = () => {
-		navigate(-1);
-	};
-
-	const isSettingsPage = path.pathname.startsWith( '/settings' );
-	const showHeaderBack =
-		path.pathname !== undefined &&
-		path.pathname !== '/' &&
-		! isSettingsPage;
 
 	const assetsBase = CF7Apps && CF7Apps.assetsURL ? CF7Apps.assetsURL : "";
 	const toggleLabel = isPinnedExpanded
@@ -122,18 +110,6 @@ const CF7AppsHeader = ( { showNavToggle = true } ) => {
 								<span className="cf7apps-header-version">
 									V { CF7Apps.pluginVersion }
 								</span>
-							) }
-
-							{ showHeaderBack && (
-								<button
-									type="button"
-									onClick={ handleBackClick }
-									className="cf7apps-btn icon tertiary-secondary cf7apps-header-back-btn"
-									aria-label={ __( "Go back", "cf7apps" ) }
-								>
-									<ChevronLeft />
-									{ __( "Back", "cf7apps" ) }
-								</button>
 							) }
 						</div>
 					</div>

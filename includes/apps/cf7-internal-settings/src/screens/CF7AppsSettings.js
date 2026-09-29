@@ -21,6 +21,229 @@ import { getFormEditorSettingsPanelStyle, normalizeParentMenu } from '../../../.
 import CF7AppsAppSettingsHeader from '../../../../../src/components/CF7AppsAppSettingsHeader';
 import CF7AppsAppSettingsTabs from '../../../../../src/components/CF7AppsAppSettingsTabs';
 import CF7AppsTemplates from '../../../../../src/templates/CF7AppsTemplates';
+import PaymentFormSettingsFields from '../components/PaymentFormSettingsFields';
+import {
+    getPaymentGatewayActivationNoticeHtml,
+    hasCf7AppsPro,
+} from '../../../../../src/utils/paymentGatewayActivationNotice';
+
+const PAYMENT_FORM_APPS = [ 'stripe', 'paypal', 'square' ];
+const REDIRECT_URL_APPS = [ 'stripe', 'paypal' ];
+
+const validateRedirectUrls = ( app, formData ) => {
+    if (
+        ! REDIRECT_URL_APPS.includes( app ) ||
+        ! isPaymentFormEnabled( formData.is_enabled )
+    ) {
+        return null;
+    }
+
+    const missing = [];
+    const successUrl = formData.success_url
+        ? String( formData.success_url ).trim()
+        : '';
+    const failureUrl = formData.failure_url
+        ? String( formData.failure_url ).trim()
+        : '';
+
+    if ( successUrl === '' ) {
+        missing.push( 'success_url' );
+    }
+    if ( failureUrl === '' ) {
+        missing.push( 'failure_url' );
+    }
+
+    if ( missing.length === 0 ) {
+        return null;
+    }
+
+    let message = __( 'Success URL and Failure URL are required.', 'cf7apps' );
+    if ( missing.length === 1 ) {
+        message = missing[ 0 ] === 'success_url'
+            ? __( 'Success URL is required.', 'cf7apps' )
+            : __( 'Failure URL is required.', 'cf7apps' );
+    }
+
+    return { missing, message };
+};
+
+const resolveGlobalPaymentCurrency = ( appSettings, appId ) => {
+    const fromPayload = appSettings?.payment_global?.default_currency;
+    if ( fromPayload && String( fromPayload ).trim() !== '' ) {
+        return String( fromPayload ).trim();
+    }
+
+    const currencyField = appSettings?.admin_settings?.general?.fields?.currency;
+    if ( currencyField?.selected && String( currencyField.selected ).trim() !== '' ) {
+        return String( currencyField.selected ).trim();
+    }
+    if ( currencyField?.default && String( currencyField.default ).trim() !== '' ) {
+        return String( currencyField.default ).trim();
+    }
+
+    const localized = CF7AppsInternalSettings?.paymentGlobalCurrency?.[ appId ];
+    return localized && String( localized ).trim() !== ''
+        ? String( localized ).trim()
+        : '';
+};
+
+const isPaymentFormEnabled = ( value ) =>
+	value === true ||
+	value === 1 ||
+	value === '1' ||
+	value === 'true';
+
+const collectFormFields = ( appSettings, hasTabs ) => {
+	const settings = appSettings?.admin_settings?.general;
+	if ( ! settings?.fields ) {
+		return {};
+	}
+
+	if ( hasTabs ) {
+		const merged = {};
+		Object.keys( appSettings.setting_tabs || {} ).forEach( ( tabKey ) => {
+			Object.assign( merged, settings.fields[ tabKey ] || {} );
+		} );
+		return merged;
+	}
+
+	return settings.fields;
+};
+
+const getAccordionOpenUpdates = ( fields, invalidFieldKeys ) => {
+	const updates = {};
+	const invalidSet = new Set( invalidFieldKeys );
+
+	Object.keys( fields || {} ).forEach( ( fieldKey ) => {
+		const field = fields[ fieldKey ];
+		if (
+			field &&
+			field.type === 'collapsible_section' &&
+			Array.isArray( field.child_keys ) &&
+			field.child_keys.some( ( childKey ) => invalidSet.has( childKey ) )
+		) {
+			updates[ fieldKey ] = true;
+		}
+	} );
+
+	return updates;
+};
+
+const openAccordionsForFields = ( setOpenMap, fields, invalidFieldKeys ) => {
+	const updates = getAccordionOpenUpdates( fields, invalidFieldKeys );
+	if ( Object.keys( updates ).length === 0 ) {
+		return;
+	}
+
+	setOpenMap( ( prev ) => ( {
+		...prev,
+		...updates,
+	} ) );
+};
+
+const buildFormStateFromSettings = ( appSettings, app ) => {
+    let settings = appSettings['admin_settings']['general'];
+    let formState = {};
+    const tabsEnabled = Object.keys(appSettings.setting_tabs || {}).length > 0;
+
+    if (tabsEnabled) {
+        Object.keys(appSettings.setting_tabs).forEach((tabKey) => {
+            const tabFields = settings['fields'][tabKey] || {};
+
+            Object.keys(tabFields).forEach((fieldKey) => {
+                hydrateFieldValue(tabFields[fieldKey], fieldKey, formState);
+            });
+        });
+    } else {
+        Object.keys(settings['fields']).forEach((fieldKey) => {
+            const field = settings['fields'][fieldKey];
+
+            if ('template' !== fieldKey) {
+                hydrateFieldValue(field, fieldKey, formState);
+            }
+        });
+    }
+
+    if (app === 'webhook' && String(formState.method || '').toUpperCase() === 'GET' && formState.data_type === 'form') {
+        formState.data_type = 'json';
+    }
+
+    if (
+        ( app === 'stripe' || app === 'paypal' ) &&
+        ( ! formState.currency || String( formState.currency ).trim() === '' )
+    ) {
+        const globalCurrency = resolveGlobalPaymentCurrency( appSettings, app );
+        if ( globalCurrency ) {
+            formState.currency = globalCurrency;
+        }
+    }
+
+    return formState;
+};
+
+const buildOpenMapFromSettings = ( appSettings, app ) => {
+    let settings = appSettings['admin_settings']['general'];
+    let openMap = {};
+    const tabsEnabled = Object.keys(appSettings.setting_tabs || {}).length > 0;
+
+    if (tabsEnabled) {
+        Object.keys(appSettings.setting_tabs).forEach((tabKey) => {
+            const tabFields = settings['fields'][tabKey] || {};
+
+            Object.keys(tabFields).forEach((fieldKey) => {
+                const field = tabFields[fieldKey];
+                if (field && field.type === 'textarea') {
+                    openMap[fieldKey] = field.collapsible
+                        ? (app === 'webhook' ? true : false)
+                        : true;
+                }
+            });
+        });
+    } else {
+        Object.keys(settings['fields']).forEach((fieldKey) => {
+            const field = settings['fields'][fieldKey];
+            if (field && field.type === 'textarea') {
+                openMap[fieldKey] = field.collapsible
+                    ? (app === 'webhook' ? true : false)
+                    : true;
+            }
+            if (field && field.type === 'collapsible_section') {
+                openMap[fieldKey] = field.default_open !== undefined
+                    ? !!field.default_open
+                    : !field.collapsible;
+            }
+        });
+    }
+
+    return openMap;
+};
+
+const buildPaymentSavePayload = ( app, appSettings, formData ) => {
+    const payload = { ...formData };
+
+    payload.is_enabled = isPaymentFormEnabled( payload.is_enabled ) ? 1 : 0;
+
+    if ( app === 'stripe' || app === 'paypal' ) {
+        if ( ! payload.currency || String( payload.currency ).trim() === '' ) {
+            const globalCurrency = resolveGlobalPaymentCurrency( appSettings, app );
+            if ( globalCurrency ) {
+                payload.currency = globalCurrency;
+            }
+        }
+    }
+
+    return payload;
+};
+
+const getPaymentFormSettingsTitle = ( appId ) => {
+	const paymentTitles = {
+		stripe: __( 'Stripe Checkout Redirection', 'cf7apps' ),
+		paypal: __( 'PayPal Checkout Redirection', 'cf7apps' ),
+		square: __( 'Square Checkout Redirection', 'cf7apps' ),
+	};
+
+	return paymentTitles[ appId ] || '';
+};
 
 const hydrateFieldValue = ( field, fieldKey, formState ) => {
     if ( fieldKey === 'template' || typeof field !== 'object' || ! field?.type ) {
@@ -44,9 +267,19 @@ const hydrateFieldValue = ( field, fieldKey, formState ) => {
             ? field.value
             : ( field.default ? field.default : '' );
     } else if ( field.type === 'select' ) {
-        if ( field.selected !== undefined && field.selected !== null && field.selected !== '' ) {
-            formState[ fieldKey ] = field.selected;
-        } else if ( field.default !== undefined ) {
+        const selected =
+            field.selected !== undefined &&
+            field.selected !== null &&
+            String( field.selected ).trim() !== ''
+                ? field.selected
+                : undefined;
+
+        if ( selected !== undefined ) {
+            formState[ fieldKey ] = selected;
+        } else if (
+            field.default !== undefined &&
+            String( field.default ).trim() !== ''
+        ) {
             formState[ fieldKey ] = field.default;
         }
     }
@@ -93,7 +326,9 @@ const FormSettingsHeader = ({ appSettings }) => {
 
     return (
         <div className="cf7apps-form-settings-header">
-            <h2 className="cf7apps-form-settings-title">{settingsTitle}</h2>
+            <div>
+                <h2 className="cf7apps-form-settings-title">{settingsTitle}</h2>
+            </div>
         </div>
     );
 };
@@ -205,6 +440,7 @@ const CF7AppsSettings = () => {
     const [appSettings, setAppSettings] = useState(false);
     const [formData, setFormData] = useState({});
     const [openMap, setOpenMap] = useState({});
+    const [fieldErrors, setFieldErrors] = useState({});
     const [isSaving, setIsSaving] = useState(false);
     const [notice, setNotice] = useState({ show: false, text: '' });
     const [hasTabs, setHasTabs] = useState(false);
@@ -220,68 +456,16 @@ const CF7AppsSettings = () => {
     }, [app, location.pathname]);
 
     useEffect(() => {
-        setIsLoading(true); // Reset loading state when app changes
+        setIsLoading(true);
         getApps(app, CF7AppsInternalSettings.formID)
             .then((appSettings) => {
-                let settings = appSettings['admin_settings']['general'];
-                let _formData = {};
                 const tabsEnabled = Object.keys(appSettings.setting_tabs || {}).length > 0;
 
                 setHasTabs(tabsEnabled);
-
-                if (tabsEnabled) {
-                    Object.keys(appSettings.setting_tabs).forEach((tabKey) => {
-                        const tabFields = settings['fields'][tabKey] || {};
-
-                        Object.keys(tabFields).forEach((fieldKey) => {
-                            hydrateFieldValue(tabFields[fieldKey], fieldKey, _formData);
-                        });
-                    });
-                } else {
-                Object.keys(settings['fields']).map((fieldKey) => {
-                    const field = settings['fields'][fieldKey];
-
-                    if ('template' !== fieldKey) {
-                        hydrateFieldValue(field, fieldKey, _formData);
-                    }
-
-                });
-                }
-
-                if (app === 'webhook' && String(_formData.method || '').toUpperCase() === 'GET' && _formData.data_type === 'form') {
-                    _formData.data_type = 'json';
-                }
-
-                setFormData(_formData);
-                let _openMap = {};
-
-                if (tabsEnabled) {
-                    Object.keys(appSettings.setting_tabs).forEach((tabKey) => {
-                        const tabFields = settings['fields'][tabKey] || {};
-
-                        Object.keys(tabFields).forEach((fieldKey) => {
-                            const field = tabFields[fieldKey];
-                            if (field && field.type === 'textarea') {
-                                _openMap[fieldKey] = field.collapsible
-                                    ? (app === 'webhook' ? true : false)
-                                    : true;
-                            }
-                        });
-                    });
-                } else {
-                Object.keys(settings['fields']).map((fieldKey) => {
-                    const field = settings['fields'][fieldKey];
-                    if (field && field.type === 'textarea') {
-                        _openMap[fieldKey] = field.collapsible
-                            ? (app === 'webhook' ? true : false)
-                            : true;
-                    }
-                });
-                }
-                setOpenMap(_openMap);
+                setFormData(buildFormStateFromSettings(appSettings, app));
+                setOpenMap(buildOpenMapFromSettings(appSettings, app));
                 setAppSettings(appSettings);
                 setIsLoading(false);
-
             }).catch((error) => {
                 setIsLoading(false);
             });
@@ -299,12 +483,29 @@ const CF7AppsSettings = () => {
             }
             return next;
         });
+        if ( fieldErrors[ name ] ) {
+            setFieldErrors( ( prev ) => ( {
+                ...prev,
+                [ name ]: false,
+            } ) );
+        }
     }
 
     const saveAppSettings = () => {
 
+        if ( ! CF7AppsInternalSettings?.formID || Number( CF7AppsInternalSettings.formID ) <= 0 ) {
+            const unsavedFormMessage = __(
+                'Note: Save the Contact Form 7 form before configuring CF7 app settings. Settings can only be saved after the form has been created.',
+                'cf7apps'
+            );
+            toast.error(unsavedFormMessage);
+            setIsSaving(false);
+            return;
+        }
+
         let missingRequired = false;
         let requiredMessage = '';
+        let missingFieldKey = null;
 
         const validateFields = (fields) => {
             Object.keys(fields).some((fieldKey) => {
@@ -316,6 +517,7 @@ const CF7AppsSettings = () => {
 
                 if (field.required && (formData[fieldKey] === '' || formData[fieldKey] === undefined)) {
                     missingRequired = true;
+                    missingFieldKey = fieldKey;
                     requiredMessage = field.required_message || __('Please fill all required fields.', 'cf7apps');
                     return true;
                 }
@@ -323,6 +525,7 @@ const CF7AppsSettings = () => {
                 if (field.sub_fields) {
                     if (field.sub_fields[formData[fieldKey]] && field.sub_fields[formData[fieldKey]].required && (formData[formData[fieldKey]] === '' || formData[formData[fieldKey]] === undefined)) {
                         missingRequired = true;
+                        missingFieldKey = formData[fieldKey];
                         requiredMessage = field.sub_fields[formData[fieldKey]].required_message || __('Please fill all required fields.', 'cf7apps');
                         return true;
                     }
@@ -330,6 +533,21 @@ const CF7AppsSettings = () => {
 
                 return false;
             });
+        };
+
+        const failValidation = ( errorMessage, invalidFieldKeys = [] ) => {
+            const fields = collectFormFields( appSettings, hasTabs );
+            if ( invalidFieldKeys.length > 0 ) {
+                openAccordionsForFields( setOpenMap, fields, invalidFieldKeys );
+                const fieldErrorMap = {};
+                invalidFieldKeys.forEach( ( key ) => {
+                    fieldErrorMap[ key ] = true;
+                } );
+                setFieldErrors( fieldErrorMap );
+            }
+            setNotice( { show: true, text: errorMessage } );
+            toast.error( errorMessage );
+            setIsSaving( false );
         };
 
         if (hasTabs) {
@@ -345,10 +563,76 @@ const CF7AppsSettings = () => {
         }
 
         if (missingRequired) {
-            setNotice({ show: true, text: requiredMessage });
-            toast.error(__('Error! Please fill all required fields.', 'cf7apps'));
-            setIsSaving(false);
+            failValidation(
+                requiredMessage || __( 'Error! Please fill all required fields.', 'cf7apps' ),
+                missingFieldKey ? [ missingFieldKey ] : []
+            );
             return;
+        }
+
+        if (
+            PAYMENT_FORM_APPS.includes(app) &&
+            isPaymentFormEnabled(formData['is_enabled'])
+        ) {
+            const emailMap = formData['customer_email']
+                ? String(formData['customer_email']).trim()
+                : '';
+
+            if (emailMap === '') {
+                failValidation(
+                    __( 'Customer email field is required.', 'cf7apps' ),
+                    [ 'customer_email' ]
+                );
+                return;
+            }
+
+            const currency = formData['currency']
+                ? String(formData['currency']).trim()
+                : resolveGlobalPaymentCurrency(appSettings, app);
+
+            if (app !== 'square' && currency === '') {
+                failValidation(
+                    __( 'Currency is required.', 'cf7apps' ),
+                    [ 'currency' ]
+                );
+                return;
+            }
+
+            const amountField = formData['amount_field']
+                ? String(formData['amount_field']).trim()
+                : '';
+
+            if (amountField === '') {
+                failValidation(
+                    __(
+                        'Amount field is required. Enter a fixed amount (e.g. 25) or a form tag (e.g. [amount]).',
+                        'cf7apps'
+                    ),
+                    [ 'amount_field' ]
+                );
+                return;
+            }
+
+            const productNameField = formData['product_name']
+                ? String(formData['product_name']).trim()
+                : '';
+
+            if (productNameField === '') {
+                failValidation(
+                    __( 'Product name field is required.', 'cf7apps' ),
+                    [ 'product_name' ]
+                );
+                return;
+            }
+
+            const redirectValidation = validateRedirectUrls( app, formData );
+            if ( redirectValidation ) {
+                failValidation(
+                    redirectValidation.message,
+                    redirectValidation.missing
+                );
+                return;
+            }
         }
 
         // Validate webhook URL format (only for webhook app)
@@ -378,10 +662,39 @@ const CF7AppsSettings = () => {
         setNotice({ show: false, text: '' });
 
         setIsSaving(true);
-        saveSettings(app, formData, CF7AppsInternalSettings.formID)
+
+        const payload = PAYMENT_FORM_APPS.includes(app)
+            ? buildPaymentSavePayload(app, appSettings, formData)
+            : formData;
+
+        const switchingPaymentGateway =
+            PAYMENT_FORM_APPS.includes(app) &&
+            isPaymentFormEnabled(payload.is_enabled) &&
+            appSettings.enabled_form_payment_gateway &&
+            appSettings.enabled_form_payment_gateway !== app;
+
+        saveSettings(app, payload, CF7AppsInternalSettings.formID)
             .then(response => {
+                return getApps(app, CF7AppsInternalSettings.formID)
+                    .then((freshSettings) => {
+                        setAppSettings(freshSettings);
+                        setFormData(buildFormStateFromSettings(freshSettings, app));
+                        setOpenMap(buildOpenMapFromSettings(freshSettings, app));
+                    });
+            })
+            .then(() => {
                 setIsSaving(false);
-                toast.success(__('Great! Settings Saved Successfully', 'cf7apps'));
+                setFieldErrors({});
+                if (switchingPaymentGateway) {
+                    toast.success(
+                        __(
+                            'Payment gateway updated. The previous gateway was disabled for this form.',
+                            'cf7apps'
+                        )
+                    );
+                } else {
+                    toast.success(__('Great! Settings Saved Successfully', 'cf7apps'));
+                }
             }).catch(error => {
                 setIsSaving(false);
                 toast.error(__('Error! Something Went Wrong', 'cf7apps'));
@@ -393,6 +706,7 @@ const CF7AppsSettings = () => {
         const isRedirectionSettings = app === 'cf7-redirection';
         const isEntriesSettings = app === 'cf7-entries';
         const isWebhookSettings = app === 'webhook';
+        const isPaymentFormSettings = PAYMENT_FORM_APPS.includes(app);
         const isAppSettingsShell = isRedirectionSettings || isEntriesSettings || isWebhookSettings;
         const formClassName = [
             'cf7apps-form',
@@ -495,7 +809,7 @@ const CF7AppsSettings = () => {
             );
         };
 
-        const renderSettingsField = (fieldKey, field, tabSettings = null) => {
+        const renderSettingsField = (fieldKey, field, tabSettings = null, tabKey = '') => {
             const className = undefined === field?.class ? '' : field.class;
             const help = field?.help;
             const placeholder = undefined === field?.placeholder ? '' : field.placeholder;
@@ -550,6 +864,7 @@ const CF7AppsSettings = () => {
                         key={fieldKey}
                         appSettings={appSettings}
                         formData={formData}
+                        tabKey={tabKey}
                     />
                 );
             }
@@ -699,7 +1014,7 @@ const CF7AppsSettings = () => {
                     className={`MuiTabPanel-root${tabKey === 'entries' ? ' cf7apps-app-settings-tabpanel-entries' : ''}`}
                 >
                     {Object.keys(tabSettings).map((fieldKey) =>
-                        renderSettingsField(fieldKey, tabSettings[fieldKey], tabSettings)
+                        renderSettingsField(fieldKey, tabSettings[fieldKey], tabSettings, tabKey)
                     )}
                 </div>
             );
@@ -708,7 +1023,7 @@ const CF7AppsSettings = () => {
         if (hasTabs) {
             return (
                 <div className={formClassName}>
-                    {notice.show && (
+                    {notice.show && !isUnsavedForm && (
                         <CF7AppsNotice
                             type={'warning'}
                             text={notice.text}
@@ -730,15 +1045,57 @@ const CF7AppsSettings = () => {
             );
         }
 
+        if (isPaymentFormSettings) {
+            return (
+                <PaymentFormSettingsFields
+                    app={app}
+                    fields={appSettings.admin_settings['general']['fields']}
+                    formData={formData}
+                    setFormData={setFormData}
+                    openMap={openMap}
+                    setOpenMap={setOpenMap}
+                    fieldErrors={fieldErrors}
+                    handleInputChange={handleInputChange}
+                    saveAppSettings={saveAppSettings}
+                    isSaving={isSaving}
+                    notice={notice}
+                    isUnsavedForm={isUnsavedForm}
+                    globalDefaultCurrency={
+                        resolveGlobalPaymentCurrency( appSettings, app )
+                    }
+                    enabledFormPaymentGateway={
+                        appSettings.enabled_form_payment_gateway || ''
+                    }
+                    enabledFormPaymentGatewayLabel={
+                        appSettings.enabled_form_payment_gateway_label || ''
+                    }
+                />
+            );
+        }
+
+        const enabledFormPaymentGateway = appSettings.enabled_form_payment_gateway || '';
+
         return (
             <div className={formClassName}>
                 <div className={'MuiTabPanel-root'}>
                     {
-                        notice.show && !isAppSettingsShell && <CF7AppsNotice
+                        notice.show && !isAppSettingsShell && !isUnsavedForm && <CF7AppsNotice
                             type={'warning'}
                             text={notice.text}
                         />
                     }
+
+                    {isRedirectionSettings && enabledFormPaymentGateway ? (
+                        <CF7AppsFormNotice
+                            type="info"
+                            text={
+                                __(
+                                    'Redirection will not work when a Payment Gateway is enabled for this form, as the Payment Gateway redirect takes priority.',
+                                    'cf7apps'
+                                )
+                            }
+                        />
+                    ) : null}
 
                     {
                         Object.keys(appSettings.admin_settings['general']['fields']).map(fieldKey => {
@@ -770,14 +1127,19 @@ const CF7AppsSettings = () => {
     const isRedirectionSettings = app === 'cf7-redirection';
     const isEntriesSettings = app === 'cf7-entries';
     const isWebhookSettings = app === 'webhook';
+    const isPaymentFormSettings = PAYMENT_FORM_APPS.includes(app);
     const isAppSettingsShell = isRedirectionSettings || isEntriesSettings || isWebhookSettings;
     const appSettingsPanelClass = isRedirectionSettings
         ? ' cf7apps-redirection-settings'
-        : (isEntriesSettings ? ' cf7apps-entries-settings' : (isWebhookSettings ? ' cf7apps-webhook-settings' : ''));
+        : (isEntriesSettings ? ' cf7apps-entries-settings' : (isWebhookSettings ? ' cf7apps-webhook-settings' : (isPaymentFormSettings ? ` cf7apps-payment-settings${app === 'square' ? ' cf7apps-square-settings' : ''}` : '')));
     const panelStyle =
         appSettings && appSettings.id === app && !isAppSettingsShell
             ? getFormEditorSettingsPanelStyle(appSettings, assetsBase)
             : undefined;
+
+    const isUnsavedForm =
+        ! CF7AppsInternalSettings?.formID ||
+        Number( CF7AppsInternalSettings.formID ) <= 0;
 
     return (
         !isLoading && appSettings && appSettings.id === app
@@ -786,17 +1148,50 @@ const CF7AppsSettings = () => {
                 className={`cf7apps-form-settings-view cf7apps-app-${appSettings.id}${appSettingsPanelClass}`}
                 style={panelStyle}
             >
-                {isAppSettingsShell ? (
+                {isAppSettingsShell || isPaymentFormSettings ? (
                     <CF7AppsAppSettingsHeader
                         appSettings={appSettings}
                         assetsBase={assetsBase}
                         showBack={false}
+                        title={
+                            isPaymentFormSettings
+                                ? getPaymentFormSettingsTitle( appSettings.id )
+                                : undefined
+                        }
+                        subtitle={
+                            isPaymentFormSettings
+                                ? __( 'Payment Form', 'cf7apps' )
+                                : undefined
+                        }
+                        showDescription={!isPaymentFormSettings}
                     />
                 ) : (
                     <FormSettingsHeader appSettings={appSettings} />
                 )}
 
                 <div className="cf7apps-form-settings-body">
+                    {isUnsavedForm && (
+                        <CF7AppsNotice
+                            type="warning"
+                            text={__(
+                                'Note: Save the Contact Form 7 form before configuring CF7 app settings. Settings can only be saved after the form has been created.',
+                                'cf7apps'
+                            )}
+                        />
+                    )}
+                    {isPaymentFormSettings &&
+                    hasCf7AppsPro() &&
+                    appSettings.is_enabled !== true ? (
+                        <div className="cf7apps-payment-activation-notice">
+                            <CF7AppsNotice
+                                type="warning"
+                                text={getPaymentGatewayActivationNoticeHtml(
+                                    appSettings.id,
+                                    appSettings.title
+                                )}
+                            />
+                        </div>
+                    ) : null}
                     <div className="cf7apps-settings-content-wrapper">
                         <div className={appSettings.is_enabled ? 'cf7apps-enabled-content' : 'cf7apps-disabled-content'}>
                             {Settings()}
@@ -805,6 +1200,9 @@ const CF7AppsSettings = () => {
                             <CF7AppsDisabledOverlay
                                 appId={appSettings.id}
                                 appTitle={appSettings.title}
+                                showActivationMessage={
+                                    isPaymentFormSettings && hasCf7AppsPro()
+                                }
                             />
                         )}
                     </div>

@@ -97,14 +97,15 @@ const PARENT_THEMES = {
 const APP_BORDER_OVERRIDES = {
 	'cf7-redirection': '#208aae',
 	'cf7-entries': '#4f6797',
+	'weekly-summary': '#4f6797',
 	honeypot: '#a27700',
 	hcaptcha: '#417662',
 	webhook: '#c33810',
 	'acf-integration': '#208aae',
 	'cf7-ai-form-generator': '#4f6797',
 	stripe: '#533afd',
-	paypal: '#003087',
-	square: '#1a1a1a',
+	paypal: '#003188',
+	square: '#000000',
 };
 
 const APP_BADGE_OVERRIDES = {
@@ -114,16 +115,16 @@ const APP_BADGE_OVERRIDES = {
 	'cf7-ai-form-generator': '#e9f0ff',
 	stripe: '#eae6ff',
 	paypal: '#dfefff',
-	square: '#f2f2f2',
+	square: '#f3f3f3',
 };
 
 const APP_TITLE_COLORS = {
 	stripe: '#533afd',
-	paypal: '#003087',
-	square: '#1a1a1a',
 };
 
 const APP_BETA_IDS = ['cf7-ai-form-generator'];
+
+const APP_NEW_IDS = ['weekly-summary'];
 
 /** Badge icon dimensions (px). */
 const APP_BADGE_ICON_STYLE = {
@@ -136,25 +137,28 @@ const APP_BADGE_ICON_STYLE = {
 const APP_BADGE_ICON_STYLE_BY_APP = {
 	'cf7-redirection': APP_BADGE_ICON_STYLE.general,
 	'cf7-entries': APP_BADGE_ICON_STYLE.general,
+	'weekly-summary': APP_BADGE_ICON_STYLE.general,
 };
 
 /** Variant2 — full-card tint when toggle is on (per app/category). */
 const APP_ENABLED_BG = {
 	'cf7-redirection': '#edfbfc',
 	'cf7-entries': '#e9f0ff',
+	'weekly-summary': '#e9f0ff',
 	honeypot: '#fff7e2',
 	hcaptcha: '#f0f7ec',
 	webhook: '#ffeee9',
 	'acf-integration': '#edfbfc',
 	'cf7-ai-form-generator': '#e9f0ff',
-	stripe: '#f5f3ff',
+	stripe: '#eae6ff',
 	paypal: '#dfefff',
-	square: '#f7f7f7',
+	square: '#f3f3f3',
 };
 
 const APP_DECORATIONS = {
 	'cf7-redirection': ['redirection.svg'],
 	'cf7-entries': ['entries.svg'],
+	'weekly-summary': ['weekly-summary.png'],
 	honeypot: ['honeypot.svg'],
 	hcaptcha: ['hcaptcha.svg'],
 	webhook: ['webhook.svg'],
@@ -175,6 +179,9 @@ const APP_DECOR_LAYOUT = {
 	},
 	'cf7-entries': {
 		layers: [{ maxWidth: 100, maxHeight: 100, bottomCut: 10 }],
+	},
+	'weekly-summary': {
+		layers: [{ maxWidth: 108, maxHeight: 112, bottomCut: 10, marginRight: -10 }],
 	},
 	honeypot: {
 		layers: [{ maxWidth: 98, maxHeight: 104, bottomCut: 10 }],
@@ -204,10 +211,10 @@ const APP_DECOR_LAYOUT = {
 
 const layerStyleFromConfig = (layer) => {
 	const style = {
-		width: 'auto',
-		height: 'auto',
-		maxWidth: `${layer.maxWidth ?? 100}%`,
-		maxHeight: `${layer.maxHeight ?? 102}%`,
+		width: layer.width ? `${layer.width}px` : 'auto',
+		height: layer.height ? `${layer.height}px` : 'auto',
+		maxWidth: layer.width ? `${layer.width}px` : `${layer.maxWidth ?? 100}%`,
+		maxHeight: layer.height ? `${layer.height}px` : `${layer.maxHeight ?? 102}%`,
 		marginRight: `${layer.marginRight ?? -2}px`,
 		marginBottom: `-${layer.bottomCut ?? 10}px`,
 	};
@@ -302,7 +309,9 @@ export const getAppCardTheme = (settings, assetsBase = '') => {
 		badgeIconColor: border,
 		enabledBg,
 		titleColor: APP_TITLE_COLORS[settings?.id] || '',
-		isBeta: APP_BETA_IDS.includes(settings?.id),
+		isBeta:
+			APP_BETA_IDS.includes(settings?.id) || Boolean(settings?.is_beta),
+		isNew: APP_NEW_IDS.includes(settings?.id),
 		betaIconUrl,
 		badgeIconUrl,
 		badgeIconStyle,

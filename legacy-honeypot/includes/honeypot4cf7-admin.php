@@ -91,13 +91,9 @@ function honeypot4cf7_uninstall() {
 
 add_filter( 'plugin_action_links_'.CF7APPS_PLUGIN_BASENAME, 'honeypot4cf7_settings_link' );
 function honeypot4cf7_settings_link( $links ) {
-	$url = esc_url( add_query_arg(
-		'page',
-		'honeypot4cf7',
-		get_admin_url() . 'admin.php'
-	) );
-	
-	$settings_link = "<a href='$url'>" . __( 'Settings', 'contact-form-7-honeypot' ) . '</a>';
+	$url = esc_url( admin_url( 'admin.php?page=cf7apps' ) );
+
+	$settings_link = "<a href='$url'>" . __( 'Settings', 'cf7apps' ) . '</a>';
 	
 	array_push( $links, $settings_link );
 
@@ -142,6 +138,7 @@ function honeypot4cf7_get_config( $context = false ) {
             'honeypot_install_date'				=> empty( $cf7apps_settings['honeypot']['honeypot_install_date'] ) ? time() : $cf7apps_settings['honeypot']['honeypot_install_date'],
             'honeypot_cf7_req_msg_dismissed'	=> empty( $cf7apps_settings['honeypot']['honeypot_cf7_req_msg_dismissed'] ) ? 0 : $cf7apps_settings['honeypot']['honeypot_cf7_req_msg_dismissed'],
             'honeypot4cf7_version'				=> CF7APPS_VERSION,
+            'enable_dynamic_honeypot'			=> ! empty( $cf7apps_settings['honeypot']['enable_dynamic_honeypot'] ),
         );
     }
     else {	
@@ -159,6 +156,7 @@ function honeypot4cf7_get_config( $context = false ) {
             'honeypot_install_date'				=> ( empty( $honeypot4cf7_config['honeypot_install_date'] ) ) ? time() : $honeypot4cf7_config['honeypot_install_date'],
             'honeypot_cf7_req_msg_dismissed'	=> ( 'reset' == $context || empty( $honeypot4cf7_config['honeypot_cf7_req_msg_dismissed'] ) ) ? 0 : $honeypot4cf7_config['honeypot_cf7_req_msg_dismissed'],
             'honeypot4cf7_version'				=> CF7APPS_VERSION,
+            'enable_dynamic_honeypot'			=> false,
         );
         
         update_option( 'honeypot4cf7_config', $honeypot4cf7_config );
@@ -255,6 +253,7 @@ function honeypot4cf7_general_tab_content() {
                 'enable_time_check'			=> ( isset( $_POST['honeypot4cf7_timecheck_enabled'] ) ) ? 1 : 0,
                 'time_check'			    => ( isset( $_POST['honeypot4cf7_timecheck_value'] ) ) ? $_POST['honeypot4cf7_timecheck_value'] : 0,
                 'silent_spam_response'		=> ( isset( $_POST['honeypot4cf7_silent_spam_response'] ) ) ? 1 : 0,
+                'enable_dynamic_honeypot'   => ( isset( $_POST['honeypot4cf7_enable_dynamic_honeypot'] ) ) ? 1 : 0,
             );
             
             cf7apps_save_app_settings( 'honeypot', $honeypot4cf7_config_update );
@@ -304,6 +303,15 @@ function honeypot4cf7_general_tab_content() {
                         <td>
                             <input type="checkbox" name="honeypot4cf7_store" id="honeypot4cf7__store-honeypot" value="1" <?php checked( $honeypot4cf7_config['store_honeypot'], 1 ); ?>>
                         </td>
+                    </tr>
+                    <tr valign="top">
+                        <th><label for="honeypot4cf7__enable-dynamic-honeypot"><?php esc_html_e( 'Enable Dynamic Honeypot', 'contact-form-7-honeypot' ); ?></label></th>
+                        <td>
+                            <input type="checkbox" name="honeypot4cf7_enable_dynamic_honeypot" id="honeypot4cf7__enable-dynamic-honeypot" value="1" <?php checked( ! empty( $honeypot4cf7_config['enable_dynamic_honeypot'] ), true ); ?>>
+                        </td>
+                    </tr>
+                    <tr valign="top">
+                        <td class="description" colspan="2"><?php esc_html_e( 'Uses randomized field names and server-side tokens for stronger bot protection. Recommended for cached sites. When disabled, the classic static honeypot is used.', 'contact-form-7-honeypot' ); ?></td>
                     </tr>
                     <tr valign="top">
                         <td class="description" colspan="2">

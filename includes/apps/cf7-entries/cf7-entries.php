@@ -31,10 +31,14 @@ if ( ! class_exists( 'CF7Apps_Entries_App' ) && class_exists( 'CF7Apps_App' ) ) 
 			$this->by_default_enabled = false;
 			$this->documentation_url  = 'https://cf7apps.com/docs/general/entries';
 			$this->parent_menu        = 'general';
-			$this->setting_tabs       = array(
+			$this->setting_tabs = array(
 				'general' => __( 'General', 'cf7apps' ),
 				'entries' => __( 'Entries', 'cf7apps' ),
 			);
+
+			if ( cf7apps_has_pro() ) {
+				$this->setting_tabs['payment_logs'] = __( 'Payment logs', 'cf7apps' );
+			}
 
 			include_once plugin_dir_path( __FILE__ ) . 'includes/cf7-form-entries.php';
 			add_action( 'admin_init', array( $this, 'create_table' ) );
@@ -42,6 +46,22 @@ if ( ! class_exists( 'CF7Apps_Entries_App' ) && class_exists( 'CF7Apps_App' ) ) 
 			add_action( 'admin_menu', array( $this, 'add_admin_menu' ) );
 			// Automatically remove stored entries when a Contact Form 7 form is permanently deleted.
 			add_action( 'before_delete_post', array( $this, 'delete_entries_on_form_delete' ) );
+		}
+
+		/**
+		 * Get app settings for the React admin.
+		 *
+		 * @since 3.8.0
+		 * @return array
+		 */
+		public function get_settings() {
+			$settings = parent::get_settings();
+
+			$settings['tab_documentation_urls'] = array(
+				'payment_logs' => 'https://cf7apps.com/docs/payment-gateways/payment-logs/',
+			);
+
+			return $settings;
 		}
 
 		/**
@@ -246,38 +266,46 @@ if ( ! class_exists( 'CF7Apps_Entries_App' ) && class_exists( 'CF7Apps_App' ) ) 
 		 * @return array
 		 */
 		public function admin_settings() {
-			return array(
+			$fields = array(
 				'general' => array(
-					'fields' => array(
-						'general' => array(
-							'title'       => __( 'Entries Settings', 'cf7apps' ),
-							'description' => __( '', 'cf7apps' ),
+					'title'       => __( 'Entries Settings', 'cf7apps' ),
+					'description' => __( '', 'cf7apps' ),
 
-                            'notice'           => array(
-                                'type'  => 'notice',
-                                'class' => 'info',
-								'text'  => sprintf(
-									__( 'Stuck? Check our Documentation on %s', 'cf7apps' ),
-									'<a href="https://cf7apps.com/docs/general/entries" target="_blank" rel="noopener noreferrer"><u>' . __( 'Entries', 'cf7apps' ) . '</u></a>'
-								),
-                            ),
-
-							'is_enabled'  => array(
-								'title' 	  => __( 'Show Entries', 'cf7apps' ),
-								'type'        => 'checkbox',
-								'default'     => false,
-							),
-
-							'save_settings' => array(
-								'type'  => 'save_button',
-								'text'  => __( 'Save Settings', 'cf7apps' ),
-								'class' => 'button-primary',
-							),
-						),
-						'entries' => array(
-							'template' => 'cf7Entries',
+					'notice'      => array(
+						'type'  => 'notice',
+						'class' => 'info',
+						'text'  => sprintf(
+							__( 'Stuck? Check our Documentation on %s', 'cf7apps' ),
+							'<a href="https://cf7apps.com/docs/general/entries" target="_blank" rel="noopener noreferrer"><u>' . __( 'Entries', 'cf7apps' ) . '</u></a>'
 						),
 					),
+
+					'is_enabled'    => array(
+						'title'   => __( 'Show Entries', 'cf7apps' ),
+						'type'    => 'checkbox',
+						'default' => false,
+					),
+
+					'save_settings' => array(
+						'type'  => 'save_button',
+						'text'  => __( 'Save Settings', 'cf7apps' ),
+						'class' => 'button-primary',
+					),
+				),
+				'entries' => array(
+					'template' => 'cf7Entries',
+				),
+			);
+
+			if ( cf7apps_has_pro() ) {
+				$fields['payment_logs'] = array(
+					'template' => 'cf7Entries',
+				);
+			}
+
+			return array(
+				'general' => array(
+					'fields' => $fields,
 				),
 			);
 		}

@@ -5,12 +5,50 @@
  * Description: Contact Form 7 Apps is a collection of useful modules and extensions for Contact Form 7.
  * Author: CF7 Apps
  * Author URI: https://cf7apps.com/
- * Version: 3.7.2
+ * Version: 3.8.0
  * Text Domain: contact-form-7-honeypot
  * Domain Path: /languages/
  * Requires Plugins: contact-form-7
  */
 
+defined( 'ABSPATH' ) || exit;
+
+if ( ! function_exists( 'cf7apps_map_free_plugin_dependency_slug' ) ) {
+	/**
+	 * Map the wp.org CF7 Apps slug to the installed plugin folder.
+	 *
+	 * Supports both `contact-form-7-honeypot` (wp.org) and
+	 * `honeypot-for-contact-form-7` (local development).
+	 *
+	 * @param string $slug Dependency slug from a Requires Plugins header.
+	 * @return string
+	 */
+	function cf7apps_map_free_plugin_dependency_slug( $slug ) {
+		if ( 'contact-form-7-honeypot' !== $slug ) {
+			return $slug;
+		}
+
+		if ( ! function_exists( 'get_plugins' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		}
+
+		$basenames = array(
+			'contact-form-7-honeypot/honeypot.php',
+			'honeypot-for-contact-form-7/honeypot.php',
+		);
+
+		$plugins = get_plugins();
+		foreach ( $basenames as $basename ) {
+			if ( isset( $plugins[ $basename ] ) ) {
+				return dirname( $basename );
+			}
+		}
+
+		return $slug;
+	}
+
+	add_filter( 'wp_plugin_dependencies_slug', 'cf7apps_map_free_plugin_dependency_slug' );
+}
 
 /** 
  * Freemius initialization
@@ -32,7 +70,7 @@ if ( ! function_exists( 'cf7h_fs' ) ) {
                 'type'                => 'plugin',
                 'public_key'          => 'pk_ad07f3a314c2ac84f528f0a53268c',
                 'is_premium'          => false,
-                'has_addons'          => false,
+                'has_addons'          => true,
                 'has_paid_plans'      => false,
                 'menu'                => array(
                     'slug'           => 'cf7apps',
@@ -40,6 +78,7 @@ if ( ! function_exists( 'cf7h_fs' ) ) {
                     'account'        => false,
                     'contact'        => false,
                     'support'        => false,
+                    'addons'         => false,
                 ),
             ) );
         }
@@ -56,7 +95,7 @@ if ( ! function_exists( 'cf7h_fs' ) ) {
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'CF7APPS_VERSION', '3.7.1' );
+define( 'CF7APPS_VERSION', '3.8.0' );
 define( 'CF7APPS_PLUGIN', __FILE__ );
 define( 'CF7APPS_PLUGIN_BASENAME', plugin_basename( CF7APPS_PLUGIN ) );
 define( 'CF7APPS_PLUGIN_NAME', trim( dirname( CF7APPS_PLUGIN_BASENAME ), '/' ) );

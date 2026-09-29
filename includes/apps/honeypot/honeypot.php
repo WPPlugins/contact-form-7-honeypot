@@ -22,8 +22,6 @@ class CF7Apps_Honeypot_App extends CF7Apps_App {
             'general'   => __( 'General', 'cf7apps' ),
             'forms'     => __( 'Forms', 'cf7apps' ),
         );
-
-        add_filter( 'register_post_type_args', array( $this, 'register_post_type_args' ), 10, 2 );
     }
     
     /**
@@ -42,6 +40,12 @@ class CF7Apps_Honeypot_App extends CF7Apps_App {
                             'title'         => __( 'Enable Honeypot App', 'cf7apps' ),
                             'type'          => 'checkbox',
                             'default'       => false,
+                        ),
+                        'enable_dynamic_honeypot' => array(
+                            'title'       => __( 'Enable Dynamic Honeypot', 'cf7apps' ),
+                            'type'        => 'checkbox',
+                            'default'     => false,
+                            'description' => __( 'Uses randomized field names and server-side tokens for stronger bot protection. Recommended for cached sites. When disabled, the classic static honeypot is used.', 'cf7apps' ),
                         ),
                         'store_value'  => array(
                             'title'         => __( 'Store Honeypot Value', 'cf7apps' ),
@@ -117,18 +121,6 @@ class CF7Apps_Honeypot_App extends CF7Apps_App {
         );
     }
 
-    /**
-     * Register Post Type Args | Filter Callback
-     * 
-     * @since 3.0.0
-     */
-    public function register_post_type_args( $args, $post_type ) {
-        if ( 'wpcf7_contact_form' === $post_type ) {
-            $args['show_in_rest'] = true;
-        }
-
-        return $args;
-    }
 }
 
 /**

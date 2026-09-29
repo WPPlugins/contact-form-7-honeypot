@@ -566,6 +566,11 @@ button:focus {
     padding-right: 20px;
 }
 
+.cf7apps-page-main:has(.cf7apps-entries-settings) {
+    min-width: 0;
+    overflow-x: clip;
+}
+
 .cf7apps-layout--no-side-nav {
     background: #f8f9fa;
 }
@@ -597,6 +602,346 @@ button:focus {
     font-weight: 600;
     line-height: normal;
     color: #181833;
+}
+
+.cf7apps-overview__title,
+.cf7apps-domain-auth__title {
+    margin: 0;
+    font-size: 16px;
+}
+
+.cf7apps-overview__cards {
+    display: flex;
+    align-items: stretch;
+    gap: 20px;
+    width: 100%;
+}
+
+.cf7apps-overview-card {
+    flex: 1 1 0;
+    min-width: 0;
+    min-height: 126px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 10px;
+    border-radius: 5px;
+    border-top: 3px solid #208aae;
+    background: #ffffff;
+    box-shadow: 0 0 4px rgba(0, 0, 0, 0.1);
+    box-sizing: border-box;
+}
+
+.cf7apps-overview-card__head {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    gap: 10px;
+    min-height: 79px;
+}
+
+.cf7apps-overview-card__icon-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 35px;
+    height: 35px;
+    flex-shrink: 0;
+}
+
+.cf7apps-overview-card__icon {
+    display: block;
+    width: 35px;
+    height: 35px;
+    object-fit: contain;
+}
+
+.cf7apps-overview-card__label {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 17px;
+    min-height: 34px;
+    color: #181833;
+}
+
+.cf7apps-overview-card__value {
+    margin: 0;
+    margin-top: auto;
+    font-size: 24px;
+    font-weight: 600;
+    line-height: normal;
+    color: #181833;
+}
+
+.cf7apps-domain-auth__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.cf7apps-domain-auth__recheck {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 7px 10px;
+    border: 0.5px solid #bababa;
+    border-radius: 4px;
+    background: #f5f5f5;
+    color: #2c3338;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1;
+    cursor: pointer;
+    font-family: inherit;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.cf7apps-domain-auth__recheck:hover:not(:disabled) {
+    background: #ececec;
+}
+
+.cf7apps-domain-auth__recheck:disabled {
+    opacity: 0.7;
+    cursor: wait;
+}
+
+.cf7apps-domain-auth__recheck-icon {
+    display: block;
+    width: 10px;
+    height: 13px;
+    object-fit: contain;
+    flex-shrink: 0;
+}
+
+.cf7apps-domain-auth__score {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.cf7apps-domain-auth__score-row {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.cf7apps-domain-auth__domain {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+    flex: 1 1 auto;
+    overflow: hidden;
+    font-size: 14px;
+    font-weight: 600;
+    color: #208aae;
+}
+
+.cf7apps-domain-auth__domain-icon {
+    display: block;
+    width: 15px;
+    height: 13px;
+    object-fit: contain;
+    flex-shrink: 0;
+}
+
+.cf7apps-domain-auth__domain span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    min-width: 0;
+    display: block;
+}
+
+.cf7apps-domain-auth__score-label {
+    margin: 0;
+    font-size: 11px;
+    font-weight: 400;
+    line-height: normal;
+    color: #444444;
+    white-space: nowrap;
+    flex-shrink: 0;
+    text-align: right;
+}
+
+.cf7apps-domain-auth__score-label strong {
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.cf7apps-domain-auth__progress {
+    width: 100%;
+    height: 5px;
+    border-radius: 30px;
+    background: #efefef;
+    overflow: hidden;
+}
+
+.cf7apps-domain-auth__progress-fill {
+    height: 100%;
+    border-radius: 30px;
+    background: linear-gradient(90deg, #208aae 0%, #efefef 100%);
+    transition: width 0.3s ease;
+}
+
+.cf7apps-domain-auth__checks {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.cf7apps-domain-auth__check-list {
+    list-style: none;
+    margin: 0;
+    padding: 10px;
+    border-radius: 5px;
+    background: #ffffff;
+    box-shadow: 0 0 4px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    box-sizing: border-box;
+}
+
+.cf7apps-domain-auth__check-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.cf7apps-domain-auth__check-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: #181833;
+}
+
+.cf7apps-domain-auth__check-icon-wrap {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    padding: 6px;
+    border-radius: 4px;
+    background: #f4f4f4;
+    box-sizing: border-box;
+    flex-shrink: 0;
+}
+
+.cf7apps-domain-auth__check-icon {
+    display: block;
+    width: 13px;
+    height: 13px;
+    object-fit: contain;
+}
+
+.cf7apps-domain-auth__badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 600;
+    line-height: 1;
+    text-transform: uppercase;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.cf7apps-domain-auth__badge--pass {
+    background: #ddffdd;
+    color: #008900;
+}
+
+.cf7apps-domain-auth__badge--fail {
+    background: #ffeae8;
+    color: #a20d00;
+}
+
+.cf7apps-domain-auth__promo {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    width: 100%;
+    padding: 10px;
+    border-radius: 5px;
+    background: #ffffff;
+    box-shadow: 0 0 4px rgba(0, 0, 0, 0.1);
+    box-sizing: border-box;
+}
+
+.cf7apps-domain-auth__promo-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+}
+
+.cf7apps-domain-auth__promo-icon {
+    display: block;
+    width: 22px;
+    height: 23px;
+    object-fit: contain;
+    flex-shrink: 0;
+}
+
+.cf7apps-domain-auth__promo-title {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    line-height: normal;
+    color: #5368ad;
+}
+
+.cf7apps-domain-auth__promo-desc {
+    margin: 0;
+    font-size: 12px;
+    font-weight: 400;
+    line-height: normal;
+    color: #181833;
+}
+
+.cf7apps-domain-auth__promo-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    min-height: 28px;
+    padding: 8px 10px;
+    border: 0.5px solid #208aae;
+    border-radius: 6px;
+    background: #208aae;
+    color: #ffffff;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1;
+    cursor: pointer;
+    font-family: inherit;
+    box-sizing: border-box;
+    text-decoration: none;
+}
+
+.cf7apps-domain-auth__promo-btn:hover:not(:disabled) {
+    filter: brightness(0.95);
+}
+
+.cf7apps-domain-auth__promo-btn:disabled,
+.cf7apps-domain-auth__promo-btn--disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
 }
 
 .cf7apps-recommended-plugins {
@@ -762,23 +1107,6 @@ button:focus {
     margin-top: 4px;
     }
 
-.cf7apps-dashboard__toolbar {
-        flex-wrap: wrap;
-    align-items: stretch;
-    gap: 12px;
-    }
-
-.cf7apps-dashboard__search {
-        flex: 1 1 100%;
-    width: 100%;
-    }
-
-.cf7apps-dashboard__filters {
-        flex: 1 1 100%;
-    flex-wrap: wrap;
-    justify-content: flex-start;
-    }
-
 .cf7apps-dashboard__panel {
         max-width: 100%;
     }
@@ -787,6 +1115,15 @@ button:focus {
 @media (max-width: 782px) {
     .cf7apps-recommended-plugins {
         max-width: 100%;
+    }
+
+    .cf7apps-overview__cards {
+        flex-direction: column;
+    }
+
+    .cf7apps-domain-auth__score-row {
+        flex-direction: column;
+        align-items: flex-start;
     }
 
 .cf7apps-recommended-plugin__btn {
@@ -978,6 +1315,48 @@ button:focus {
     text-decoration: none;
 }
 
+.cf7apps-payment-activation-notice {
+    margin: 0 0 12px;
+}
+
+.cf7apps-payment-activation-notice .cf7apps-notice {
+    margin-bottom: 0;
+    border-radius: 8px;
+    border-left-width: 4px;
+    box-shadow: 0 1px 2px rgba(24, 24, 51, 0.06);
+}
+
+.cf7apps-payment-activation-notice .cf7apps-notice p {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 14px 16px;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.45;
+}
+
+.cf7apps-payment-activation-notice .cf7apps-notice .MuiSvgIcon-root {
+    margin: 1px 0 0;
+    flex-shrink: 0;
+    font-size: 20px;
+}
+
+.cf7apps-payment-activation-notice .cf7apps-notice span {
+    flex: 1;
+}
+
+.cf7apps-payment-activation-notice-link {
+    color: inherit;
+    font-weight: 700;
+    text-decoration: underline;
+}
+
+.cf7apps-payment-activation-notice-link:hover,
+.cf7apps-payment-activation-notice-link:focus {
+    text-decoration: none;
+}
+
 .cf7apps-app-toggle:disabled,
 .cf7apps-app-toggle[aria-disabled="true"] {
     opacity: 0.55;
@@ -1014,9 +1393,10 @@ button:focus {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 16px;
-    flex-wrap: nowrap;
+    gap: 12px 16px;
+    flex-wrap: wrap;
     width: 100%;
+    min-width: 0;
     min-height: 31px;
 }
 
@@ -1024,13 +1404,13 @@ button:focus {
     display: flex;
     align-items: center;
     gap: 10px;
-    flex: 0 0 270px;
-    width: 270px;
-    max-width: 100%;
-    min-width: 0;
+    flex: 1 1 180px;
+    width: auto;
+    max-width: 270px;
+    min-width: 140px;
     min-height: 31px;
     margin: 0;
-    padding: 0px 10px;
+    padding: 0 10px;
     border: 1px solid #e2e2e2;
     border-radius: 6px;
     background: #ffffff;
@@ -1083,11 +1463,11 @@ button:focus {
 
 .cf7apps-dashboard__filters {
     display: flex;
-    flex-wrap: nowrap;
+    flex-wrap: wrap;
     align-items: center;
     justify-content: flex-end;
-    gap: 10px;
-    flex: 0 1 auto;
+    gap: 8px 10px;
+    flex: 1 1 auto;
     min-width: 0;
 }
 
@@ -1107,7 +1487,41 @@ button:focus {
     line-height: normal;
     cursor: pointer;
     white-space: nowrap;
-    flex-shrink: 0;
+    flex: 0 1 auto;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+/* Panel width (not viewport) — WP admin + right bar shrink main column */
+@container cf7apps-dashboard (max-width: 760px) {
+    .cf7apps-dashboard__toolbar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .cf7apps-dashboard__search {
+        flex: 1 1 auto;
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .cf7apps-dashboard__filters {
+        width: 100%;
+        justify-content: flex-start;
+    }
+}
+
+@container cf7apps-dashboard (max-width: 480px) {
+    .cf7apps-dashboard__filter {
+        padding: 6px 8px;
+        font-size: 13px;
+        gap: 5px;
+    }
+
+    .cf7apps-dashboard__filter-icon {
+        height: 11px;
+        max-width: 11px;
+    }
 }
 
 .cf7apps-dashboard__filter:hover {
@@ -1250,24 +1664,6 @@ button:focus {
     }
 }
 
-@media (max-width: 782px) {
-    .cf7apps-dashboard__toolbar {
-        flex-direction: column;
-    align-items: stretch;
-    flex-wrap: wrap;
-    }
-
-.cf7apps-dashboard__search {
-        flex: 1 1 auto;
-    width: 100%;
-    }
-
-.cf7apps-dashboard__filters {
-        width: 100%;
-    flex-wrap: wrap;
-    }
-}
-
 .cf7apps-app {
     box-sizing: border-box;
     min-width: 0;
@@ -1302,13 +1698,24 @@ button:focus {
     border-color: var(--cf7apps-card-border);
 }
 
+/* Figma: active cards use a white category tag against the tinted card bg */
+.cf7apps-app.is-enabled .cf7apps-app-card__badge,
+.cf7apps-app.is-pro-teaser .cf7apps-app-card__badge {
+    background: #ffffff;
+}
+
 .cf7apps-app.is-pro-teaser .cf7apps-app-card {
     background: var(--cf7apps-card-enabled-bg);
     border-color: var(--cf7apps-card-border);
+    cursor: pointer;
 }
 
 .cf7apps-app.is-pro-teaser .cf7apps-app-card__decor-img {
     opacity: 1;
+}
+
+.cf7apps-app:not(.is-enabled):not(.is-pro-teaser) .cf7apps-app-card {
+    border-color: #eeeeee;
 }
 
 .cf7apps-app-stripe .cf7apps-app-card__decor,
@@ -1368,6 +1775,267 @@ button:focus {
 .cf7apps-app.is-enabled .cf7apps-app-card__decor-img {
     opacity: 1;
     filter: none;
+}
+
+/* Weekly Summary Report — Figma node 4509:17846 */
+.cf7apps-app-weekly-summary .cf7apps-app-card__decor {
+    top: 0;
+    right: -8px;
+    bottom: 0;
+    left: 66%;
+    display: flex;
+    align-items: flex-end;
+    justify-content: flex-end;
+    overflow: visible;
+}
+
+.cf7apps-app-weekly-summary .cf7apps-app-card__decor-img {
+    position: relative;
+    flex-shrink: 0;
+    object-fit: contain;
+    object-position: right bottom;
+}
+
+.cf7apps-app-weekly-summary:not(.is-enabled) .cf7apps-app-card__decor-img {
+    opacity: 0.65;
+}
+
+/* Weekly Summary settings */
+.cf7apps-weekly-summary-settings.cf7apps-settings-panel {
+    gap: 20px;
+}
+
+.cf7apps-weekly-summary-settings .cf7apps-app-setting-section {
+    padding: 0;
+}
+
+.cf7apps-weekly-summary-settings .cf7apps-app-settings-header {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    border: none;
+}
+
+.cf7apps-weekly-summary-settings .cf7apps-app-settings-header__top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    width: 100%;
+}
+
+.cf7apps-weekly-summary-settings .cf7apps-app-settings-header__brand {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    min-width: 0;
+    flex: 0 1 550px;
+    width: 100%;
+    max-width: 550px;
+}
+
+.cf7apps-weekly-summary-settings .cf7apps-app-settings-header__icon {
+    flex-shrink: 0;
+    width: 70px;
+    height: 70px;
+    object-fit: contain;
+    object-position: center;
+}
+
+.cf7apps-weekly-summary-settings .cf7apps-app-settings-header__copy {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0;
+    min-width: 0;
+    flex: 1 1 auto;
+}
+
+.cf7apps-weekly-summary-settings .cf7apps-app-settings-header__title {
+    margin: 0;
+    font-size: 24px;
+    font-weight: 600;
+    line-height: normal;
+    color: #181833;
+}
+
+.cf7apps-weekly-summary-settings .cf7apps-app-settings-header__desc {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: normal;
+    color: #2c3338;
+}
+
+.cf7apps-weekly-summary-settings .cf7apps-app-settings-header__doc-link,
+.cf7apps-weekly-summary-settings .cf7apps-app-settings-header__doc-link:visited {
+    color: var(--cf7apps-settings-accent, #208aae);
+    font-weight: 500;
+    text-decoration: underline;
+    text-underline-position: from-font;
+}
+
+.cf7apps-weekly-summary-settings .cf7apps-app-settings-header__doc-link:hover,
+.cf7apps-weekly-summary-settings .cf7apps-app-settings-header__doc-link:focus-visible {
+    color: var(--cf7apps-settings-accent, #1a7595);
+    filter: brightness(0.88);
+}
+
+.cf7apps-weekly-summary-settings .cf7apps-app-settings-header__divider {
+    width: 100%;
+    height: 1px;
+    margin: 0;
+    background: #dddddd;
+}
+
+.cf7apps-weekly-summary-settings .cf7apps-form-toggle-block {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    width: 100%;
+    margin: 0;
+}
+
+.cf7apps-weekly-summary-settings .cf7apps-form-toggle-block__row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    width: 100%;
+}
+
+.cf7apps-weekly-summary-settings .cf7apps-form-toggle-block__label {
+    font-size: 16px;
+    font-weight: 600;
+    line-height: normal;
+    color: #0d2149;
+}
+
+.cf7apps-weekly-summary-settings .cf7apps-form-toggle-block__help {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: normal;
+    color: #717171;
+}
+
+.cf7apps-weekly-summary-settings .cf7apps-form-toggle-block__help .cf7apps-show-more-text {
+    margin-left: 4px;
+    border: none;
+    padding: 0;
+    background: transparent;
+    color: #208aae;
+    font-size: inherit;
+    font-weight: 500;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.cf7apps-weekly-summary-settings .cf7apps-form-toggle-block__help .cf7apps-show-more-text:hover,
+.cf7apps-weekly-summary-settings .cf7apps-form-toggle-block__help .cf7apps-show-more-text:focus-visible {
+    color: #1a7595;
+}
+
+.cf7apps-weekly-summary-settings .cf7apps-settings-switch {
+    position: relative;
+    flex-shrink: 0;
+    width: 39.6px;
+    height: 22px;
+    padding: 0;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+}
+
+.cf7apps-weekly-summary-settings .cf7apps-settings-switch__track {
+    position: absolute;
+    inset: 0;
+    border-radius: 11px;
+    background: #cfcfcf;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.cf7apps-weekly-summary-settings .cf7apps-settings-switch.is-on .cf7apps-settings-switch__track {
+    background: #208aae;
+}
+
+.cf7apps-weekly-summary-settings .cf7apps-settings-switch__knob {
+    position: absolute;
+    top: 2.2px;
+    left: 2.2px;
+    width: 17.6px;
+    height: 17.6px;
+    border-radius: 8.8px;
+    background: #ffffff;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+    transition: transform 0.2s ease;
+}
+
+.cf7apps-weekly-summary-settings .cf7apps-settings-switch.is-on .cf7apps-settings-switch__knob {
+    transform: translateX(17.6px);
+}
+
+.cf7apps-weekly-summary-settings .cf7apps-form-settings-save {
+    margin: 0;
+}
+
+.cf7apps-weekly-summary-settings .cf7apps-form-settings-save .cf7apps-btn.tertiary-primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: auto;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 6px;
+    background: #0d2149 !important;
+    color: #ffffff !important;
+    font-size: 14px;
+    line-height: normal;
+}
+
+.cf7apps-weekly-summary-settings .cf7apps-form-settings-save .cf7apps-btn.tertiary-primary:hover:not(:disabled) {
+    filter: brightness(0.92);
+}
+
+.cf7apps-weekly-summary-settings .cf7apps-app-field-group {
+    margin: 0;
+    max-width: 500px;
+}
+
+.cf7apps-weekly-summary-settings .cf7apps-app-field-label {
+    display: block;
+    margin: 0 0 8px;
+    font-size: 16px;
+    font-weight: 600;
+    line-height: normal;
+    color: #0d2149;
+}
+
+.cf7apps-weekly-summary-settings .cf7apps-app-select-field {
+    width: 100%;
+    max-width: 100%;
+    min-height: 36px;
+    padding: 8px 10px;
+    border: 0.6px solid #8a8a8a;
+    border-radius: 6px;
+    background: #ffffff;
+    color: #303030;
+    font-size: 12px;
+    box-sizing: border-box;
+    box-shadow: 0 0.5px 0.75px rgba(0, 0, 0, 0.15);
+}
+
+.cf7apps-weekly-summary-settings .cf7apps-app-field-group .cf7apps-form-toggle-block__help,
+.cf7apps-weekly-summary-settings .cf7apps-app-field-group p {
+    margin: 8px 0 0;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: normal;
+    color: #717171;
 }
 
 .cf7apps-app-card__inner {
@@ -1461,6 +2129,26 @@ button:focus {
     letter-spacing: 0;
 }
 
+.cf7apps-app-card__new-tag {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 21px;
+    padding: 5px 8px;
+    border-radius: 15px;
+    background: #46bd46;
+    flex-shrink: 0;
+    box-sizing: border-box;
+}
+
+.cf7apps-app-card__new-tag-label {
+    font-size: 12px;
+    font-weight: 700;
+    line-height: normal;
+    color: #ffffff;
+    white-space: nowrap;
+}
+
 .cf7apps-app-card__beta-tag {
     display: inline-flex;
     align-items: center;
@@ -1541,6 +2229,10 @@ button:focus {
     font-weight: 600;
     line-height: normal;
     color: #2c3338;
+}
+
+.cf7apps-app-stripe .cf7apps-app-card__title {
+    color: #533afd;
 }
 
 .cf7apps-app-card__title-image {
@@ -1699,6 +2391,8 @@ button:focus {
 
 .cf7apps-dashboard-settings .cf7apps-settings-panel.cf7apps-entries-settings {
     overflow: visible;
+    min-width: 0;
+    max-width: 100%;
 }
 
 .cf7apps-settings-panel__header {
@@ -2121,7 +2815,9 @@ button:focus {
 .cf7apps-acf-settings ,
 .cf7apps-ai-form-settings  ,
 .cf7apps-honeypot-settings   ,
-.cf7apps-hcaptcha-settings   {
+.cf7apps-hcaptcha-settings   ,
+.cf7apps-weekly-summary-settings   ,
+.cf7apps-payment-dashboard-settings   {
 
     --cf7apps-app-settings-gap: 28px;
 }
@@ -2132,7 +2828,9 @@ button:focus {
 .cf7apps-acf-settings.cf7apps-settings-panel ,
 .cf7apps-ai-form-settings.cf7apps-settings-panel  ,
 .cf7apps-honeypot-settings.cf7apps-settings-panel   ,
-.cf7apps-hcaptcha-settings.cf7apps-settings-panel   {
+.cf7apps-hcaptcha-settings.cf7apps-settings-panel   ,
+.cf7apps-weekly-summary-settings.cf7apps-settings-panel   ,
+.cf7apps-payment-dashboard-settings.cf7apps-settings-panel   {
 
     gap: 20px;
 }
@@ -2143,7 +2841,8 @@ button:focus {
 .cf7apps-acf-settings .cf7apps-app-settings-header ,
 .cf7apps-ai-form-settings .cf7apps-app-settings-header  ,
 .cf7apps-honeypot-settings .cf7apps-app-settings-header   ,
-.cf7apps-hcaptcha-settings .cf7apps-app-settings-header   {
+.cf7apps-payment-dashboard-settings .cf7apps-app-settings-header ,.cf7apps-hcaptcha-settings .cf7apps-app-settings-header   ,
+.cf7apps-weekly-summary-settings .cf7apps-app-settings-header   {
 
     display: flex;
     flex-direction: column;
@@ -2160,7 +2859,7 @@ button:focus {
 .cf7apps-acf-settings .cf7apps-app-settings-header__top ,
 .cf7apps-ai-form-settings .cf7apps-app-settings-header__top  ,
 .cf7apps-honeypot-settings .cf7apps-app-settings-header__top   ,
-.cf7apps-hcaptcha-settings .cf7apps-app-settings-header__top   {
+.cf7apps-payment-dashboard-settings .cf7apps-app-settings-header__top ,.cf7apps-hcaptcha-settings .cf7apps-app-settings-header__top   {
 
     display: flex;
     align-items: center;
@@ -2175,7 +2874,7 @@ button:focus {
 .cf7apps-acf-settings .cf7apps-app-settings-header__brand ,
 .cf7apps-ai-form-settings .cf7apps-app-settings-header__brand  ,
 .cf7apps-honeypot-settings .cf7apps-app-settings-header__brand   ,
-.cf7apps-hcaptcha-settings .cf7apps-app-settings-header__brand   {
+.cf7apps-payment-dashboard-settings .cf7apps-app-settings-header__brand ,.cf7apps-hcaptcha-settings .cf7apps-app-settings-header__brand   {
 
     display: flex;
     align-items: center;
@@ -2192,7 +2891,7 @@ button:focus {
 .cf7apps-acf-settings .cf7apps-app-settings-header__icon ,
 .cf7apps-ai-form-settings .cf7apps-app-settings-header__icon  ,
 .cf7apps-honeypot-settings .cf7apps-app-settings-header__icon   ,
-.cf7apps-hcaptcha-settings .cf7apps-app-settings-header__icon   {
+.cf7apps-payment-dashboard-settings .cf7apps-app-settings-header__icon ,.cf7apps-hcaptcha-settings .cf7apps-app-settings-header__icon   {
 
     flex-shrink: 0;
     width: 70px;
@@ -2208,7 +2907,7 @@ button:focus {
 .cf7apps-acf-settings .cf7apps-app-settings-header__copy ,
 .cf7apps-ai-form-settings .cf7apps-app-settings-header__copy  ,
 .cf7apps-honeypot-settings .cf7apps-app-settings-header__copy   ,
-.cf7apps-hcaptcha-settings .cf7apps-app-settings-header__copy   {
+.cf7apps-payment-dashboard-settings .cf7apps-app-settings-header__copy ,.cf7apps-hcaptcha-settings .cf7apps-app-settings-header__copy   {
 
     display: flex;
     flex-direction: column;
@@ -2218,13 +2917,30 @@ button:focus {
     flex: 1 1 auto;
 }
 
+
+.cf7apps-redirection-settings .cf7apps-app-settings-header__subtitle ,
+.cf7apps-entries-settings .cf7apps-app-settings-header__subtitle ,
+.cf7apps-webhook-settings .cf7apps-app-settings-header__subtitle ,
+.cf7apps-acf-settings .cf7apps-app-settings-header__subtitle ,
+.cf7apps-ai-form-settings .cf7apps-app-settings-header__subtitle ,
+.cf7apps-honeypot-settings .cf7apps-app-settings-header__subtitle ,
+.cf7apps-hcaptcha-settings .cf7apps-app-settings-header__subtitle ,
+.cf7apps-payment-dashboard-settings .cf7apps-app-settings-header__subtitle {
+
+    margin: 4px 0 0;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: normal;
+    color: #717171;
+}
+
 .cf7apps-redirection-settings .cf7apps-app-settings-header__title ,
 .cf7apps-entries-settings .cf7apps-app-settings-header__title ,
 .cf7apps-webhook-settings .cf7apps-app-settings-header__title ,
 .cf7apps-acf-settings .cf7apps-app-settings-header__title ,
 .cf7apps-ai-form-settings .cf7apps-app-settings-header__title  ,
 .cf7apps-honeypot-settings .cf7apps-app-settings-header__title   ,
-.cf7apps-hcaptcha-settings .cf7apps-app-settings-header__title   {
+.cf7apps-payment-dashboard-settings .cf7apps-app-settings-header__title ,.cf7apps-hcaptcha-settings .cf7apps-app-settings-header__title   {
 
     margin: 0;
     font-size: 24px;
@@ -2239,7 +2955,7 @@ button:focus {
 .cf7apps-acf-settings .cf7apps-app-settings-header__desc ,
 .cf7apps-ai-form-settings .cf7apps-app-settings-header__desc  ,
 .cf7apps-honeypot-settings .cf7apps-app-settings-header__desc   ,
-.cf7apps-hcaptcha-settings .cf7apps-app-settings-header__desc   {
+.cf7apps-payment-dashboard-settings .cf7apps-app-settings-header__desc ,.cf7apps-hcaptcha-settings .cf7apps-app-settings-header__desc   {
 
     margin: 0;
     font-size: 14px;
@@ -2254,7 +2970,7 @@ button:focus {
 .cf7apps-acf-settings .cf7apps-app-settings-header__desc-text ,
 .cf7apps-ai-form-settings .cf7apps-app-settings-header__desc-text  ,
 .cf7apps-honeypot-settings .cf7apps-app-settings-header__desc-text   ,
-.cf7apps-hcaptcha-settings .cf7apps-app-settings-header__desc-text   {
+.cf7apps-payment-dashboard-settings .cf7apps-app-settings-header__desc-text ,.cf7apps-hcaptcha-settings .cf7apps-app-settings-header__desc-text   {
 
     line-height: normal;
 }
@@ -2268,11 +2984,11 @@ button:focus {
 .cf7apps-acf-settings .cf7apps-app-settings-header__doc-link ,
 .cf7apps-ai-form-settings .cf7apps-app-settings-header__doc-link ,
 .cf7apps-honeypot-settings .cf7apps-app-settings-header__doc-link , ,
-.cf7apps-hcaptcha-settings .cf7apps-app-settings-header__doc-link , , ,
+.cf7apps-payment-dashboard-settings .cf7apps-app-settings-header__doc-link ,.cf7apps-hcaptcha-settings .cf7apps-app-settings-header__doc-link
 .cf7apps-acf-settings .cf7apps-app-settings-header__doc-link:visited ,
 .cf7apps-ai-form-settings .cf7apps-app-settings-header__doc-link:visited  ,
 .cf7apps-honeypot-settings .cf7apps-app-settings-header__doc-link:visited   ,
-.cf7apps-hcaptcha-settings .cf7apps-app-settings-header__doc-link:visited   {
+.cf7apps-payment-dashboard-settings .cf7apps-app-settings-header__doc-link ,.cf7apps-hcaptcha-settings .cf7apps-app-settings-header__doc-link:visited   {
 
     color: var(--cf7apps-settings-accent, #208aae);
     font-weight: 500;
@@ -2289,11 +3005,11 @@ button:focus {
 .cf7apps-acf-settings .cf7apps-app-settings-header__doc-link:hover ,
 .cf7apps-ai-form-settings .cf7apps-app-settings-header__doc-link:hover ,
 .cf7apps-honeypot-settings .cf7apps-app-settings-header__doc-link:hover , ,
-.cf7apps-hcaptcha-settings .cf7apps-app-settings-header__doc-link:hover , , ,
+.cf7apps-payment-dashboard-settings .cf7apps-app-settings-header__doc-link ,.cf7apps-hcaptcha-settings .cf7apps-app-settings-header__doc-link:hover
 .cf7apps-acf-settings .cf7apps-app-settings-header__doc-link:focus-visible ,
 .cf7apps-ai-form-settings .cf7apps-app-settings-header__doc-link:focus-visible  ,
 .cf7apps-honeypot-settings .cf7apps-app-settings-header__doc-link:focus-visible   ,
-.cf7apps-hcaptcha-settings .cf7apps-app-settings-header__doc-link:focus-visible   {
+.cf7apps-payment-dashboard-settings .cf7apps-app-settings-header__doc-link ,.cf7apps-hcaptcha-settings .cf7apps-app-settings-header__doc-link:focus-visible   {
 
     color: var(--cf7apps-settings-accent, #1a7595);
     filter: brightness(0.88);
@@ -2305,7 +3021,8 @@ button:focus {
 .cf7apps-acf-settings .cf7apps-app-settings-header__back-pill ,
 .cf7apps-ai-form-settings .cf7apps-app-settings-header__back-pill  ,
 .cf7apps-honeypot-settings .cf7apps-app-settings-header__back-pill   ,
-.cf7apps-hcaptcha-settings .cf7apps-app-settings-header__back-pill   {
+.cf7apps-payment-dashboard-settings .cf7apps-app-settings-header__back-pill ,.cf7apps-hcaptcha-settings .cf7apps-app-settings-header__back-pill   ,
+.cf7apps-weekly-summary-settings .cf7apps-app-settings-header__back-pill   {
 
     display: inline-flex;
     align-items: center;
@@ -2336,11 +3053,13 @@ button:focus {
 .cf7apps-acf-settings .cf7apps-app-settings-header__back-pill:hover ,
 .cf7apps-ai-form-settings .cf7apps-app-settings-header__back-pill:hover ,
 .cf7apps-honeypot-settings .cf7apps-app-settings-header__back-pill:hover , ,
-.cf7apps-hcaptcha-settings .cf7apps-app-settings-header__back-pill:hover , , ,
+.cf7apps-payment-dashboard-settings .cf7apps-app-settings-header__back-pill ,.cf7apps-hcaptcha-settings .cf7apps-app-settings-header__back-pill:hover
 .cf7apps-acf-settings .cf7apps-app-settings-header__back-pill:focus-visible ,
 .cf7apps-ai-form-settings .cf7apps-app-settings-header__back-pill:focus-visible  ,
 .cf7apps-honeypot-settings .cf7apps-app-settings-header__back-pill:focus-visible   ,
-.cf7apps-hcaptcha-settings .cf7apps-app-settings-header__back-pill:focus-visible   {
+.cf7apps-payment-dashboard-settings .cf7apps-app-settings-header__back-pill ,.cf7apps-hcaptcha-settings .cf7apps-app-settings-header__back-pill:focus-visible   ,
+.cf7apps-weekly-summary-settings .cf7apps-app-settings-header__back-pill:hover ,
+.cf7apps-weekly-summary-settings .cf7apps-app-settings-header__back-pill:focus-visible   {
 
     background: #e4e4e6;
     color: #0d2149;
@@ -2353,7 +3072,8 @@ button:focus {
 .cf7apps-acf-settings .cf7apps-app-settings-header__back-icon ,
 .cf7apps-ai-form-settings .cf7apps-app-settings-header__back-icon  ,
 .cf7apps-honeypot-settings .cf7apps-app-settings-header__back-icon   ,
-.cf7apps-hcaptcha-settings .cf7apps-app-settings-header__back-icon   {
+.cf7apps-payment-dashboard-settings .cf7apps-app-settings-header__back-icon ,.cf7apps-hcaptcha-settings .cf7apps-app-settings-header__back-icon   ,
+.cf7apps-weekly-summary-settings .cf7apps-app-settings-header__back-icon   {
 
     display: block;
     width: 7px;
@@ -2367,7 +3087,8 @@ button:focus {
 .cf7apps-acf-settings .cf7apps-app-settings-header__back-label ,
 .cf7apps-ai-form-settings .cf7apps-app-settings-header__back-label  ,
 .cf7apps-honeypot-settings .cf7apps-app-settings-header__back-label   ,
-.cf7apps-hcaptcha-settings .cf7apps-app-settings-header__back-label   {
+.cf7apps-payment-dashboard-settings .cf7apps-app-settings-header__back-label ,.cf7apps-hcaptcha-settings .cf7apps-app-settings-header__back-label   ,
+.cf7apps-weekly-summary-settings .cf7apps-app-settings-header__back-label   {
 
     line-height: normal;
 }
@@ -2378,7 +3099,7 @@ button:focus {
 .cf7apps-acf-settings .cf7apps-app-settings-header__divider ,
 .cf7apps-ai-form-settings .cf7apps-app-settings-header__divider  ,
 .cf7apps-honeypot-settings .cf7apps-app-settings-header__divider   ,
-.cf7apps-hcaptcha-settings .cf7apps-app-settings-header__divider   {
+.cf7apps-payment-dashboard-settings .cf7apps-app-settings-header__divider ,.cf7apps-hcaptcha-settings .cf7apps-app-settings-header__divider   {
 
     width: 100%;
     height: 1px;
@@ -2391,7 +3112,8 @@ button:focus {
 .cf7apps-acf-settings .cf7apps-app-setting-section ,
 .cf7apps-ai-form-settings .cf7apps-app-setting-section  ,
 .cf7apps-honeypot-settings .cf7apps-app-setting-section   ,
-.cf7apps-hcaptcha-settings .cf7apps-app-setting-section   {
+.cf7apps-hcaptcha-settings .cf7apps-app-setting-section   ,
+.cf7apps-weekly-summary-settings .cf7apps-app-setting-section   {
 
     max-width: 500px;
 }
@@ -2402,7 +3124,8 @@ button:focus {
 .cf7apps-acf-settings .cf7apps-app-settings-form ,
 .cf7apps-ai-form-settings .cf7apps-app-settings-form  ,
 .cf7apps-honeypot-settings .cf7apps-app-settings-form   ,
-.cf7apps-hcaptcha-settings .cf7apps-app-settings-form   {
+.cf7apps-hcaptcha-settings .cf7apps-app-settings-form   ,
+.cf7apps-weekly-summary-settings .cf7apps-app-settings-form   {
 
     display: flex;
     flex-direction: column;
@@ -2416,7 +3139,8 @@ button:focus {
 .cf7apps-acf-settings .cf7apps-app-settings-form .MuiTabPanel-root ,
 .cf7apps-ai-form-settings .cf7apps-app-settings-form .MuiTabPanel-root  ,
 .cf7apps-honeypot-settings .cf7apps-app-settings-form .MuiTabPanel-root   ,
-.cf7apps-hcaptcha-settings .cf7apps-app-settings-form .MuiTabPanel-root   {
+.cf7apps-hcaptcha-settings .cf7apps-app-settings-form .MuiTabPanel-root   ,
+.cf7apps-weekly-summary-settings .cf7apps-app-settings-form .MuiTabPanel-root   {
 
     display: flex;
     flex-direction: column;
@@ -2448,23 +3172,23 @@ button:focus {
 .cf7apps-acf-settings .cf7apps-app-settings-form .cf7apps-form-group ,
 .cf7apps-ai-form-settings .cf7apps-app-settings-form .cf7apps-form-group ,
 .cf7apps-honeypot-settings .cf7apps-app-settings-form .cf7apps-form-group , ,
-.cf7apps-hcaptcha-settings .cf7apps-app-settings-form .cf7apps-form-group , , ,
+.cf7apps-hcaptcha-settings .cf7apps-app-settings-form .cf7apps-form-group
 .cf7apps-acf-settings .cf7apps-app-settings-form .cf7apps-form-toggle-field ,
 .cf7apps-ai-form-settings .cf7apps-app-settings-form .cf7apps-form-toggle-field ,
 .cf7apps-honeypot-settings .cf7apps-app-settings-form .cf7apps-form-toggle-field , ,
-.cf7apps-hcaptcha-settings .cf7apps-app-settings-form .cf7apps-form-toggle-field , , ,
+.cf7apps-hcaptcha-settings .cf7apps-app-settings-form .cf7apps-form-toggle-field
 .cf7apps-acf-settings .cf7apps-app-settings-form .cf7apps-app-radio-field ,
 .cf7apps-ai-form-settings .cf7apps-app-settings-form .cf7apps-app-radio-field ,
 .cf7apps-honeypot-settings .cf7apps-app-settings-form .cf7apps-app-radio-field , ,
-.cf7apps-hcaptcha-settings .cf7apps-app-settings-form .cf7apps-app-radio-field , , ,
+.cf7apps-hcaptcha-settings .cf7apps-app-settings-form .cf7apps-app-radio-field
 .cf7apps-acf-settings .cf7apps-app-settings-form .cf7apps-app-select-group ,
 .cf7apps-ai-form-settings .cf7apps-app-settings-form .cf7apps-app-select-group ,
 .cf7apps-honeypot-settings .cf7apps-app-settings-form .cf7apps-app-select-group , ,
-.cf7apps-hcaptcha-settings .cf7apps-app-settings-form .cf7apps-app-select-group , , ,
+.cf7apps-hcaptcha-settings .cf7apps-app-settings-form .cf7apps-app-select-group
 .cf7apps-acf-settings .cf7apps-app-settings-form .cf7apps-pro-toggle-teaser ,
 .cf7apps-ai-form-settings .cf7apps-app-settings-form .cf7apps-pro-toggle-teaser ,
 .cf7apps-honeypot-settings .cf7apps-app-settings-form .cf7apps-pro-toggle-teaser , ,
-.cf7apps-hcaptcha-settings .cf7apps-app-settings-form .cf7apps-pro-toggle-teaser , , ,
+.cf7apps-hcaptcha-settings .cf7apps-app-settings-form .cf7apps-pro-toggle-teaser
 .cf7apps-acf-settings .cf7apps-app-settings-form .cf7apps-form-settings-save ,
 .cf7apps-ai-form-settings .cf7apps-app-settings-form .cf7apps-form-settings-save  ,
 .cf7apps-honeypot-settings .cf7apps-app-settings-form .cf7apps-form-settings-save   ,
@@ -2482,7 +3206,7 @@ button:focus {
 .cf7apps-acf-settings .cf7apps-app-settings-form input.cf7apps-form-input ,
 .cf7apps-ai-form-settings .cf7apps-app-settings-form input.cf7apps-form-input ,
 .cf7apps-honeypot-settings .cf7apps-app-settings-form input.cf7apps-form-input , ,
-.cf7apps-hcaptcha-settings .cf7apps-app-settings-form input.cf7apps-form-input , , ,
+.cf7apps-hcaptcha-settings .cf7apps-app-settings-form input.cf7apps-form-input
 .cf7apps-acf-settings .cf7apps-app-settings-form select.cf7apps-form-input ,
 .cf7apps-ai-form-settings .cf7apps-app-settings-form select.cf7apps-form-input  ,
 .cf7apps-honeypot-settings .cf7apps-app-settings-form select.cf7apps-form-input   ,
@@ -2501,7 +3225,7 @@ button:focus {
 .cf7apps-acf-settings .cf7apps-app-settings-form input.cf7apps-app-select-field ,
 .cf7apps-ai-form-settings .cf7apps-app-settings-form input.cf7apps-app-select-field ,
 .cf7apps-honeypot-settings .cf7apps-app-settings-form input.cf7apps-app-select-field , ,
-.cf7apps-hcaptcha-settings .cf7apps-app-settings-form input.cf7apps-app-select-field , , ,
+.cf7apps-hcaptcha-settings .cf7apps-app-settings-form input.cf7apps-app-select-field
 .cf7apps-acf-settings .cf7apps-app-settings-form .cf7apps-app-select-group input.cf7apps-form-input ,
 .cf7apps-ai-form-settings .cf7apps-app-settings-form .cf7apps-app-select-group input.cf7apps-form-input  ,
 .cf7apps-honeypot-settings .cf7apps-app-settings-form .cf7apps-app-select-group input.cf7apps-form-input   ,
@@ -2544,7 +3268,7 @@ button:focus {
 .cf7apps-acf-settings .cf7apps-form-toggle-field ,
 .cf7apps-ai-form-settings .cf7apps-form-toggle-field ,
 .cf7apps-honeypot-settings .cf7apps-form-toggle-field , ,
-.cf7apps-hcaptcha-settings .cf7apps-form-toggle-field , , ,
+.cf7apps-hcaptcha-settings .cf7apps-form-toggle-field
 .cf7apps-acf-settings .cf7apps-form-toggle-block ,
 .cf7apps-ai-form-settings .cf7apps-form-toggle-block  ,
 .cf7apps-honeypot-settings .cf7apps-form-toggle-block   ,
@@ -2919,7 +3643,7 @@ button:focus {
 .cf7apps-acf-settings select.cf7apps-app-select-field ,
 .cf7apps-ai-form-settings select.cf7apps-app-select-field ,
 .cf7apps-honeypot-settings select.cf7apps-app-select-field , ,
-.cf7apps-hcaptcha-settings select.cf7apps-app-select-field , , ,
+.cf7apps-hcaptcha-settings select.cf7apps-app-select-field
 .cf7apps-acf-settings .cf7apps-app-select-group select.cf7apps-form-input ,
 .cf7apps-ai-form-settings .cf7apps-app-select-group select.cf7apps-form-input  ,
 .cf7apps-honeypot-settings .cf7apps-app-select-group select.cf7apps-form-input   ,
@@ -2998,7 +3722,7 @@ button:focus {
 .cf7apps-acf-settings .cf7apps-app-radio-field__subfield p ,
 .cf7apps-ai-form-settings .cf7apps-app-radio-field__subfield p ,
 .cf7apps-honeypot-settings .cf7apps-app-radio-field__subfield p , ,
-.cf7apps-hcaptcha-settings .cf7apps-app-radio-field__subfield p , , ,
+.cf7apps-hcaptcha-settings .cf7apps-app-radio-field__subfield p
 .cf7apps-acf-settings .cf7apps-app-select-group p ,
 .cf7apps-ai-form-settings .cf7apps-app-select-group p  ,
 .cf7apps-honeypot-settings .cf7apps-app-select-group p   ,
@@ -3043,11 +3767,11 @@ button:focus {
 .cf7apps-acf-settings .cf7apps-form-toggle-block__help .cf7apps-show-more-text ,
 .cf7apps-ai-form-settings .cf7apps-form-toggle-block__help .cf7apps-show-more-text ,
 .cf7apps-honeypot-settings .cf7apps-form-toggle-block__help .cf7apps-show-more-text , ,
-.cf7apps-hcaptcha-settings .cf7apps-form-toggle-block__help .cf7apps-show-more-text , , ,
+.cf7apps-hcaptcha-settings .cf7apps-form-toggle-block__help .cf7apps-show-more-text
 .cf7apps-acf-settings .cf7apps-app-radio-field__subfield .cf7apps-show-more-text ,
 .cf7apps-ai-form-settings .cf7apps-app-radio-field__subfield .cf7apps-show-more-text ,
 .cf7apps-honeypot-settings .cf7apps-app-radio-field__subfield .cf7apps-show-more-text , ,
-.cf7apps-hcaptcha-settings .cf7apps-app-radio-field__subfield .cf7apps-show-more-text , , ,
+.cf7apps-hcaptcha-settings .cf7apps-app-radio-field__subfield .cf7apps-show-more-text
 .cf7apps-acf-settings .cf7apps-pro-toggle-teaser__help .cf7apps-show-more-text ,
 .cf7apps-ai-form-settings .cf7apps-pro-toggle-teaser__help .cf7apps-show-more-text  ,
 .cf7apps-honeypot-settings .cf7apps-pro-toggle-teaser__help .cf7apps-show-more-text   ,
@@ -3141,7 +3865,8 @@ button:focus {
 .cf7apps-acf-settings .cf7apps-app-setting-section .MuiTabPanel-root ,
 .cf7apps-ai-form-settings .cf7apps-app-setting-section .MuiTabPanel-root  ,
 .cf7apps-honeypot-settings .cf7apps-app-setting-section .MuiTabPanel-root   ,
-.cf7apps-hcaptcha-settings .cf7apps-app-setting-section .MuiTabPanel-root   {
+.cf7apps-hcaptcha-settings .cf7apps-app-setting-section .MuiTabPanel-root   ,
+.cf7apps-payment-dashboard-settings .cf7apps-app-setting-section .MuiTabPanel-root   {
 
     padding-top: 0 !important;
     padding-bottom: 0 !important;
@@ -3574,6 +4299,293 @@ select.cf7apps-form-input {
     color: var(--cf7apps-primary-color);
 }
 
+.cf7apps-payment-logs-wrapper {
+    position: relative;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+}
+
+.cf7apps-payment-logs-wrapper.is-locked {
+    opacity: 0.5;
+}
+
+.cf7apps-payment-logs-lock {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+}
+
+.cf7apps-payment-logs-lock .cf7apps-btn {
+    pointer-events: all;
+}
+
+.cf7apps-payment-status {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 20px;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 3px 10px;
+    line-height: 1;
+    border: 0.5px solid transparent;
+    min-width: 65px;
+}
+
+.cf7apps-payment-status.success {
+    color: #00a600;
+    background: #e6ffe4;
+    border-color: #00a500;
+}
+
+.cf7apps-payment-status.failed {
+    color: #ff4040;
+    background: #ffe6e6;
+    border-color: #ff4040;
+}
+
+.cf7apps-payment-status.refunded {
+    color: #0086b6;
+    background: #dbf5ff;
+    border-color: #0086b6;
+}
+
+.cf7apps-payment-type-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: #39496a;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 16px;
+}
+
+.cf7apps-payment-type-badge__icon {
+    width: 16px;
+    height: 16px;
+    object-fit: contain;
+    flex-shrink: 0;
+    display: block;
+}
+
+.cf7apps-entries-settings .cf7apps-payment-logs-toolbar {
+    justify-content: flex-start;
+}
+
+.cf7apps-entries-settings .cf7apps-payment-logs-toolbar__controls {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: nowrap;
+    width: 100%;
+}
+
+.cf7apps-entries-settings .cf7apps-payment-logs-toolbar__controls .cf7apps-entries-toolbar__field {
+    flex: 0 0 auto;
+}
+
+.cf7apps-entries-settings .cf7apps-payment-logs-search {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 214px;
+    min-width: 214px;
+    height: 32px;
+    padding: 0 10px;
+    border: 0.6px solid #8a8a8a;
+    border-radius: 6px;
+    background: #fff;
+    box-shadow: 0 0.5px 0.75px rgba(0, 0, 0, 0.15);
+    box-sizing: border-box;
+}
+
+.cf7apps-entries-settings .cf7apps-payment-logs-search__icon {
+    width: 12px;
+    height: 12px;
+    flex-shrink: 0;
+    opacity: 0.55;
+}
+
+.cf7apps-entries-settings .cf7apps-payment-logs-search .cf7apps-form-group.cf7apps-settings {
+    margin: 0;
+    width: 100%;
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.cf7apps-entries-settings .cf7apps-payment-logs-search .cf7apps-form-group > div:first-child {
+    display: none;
+}
+
+.cf7apps-entries-settings .cf7apps-payment-logs-search .cf7apps-form-group > div:nth-child(2) {
+    width: 100%;
+}
+
+.cf7apps-entries-settings .cf7apps-entries-toolbar .cf7apps-payment-logs-search input.cf7apps-form-input {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    height: 30px !important;
+    min-height: 30px !important;
+    margin: 0 !important;
+    font-size: 12px !important;
+    color: #303030 !important;
+    background: transparent !important;
+}
+
+.cf7apps-entries-settings .cf7apps-entries-toolbar .cf7apps-payment-logs-search input.cf7apps-form-input:focus {
+    border: none !important;
+    box-shadow: none !important;
+    outline: none !important;
+}
+
+.cf7apps-entries-settings .cf7apps-payment-logs-search input.cf7apps-form-input::placeholder {
+    color: #8a8a8a;
+}
+
+.cf7apps-entries-settings .cf7apps-payment-logs-filter-field .cf7apps-form-group,
+.cf7apps-entries-settings .cf7apps-payment-logs-filter-field .cf7apps-app-select-group {
+    margin: 0 !important;
+}
+
+.cf7apps-entries-settings .cf7apps-payment-logs-filter select.cf7apps-form-input {
+    width: 147px !important;
+    min-width: 147px !important;
+    max-width: 147px !important;
+    height: 32px !important;
+    min-height: 32px !important;
+    padding: 6px 28px 6px 10px !important;
+    border: 0.3px solid #6b83b2 !important;
+    border-radius: 2px !important;
+    color: #1c6f8b !important;
+    font-size: 12px !important;
+    font-weight: 400 !important;
+    box-shadow: 0 0.5px 0.75px rgba(0, 0, 0, 0.15);
+}
+
+.cf7apps-entries-settings .cf7apps-payment-logs-filter.is-active select.cf7apps-form-input {
+    color: #0d2149 !important;
+    font-weight: 500 !important;
+}
+
+.cf7apps-entries-settings .cf7apps-payment-logs-filter .cf7apps-select-wrap svg {
+    stroke: #1c6f8b;
+}
+
+.cf7apps-entries-settings .cf7apps-payment-logs-view table {
+    width: 100%;
+    min-width: 760px;
+    table-layout: auto;
+}
+
+.cf7apps-entries-settings .cf7apps-payment-logs-view table thead th,
+.cf7apps-entries-settings .cf7apps-payment-logs-view table tbody td {
+    text-align: left;
+}
+
+.cf7apps-entries-settings .cf7apps-payment-logs-view .cf7apps-payment-logs-id {
+    min-width: 100px;
+    max-width: 140px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.cf7apps-entries-settings .cf7apps-payment-logs-view .cf7apps-payment-logs-email {
+    min-width: 140px;
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.cf7apps-entries-settings .cf7apps-payment-logs-view .cf7apps-payment-logs-type {
+    min-width: 120px;
+}
+
+.cf7apps-entries-settings .cf7apps-payment-logs-view .cf7apps-payment-logs-amount-col {
+    min-width: 100px;
+    white-space: nowrap;
+}
+
+.cf7apps-entries-settings .cf7apps-payment-logs-view .cf7apps-payment-logs-status-col {
+    min-width: 90px;
+}
+
+.cf7apps-entries-settings .cf7apps-payment-logs-view .cf7apps-payment-logs-date {
+    min-width: 160px;
+    white-space: nowrap;
+}
+
+.cf7apps-entries-settings .cf7apps-payment-logs-view .cf7apps-entry-actions {
+    min-width: 150px;
+    white-space: nowrap;
+}
+
+.cf7apps-entries-settings .cf7apps-payment-logs-view .cf7apps-payment-status {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 65px;
+    height: 18px;
+    padding: 0 10px;
+    border-radius: 20px;
+    font-size: 10px;
+    font-weight: 600;
+    line-height: 1;
+    border: 0.5px solid transparent;
+}
+
+.cf7apps-entries-settings .cf7apps-payment-logs-view .cf7apps-payment-status.success {
+    color: #00a600;
+    background: #e6ffe4;
+    border-color: #00a500;
+}
+
+.cf7apps-entries-settings .cf7apps-payment-logs-view .cf7apps-payment-status.failed {
+    color: #ff4040;
+    background: #ffe6e6;
+    border-color: #ff4040;
+}
+
+.cf7apps-entries-settings .cf7apps-payment-logs-view .cf7apps-payment-status.refunded {
+    color: #0086b6;
+    background: #dbf5ff;
+    border-color: #0086b6;
+}
+
+.cf7apps-entries-settings .cf7apps-payment-logs-view .cf7apps-payment-logs-amount {
+    font-weight: 600;
+    color: #39496a;
+}
+
+.cf7apps-entries-settings .cf7apps-payment-logs-unlock-btn {
+    background: #0d2149 !important;
+    border: none !important;
+    border-radius: 20px !important;
+    color: #fff !important;
+    font-size: 12px !important;
+    font-weight: 600 !important;
+    padding: 10px 18px !important;
+    height: auto !important;
+}
+
+.cf7apps-payment-details-modal td:first-child {
+    text-align: left;
+    width: 42%;
+}
+
+.cf7apps-payment-details-modal td:last-child {
+    text-align: left;
+}
+
 .cf7apps-entries-pagination button[ disabled] {
     cursor: not-allowed;
 }
@@ -3827,11 +4839,13 @@ select.cf7apps-form-input {
 
 .cf7apps-entries-settings .cf7apps-app-setting-section {
     max-width: none;
+    min-width: 0;
     overflow: visible;
 }
 
 .cf7apps-entries-settings .cf7apps-app-settings-form {
-    max-width: none;
+    max-width: 100%;
+    min-width: 0;
     gap: 20px;
 }
 
@@ -3840,17 +4854,32 @@ select.cf7apps-form-input {
     padding-top: 0 !important;
 }
 
-.cf7apps-entries-settings .cf7apps-app-settings-form .cf7apps-app-settings-tabpanel-entries {
+.cf7apps-entries-settings .cf7apps-app-settings-form .cf7apps-app-settings-tabpanel-entries,
+.cf7apps-entries-settings .cf7apps-app-settings-form .cf7apps-app-settings-tabpanel-payment_logs {
     width: 100%;
-    max-width: none;
+    max-width: 100%;
+    min-width: 0;
     padding: 0 !important;
     gap: 20px;
     overflow: visible;
 }
 
+.cf7apps-entries-settings .cf7apps-app-settings-form .cf7apps-app-settings-tabpanel-payment_logs {
+    overflow-x: auto;
+    overflow-y: visible;
+}
+
 .cf7apps-entries-settings .cf7apps-template-cf7-entries {
     width: 100%;
+    max-width: 100%;
+    min-width: 0;
     overflow: visible;
+}
+
+.cf7apps-entries-settings .cf7apps-template-cf7-entries.cf7apps-payment-logs-view {
+    overflow-x: auto;
+    overflow-y: visible;
+    -webkit-overflow-scrolling: touch;
 }
 
 .cf7apps-calendar-popup {
@@ -3890,7 +4919,7 @@ select.cf7apps-form-input {
     justify-content: center;
     box-sizing: border-box;
     min-width: 80px;
-    width: 80px;
+    width: auto;
     height: 41px;
     margin: 0;
     padding: 10px 13.5px;
@@ -4042,7 +5071,8 @@ select.cf7apps-form-input {
     white-space: nowrap;
 }
 
-.cf7apps-entries-settings .cf7apps-entries-toolbar__clear {
+.cf7apps-entries-settings .cf7apps-entries-toolbar__clear,
+.cf7apps-entries-settings .cf7apps-entries-toolbar__export {
     flex: 0 0 auto;
     min-width: 78px;
     height: 32px !important;
@@ -4060,7 +5090,9 @@ select.cf7apps-form-input {
 }
 
 .cf7apps-entries-settings .cf7apps-entries-toolbar__clear:hover,
-.cf7apps-entries-settings .cf7apps-entries-toolbar__clear:focus-visible {
+.cf7apps-entries-settings .cf7apps-entries-toolbar__clear:focus-visible,
+.cf7apps-entries-settings .cf7apps-entries-toolbar__export:hover,
+.cf7apps-entries-settings .cf7apps-entries-toolbar__export:focus-visible {
     background: #f5f7fa !important;
     color: #0d2149 !important;
     text-decoration: none !important;
@@ -4138,6 +5170,26 @@ select.cf7apps-form-input {
     border-top: 1px solid #eef0f4;
 }
 
+.cf7apps-entries-settings .cf7apps-template-cf7-entries:not(.cf7apps-payment-logs-view) table {
+    table-layout: fixed;
+}
+
+.cf7apps-entries-settings .cf7apps-template-cf7-entries:not(.cf7apps-payment-logs-view) .cf7apps-entries-form-name {
+    width: 12%;
+    max-width: 130px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.cf7apps-entries-settings .cf7apps-template-cf7-entries:not(.cf7apps-payment-logs-view) .cf7apps-entries-email {
+    width: 16%;
+    max-width: 180px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
 .cf7apps-entries-settings .cf7apps-entries-row-actions {
     display: flex;
     align-items: center;
@@ -4148,6 +5200,7 @@ select.cf7apps-form-input {
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    gap: 4px;
     min-width: 45px;
     height: 24px;
     padding: 0 8px;
@@ -4424,6 +5477,806 @@ select.cf7apps-form-input {
     max-width: none;
 }
 
+.cf7apps-app-setting-section .MuiTabPanel-root:has(.cf7apps-stripe-admin) {
+    width: 100%;
+    max-width: 1100px;
+    padding: 0 !important;
+    margin: 0;
+}
+
+.cf7apps-payment-dashboard-settings .cf7apps-app-setting-section .MuiTabPanel-root {
+    padding: 0 !important;
+    margin: 0;
+}
+
+/* Payment gateway admin (Stripe, PayPal, Square) */
+.cf7apps-stripe-admin {
+    width: 100%;
+    max-width: 500px;
+}
+
+.cf7apps-stripe-admin__layout {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    align-items: flex-start;
+}
+
+.cf7apps-stripe-admin__card {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    width: 100%;
+    max-width: 500px;
+    background: transparent;
+    border-radius: 0;
+    padding: 0;
+}
+
+.cf7apps-stripe-admin__card .cf7apps-notice {
+    margin-bottom: 0;
+    border-radius: 4px;
+}
+
+.cf7apps-stripe-admin__card .cf7apps-notice p {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 16px;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.4;
+}
+
+.cf7apps-stripe-admin__card .cf7apps-notice .MuiSvgIcon-root {
+    flex-shrink: 0;
+    width: 18px;
+    height: 18px;
+    margin-top: 1px;
+}
+
+.cf7apps-stripe-admin__test-notice {
+    box-sizing: border-box;
+    width: 100%;
+    margin: 0;
+    padding: 10px;
+    border-left: 2px solid #1c6f8b;
+    border-radius: 6px;
+    background: #eefbff;
+}
+
+.cf7apps-stripe-admin__test-notice-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    width: 100%;
+}
+
+.cf7apps-stripe-admin__test-notice-copy {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.cf7apps-stripe-admin__test-notice-icon {
+    flex-shrink: 0;
+    width: 16px;
+    height: 16px;
+    color: #208aae;
+}
+
+.cf7apps-stripe-admin__test-notice-message {
+    display: block;
+    margin: 0;
+    padding: 0;
+    max-width: 320px;
+    font-size: 11px;
+    font-weight: 500;
+    line-height: normal;
+    color: #208aae;
+}
+
+.cf7apps-stripe-admin__test-notice-message strong {
+    font-weight: 700;
+}
+
+.cf7apps-stripe-admin__test-notice-action {
+    flex: 0 0 auto;
+    align-self: center;
+    margin: 0;
+    padding: 0 0 1px;
+    border: none;
+    border-bottom: 1px solid #208aae;
+    border-radius: 0;
+    background: transparent;
+    color: #208aae;
+    font-family: inherit;
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 15px;
+    text-decoration: none;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: opacity 0.15s ease;
+}
+
+.cf7apps-stripe-admin__test-notice-action:hover {
+    opacity: 0.85;
+}
+
+.cf7apps-stripe-admin__live-notice {
+    box-sizing: border-box;
+    width: 100%;
+    margin: 0;
+    padding: 10px;
+    border-left: 2px solid #1c6f8b;
+    border-radius: 6px;
+    background: #eefbff;
+}
+
+.cf7apps-stripe-admin__live-notice-row {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px;
+    width: 100%;
+}
+
+.cf7apps-stripe-admin__live-notice-copy {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.cf7apps-stripe-admin__live-notice-text {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.cf7apps-stripe-admin__live-notice-title {
+    margin: 0;
+    padding: 0;
+    font-size: 11px;
+    font-weight: 700;
+    line-height: normal;
+    color: #208aae;
+}
+
+.cf7apps-stripe-admin__live-notice-message {
+    display: block;
+    margin: 0;
+    padding: 0;
+    font-size: 11px;
+    font-weight: 500;
+    line-height: normal;
+    color: #208aae;
+}
+
+.cf7apps-stripe-admin__live-notice-action {
+    flex: 0 0 auto;
+    align-self: center;
+    margin: 0;
+    padding: 0 0 1px;
+    border: none;
+    border-bottom: 1px solid #208aae;
+    border-radius: 0;
+    background: transparent;
+    color: #208aae;
+    font-family: inherit;
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 15px;
+    text-decoration: none;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: opacity 0.15s ease;
+}
+
+.cf7apps-stripe-admin__live-notice-action:hover:not(:disabled) {
+    opacity: 0.85;
+}
+
+.cf7apps-stripe-admin__live-notice-action:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+.cf7apps-stripe-admin__notice-link {
+    padding: 0;
+    border: none;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    font-weight: 600;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.cf7apps-stripe-admin__notice-dismiss {
+    flex-shrink: 0;
+    align-self: flex-start;
+    margin: -2px 0 0 8px;
+    padding: 0;
+    border: none;
+    background: transparent;
+    color: inherit;
+    font-size: 18px;
+    font-weight: 400;
+    line-height: 1;
+    text-decoration: none;
+    cursor: pointer;
+    opacity: 0.75;
+}
+
+.cf7apps-stripe-admin__notice-link:hover,
+.cf7apps-stripe-admin__notice-dismiss:hover {
+    opacity: 1;
+}
+
+.cf7apps-stripe-admin__status-notices {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    width: 100%;
+}
+
+.cf7apps-stripe-admin__status-block {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+}
+
+.cf7apps-stripe-admin__status-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    padding-left: 2px;
+}
+
+.cf7apps-stripe-admin__fields {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    width: 100%;
+    max-width: 500px;
+}
+
+.cf7apps-stripe-admin__field {
+    margin: 0;
+    width: 100%;
+}
+
+.cf7apps-stripe-admin__field--currency {
+    margin: 0;
+}
+
+.cf7apps-stripe-admin__label {
+    margin: 0 0 10px;
+    font-weight: 600;
+    font-size: 16px;
+    line-height: normal;
+    color: #0d2149;
+}
+
+.cf7apps-stripe-admin__radios {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+}
+
+.cf7apps-stripe-admin__radio-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 4px;
+    cursor: pointer;
+    margin: 0;
+    width: 100%;
+    max-width: 100%;
+}
+
+.cf7apps-stripe-admin__radio-row::before {
+    content: "";
+    flex-shrink: 0;
+    width: 12px;
+    height: 12px;
+    min-width: 12px;
+    min-height: 12px;
+    margin-top: 2px;
+    border: 0.5px solid #a7aaad;
+    border-radius: 50%;
+    background: #ffffff;
+    box-sizing: border-box;
+}
+
+.cf7apps-stripe-admin__radio-row input[type="radio"] {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+    margin: 0;
+    pointer-events: none;
+}
+
+.cf7apps-stripe-admin__radio-row:has(> input[type="radio"]:checked)::before {
+    border: 3px solid #208aae;
+    background: #ffffff;
+}
+
+.cf7apps-stripe-admin__radio-label {
+    display: inline;
+    font-size: 14px;
+    line-height: 1.35;
+    color: #717171;
+}
+
+.cf7apps-stripe-admin__radio-label strong {
+    font-weight: 600;
+    color: #717171;
+}
+
+.cf7apps-stripe-admin__radio-label-note {
+    font-weight: 500;
+    color: #717171;
+}
+
+.cf7apps-stripe-admin__connect-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: stretch;
+    gap: 10px;
+    width: 100%;
+    max-width: 500px;
+    margin-bottom: 4px;
+}
+
+.cf7apps-stripe-admin__connect-btn {
+    display: inline-flex;
+    flex: 1 1 auto;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    max-width: 100%;
+    min-height: 36px;
+    padding: 0 16px;
+    border: 1px solid #635bff;
+    border-radius: 4px;
+    background: #e7e6ff;
+    color: #000000;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: normal;
+    cursor: pointer;
+    transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.cf7apps-stripe-admin__connect-inner {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+
+.cf7apps-stripe-admin__connect-text {
+    color: #000000;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: normal;
+    white-space: nowrap;
+}
+
+.cf7apps-stripe-admin__connect-btn:hover:not(:disabled) {
+    background: #dcd9ff;
+}
+
+.cf7apps-stripe-admin__connect-btn:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+.cf7apps-stripe-admin__connect-help {
+    margin: 0 0 8px;
+    max-width: 500px;
+    font-size: 13px;
+    line-height: 1.4;
+    color: #717171;
+}
+
+.cf7apps-stripe-admin__connect-logo {
+    flex-shrink: 0;
+    display: block;
+    width: 38px;
+    height: 16px;
+    object-fit: contain;
+}
+
+.cf7apps-stripe-admin__connection-status {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+}
+
+.cf7apps-stripe-admin__connection-success {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: #1e7e34;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.4;
+}
+
+.cf7apps-stripe-admin__connection-success .MuiSvgIcon-root {
+    flex-shrink: 0;
+    width: 18px;
+    height: 18px;
+}
+
+.cf7apps-stripe-admin__disconnect-btn {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 36px;
+    padding: 0 20px;
+    border: 0.6px solid #208aae;
+    border-radius: 6px;
+    background: #208aae;
+    color: #ffffff;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    line-height: normal;
+    cursor: pointer;
+    transition: background 0.15s ease, border-color 0.15s ease, opacity 0.15s ease;
+}
+
+.cf7apps-stripe-admin__disconnect-icon {
+    flex-shrink: 0;
+    width: 8px;
+    height: 8px;
+}
+
+.cf7apps-stripe-admin__disconnect-label {
+    white-space: nowrap;
+}
+
+.cf7apps-stripe-admin__disconnect-btn:hover:not(:disabled) {
+    background: #1a7a96;
+    border-color: #1a7a96;
+}
+
+.cf7apps-stripe-admin__disconnect-btn:active:not(:disabled) {
+    background: #176b84;
+    border-color: #176b84;
+}
+
+.cf7apps-stripe-admin__disconnect-btn:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+.cf7apps-stripe-admin__dashboard-link-wrap {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin: 0;
+    font-size: 14px;
+    line-height: normal;
+}
+
+.cf7apps-stripe-admin__dashboard-link {
+    color: #208aae;
+    font-weight: 500;
+    text-decoration: none;
+}
+
+.cf7apps-stripe-admin__dashboard-link:hover {
+    text-decoration: underline;
+}
+
+.cf7apps-stripe-admin__dashboard-link-note {
+    color: #717171;
+    font-weight: 500;
+}
+
+.cf7apps-stripe-admin__external-icon {
+    flex-shrink: 0;
+    color: #717171;
+}
+
+.cf7apps-stripe-admin__actions {
+    margin: 0;
+    padding: 0;
+}
+
+.cf7apps-stripe-admin__aside {
+    flex: 0 1 300px;
+    min-width: 260px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.cf7apps-stripe-admin__aside-block .cf7apps-stripe-admin__aside-links {
+    margin-top: 8px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.cf7apps-stripe-admin__back {
+    margin-top: 8px;
+}
+
+.cf7apps-stripe-admin__select.cf7apps-form-input,
+.cf7apps-stripe-admin .cf7apps-app-select-group select.cf7apps-form-input,
+.cf7apps-stripe-admin .cf7apps-app-select-group input.cf7apps-app-select-field {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-height: 36px;
+    padding: 8px 30px 8px 10px !important;
+    border: 0.3px solid #6b83b2;
+    border-radius: 2px;
+    background-color: #ffffff !important;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12' fill='none'%3E%3Cpath d='M3 5L6 8L9 5' stroke='%23666666' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") !important;
+    background-repeat: no-repeat !important;
+    background-position: right 10px center !important;
+    background-size: 12px 12px !important;
+    color: #2c3338 !important;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: normal;
+    box-sizing: border-box;
+    box-shadow: 0 0.5px 0.75px rgba(0, 0, 0, 0.15);
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+}
+
+.cf7apps-stripe-admin .cf7apps-app-select-group div:has(> select.cf7apps-form-input) {
+    position: relative;
+    display: block;
+    width: 100%;
+}
+
+.cf7apps-stripe-admin .cf7apps-app-select-group .cf7apps-select-wrap > svg {
+    display: none !important;
+}
+
+.cf7apps-stripe-admin .cf7apps-app-field-group {
+    margin: 0;
+    max-width: 100%;
+}
+
+.cf7apps-stripe-admin .cf7apps-app-field-label {
+    display: block;
+    margin: 0 0 10px;
+    font-size: 16px;
+    font-weight: 600;
+    line-height: normal;
+    color: #0d2149;
+}
+
+.cf7apps-stripe-admin .cf7apps-form-toggle-block {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    width: 100%;
+    margin: 0;
+}
+
+.cf7apps-stripe-admin .cf7apps-form-toggle-block__row {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 10px;
+    width: 100%;
+    max-width: 100%;
+}
+
+.cf7apps-stripe-admin .cf7apps-form-toggle-block__label {
+    font-size: 16px;
+    font-weight: 600;
+    line-height: normal;
+    color: #0d2149;
+    white-space: nowrap;
+}
+
+.cf7apps-stripe-admin .cf7apps-form-toggle-block__help {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: normal;
+    color: #717171;
+}
+
+.cf7apps-stripe-admin .cf7apps-settings-switch {
+    position: relative;
+    flex-shrink: 0;
+    width: 36px;
+    height: 20px;
+    padding: 0;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+}
+
+.cf7apps-stripe-admin .cf7apps-settings-switch__track {
+    position: absolute;
+    inset: 0;
+    border-radius: 10px;
+    background: #cfcfcf;
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.15);
+}
+
+.cf7apps-stripe-admin .cf7apps-settings-switch.is-on .cf7apps-settings-switch__track {
+    background: #368db2;
+}
+
+.cf7apps-stripe-admin .cf7apps-settings-switch__knob {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #ffffff;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    transition: transform 0.2s ease;
+}
+
+.cf7apps-stripe-admin .cf7apps-settings-switch.is-on .cf7apps-settings-switch__knob {
+    transform: translateX(16px);
+}
+
+.cf7apps-stripe-admin .cf7apps-form-group {
+    margin: 0;
+}
+
+.cf7apps-stripe-admin .cf7apps-settings-toggle label {
+    font-size: 16px;
+    font-weight: 600;
+    color: #0d2149;
+}
+
+.cf7apps-stripe-admin .cf7apps-form-group p {
+    font-size: 14px;
+    font-weight: 500;
+    color: #717171;
+}
+
+.cf7apps-stripe-admin .cf7apps-form-group label b,
+.cf7apps-stripe-admin .cf7apps-form-group > div > label {
+    font-size: 16px;
+    font-weight: 600;
+    color: #0d2149;
+}
+
+.cf7apps-stripe-admin .button-link {
+    padding: 0;
+    border: none;
+    background: transparent;
+    color: #208aae;
+    font-size: 14px;
+    font-weight: 500;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.cf7apps-stripe-admin .cf7apps-form-settings-save {
+    margin: 0;
+}
+
+.cf7apps-stripe-admin .cf7apps-form-settings-save .cf7apps-btn.tertiary-primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 36px;
+    padding: 8px 16px;
+    border: none !important;
+    border-radius: 2px;
+    background: #0d2149 !important;
+    color: #ffffff !important;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: normal;
+}
+
+.cf7apps-stripe-admin .cf7apps-form-settings-save .cf7apps-btn.tertiary-primary:hover:not(:disabled) {
+    filter: brightness(0.92);
+}
+
+.cf7apps-stripe-admin--paypal .cf7apps-stripe-admin__connect-btn--paypal {
+    border-color: #253b80;
+    background: #e6eaf6;
+    color: #000000;
+}
+
+.cf7apps-stripe-admin--paypal .cf7apps-stripe-admin__connect-btn--paypal:hover:not(:disabled) {
+    background: #d8deef;
+}
+
+.cf7apps-stripe-admin--paypal .cf7apps-stripe-admin__connect-text {
+    color: #000000;
+}
+
+.cf7apps-stripe-admin--paypal .cf7apps-stripe-admin__connect-logo--paypal {
+    width: 18px;
+    height: 21px;
+    object-fit: contain;
+}
+
+.cf7apps-stripe-admin--square .cf7apps-stripe-admin__connect-btn--square {
+    border-color: #272727;
+    background: #f5f5f5;
+}
+
+.cf7apps-stripe-admin--square .cf7apps-stripe-admin__connect-btn--square:hover:not(:disabled) {
+    background: #ebebeb;
+}
+
+.cf7apps-stripe-admin--square .cf7apps-stripe-admin__connect-text {
+    color: #272727;
+}
+
+.cf7apps-stripe-admin--square .cf7apps-stripe-admin__connect-logo--square {
+    width: 18px;
+    height: 18px;
+    object-fit: contain;
+}
+
+.cf7apps-stripe-admin__readonly-input {
+    width: 100%;
+    max-width: 100%;
+    min-height: 36px;
+    padding: 8px 30px 8px 10px;
+    border: 0.3px solid #6b83b2;
+    border-radius: 2px;
+    background-color: #f3f3f3 !important;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12' fill='none'%3E%3Cpath d='M3 5L6 8L9 5' stroke='%23666666' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") !important;
+    background-repeat: no-repeat !important;
+    background-position: right 10px center !important;
+    background-size: 12px 12px !important;
+    color: #2c3338;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: normal;
+    box-sizing: border-box;
+    box-shadow: 0 0.5px 0.75px rgba(0, 0, 0, 0.15);
+}
+
+.cf7apps-stripe-admin__readonly-input:disabled {
+    opacity: 1;
+    cursor: not-allowed;
+}
+
+.cf7apps-stripe-admin__field-help {
+    margin: 5px 0 0;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: normal;
+    color: #0d2149;
+}
+
+.cf7apps-stripe-admin .cf7apps-notice-success p,
+.cf7apps-stripe-admin .cf7apps-notice-success span {
+    align-items: flex-start;
+    line-height: 1.4;
+}
+
 /* HFCF7-544 — Mobile / folded WP admin responsiveness */
 @media (max-width: 782px) {
     #root,
@@ -4481,15 +6334,6 @@ select.cf7apps-form-input {
         font-size: 20px;
     }
 
-    .cf7apps-dashboard__filters {
-        justify-content: flex-start;
-        gap: 8px;
-    }
-
-    .cf7apps-dashboard__filter {
-        flex: 0 1 auto;
-    }
-
     .cf7apps-app-card {
         --cf7apps-card-text-width: min(220px, calc(68% - 4px));
         min-height: 160px;
@@ -4534,7 +6378,7 @@ select.cf7apps-form-input {
     .cf7apps-acf-settings .cf7apps-app-settings-header__top,
     .cf7apps-ai-form-settings .cf7apps-app-settings-header__top,
     .cf7apps-honeypot-settings .cf7apps-app-settings-header__top,
-    .cf7apps-hcaptcha-settings .cf7apps-app-settings-header__top {
+    .cf7apps-payment-dashboard-settings .cf7apps-app-settings-header__top ,.cf7apps-hcaptcha-settings .cf7apps-app-settings-header__top {
         flex-direction: column;
         align-items: flex-start;
         gap: 12px;
@@ -4546,7 +6390,7 @@ select.cf7apps-form-input {
     .cf7apps-acf-settings .cf7apps-app-settings-header__brand,
     .cf7apps-ai-form-settings .cf7apps-app-settings-header__brand,
     .cf7apps-honeypot-settings .cf7apps-app-settings-header__brand,
-    .cf7apps-hcaptcha-settings .cf7apps-app-settings-header__brand {
+    .cf7apps-payment-dashboard-settings .cf7apps-app-settings-header__brand ,.cf7apps-hcaptcha-settings .cf7apps-app-settings-header__brand {
         flex: 1 1 auto;
         width: 100%;
         max-width: 100%;
@@ -4559,7 +6403,7 @@ select.cf7apps-form-input {
     .cf7apps-acf-settings .cf7apps-app-settings-header__icon,
     .cf7apps-ai-form-settings .cf7apps-app-settings-header__icon,
     .cf7apps-honeypot-settings .cf7apps-app-settings-header__icon,
-    .cf7apps-hcaptcha-settings .cf7apps-app-settings-header__icon {
+    .cf7apps-payment-dashboard-settings .cf7apps-app-settings-header__icon ,.cf7apps-hcaptcha-settings .cf7apps-app-settings-header__icon {
         width: 48px;
         height: 48px;
     }
@@ -4570,7 +6414,7 @@ select.cf7apps-form-input {
     .cf7apps-acf-settings .cf7apps-app-settings-header__title,
     .cf7apps-ai-form-settings .cf7apps-app-settings-header__title,
     .cf7apps-honeypot-settings .cf7apps-app-settings-header__title,
-    .cf7apps-hcaptcha-settings .cf7apps-app-settings-header__title {
+    .cf7apps-payment-dashboard-settings .cf7apps-app-settings-header__title ,.cf7apps-hcaptcha-settings .cf7apps-app-settings-header__title {
         font-size: 20px;
         word-break: break-word;
     }
@@ -4581,7 +6425,7 @@ select.cf7apps-form-input {
     .cf7apps-acf-settings .cf7apps-app-settings-header__back-pill,
     .cf7apps-ai-form-settings .cf7apps-app-settings-header__back-pill,
     .cf7apps-honeypot-settings .cf7apps-app-settings-header__back-pill,
-    .cf7apps-hcaptcha-settings .cf7apps-app-settings-header__back-pill {
+    .cf7apps-payment-dashboard-settings .cf7apps-app-settings-header__back-pill ,.cf7apps-hcaptcha-settings .cf7apps-app-settings-header__back-pill {
         align-self: flex-start;
     }
 

@@ -52,7 +52,7 @@ function honeypot4cf7_feedback_response( $items, $result ) {
  * @return array|mixed
  */
 function honeypot4cf7_build_refill_payload( $items ) {
-	if ( ! is_array( $items ) || ! honeypot4cf7_is_app_enabled() ) {
+	if ( ! is_array( $items ) || ! honeypot4cf7_is_app_enabled() || ! honeypot4cf7_uses_dynamic_mode() ) {
 		return $items;
 	}
 

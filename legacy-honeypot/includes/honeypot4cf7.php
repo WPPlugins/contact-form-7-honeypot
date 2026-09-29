@@ -24,6 +24,21 @@ function honeypot4cf7_is_app_enabled() {
 }
 
 /**
+ * Whether dynamic (transient-based) honeypot mode is active.
+ *
+ * @return bool
+ */
+function honeypot4cf7_uses_dynamic_mode() {
+	if ( ! honeypot4cf7_is_app_enabled() ) {
+		return false;
+	}
+
+	$config = honeypot4cf7_get_config();
+
+	return ! empty( $config['enable_dynamic_honeypot'] );
+}
+
+/**
  * Whether time-check is enabled for the given option value.
  *
  * @param mixed $timecheck_enabled Option value from tag or config.
@@ -285,14 +300,14 @@ add_action( 'wpcf7_enqueue_scripts', 'honeypot4cf7_enqueue_frontend_styles' );
  * Enqueue honeypot refill script for cached pages.
  */
 function honeypot4cf7_enqueue_refill_script() {
-	if ( is_admin() || ! honeypot4cf7_is_app_enabled() ) {
+	if ( is_admin() || ! honeypot4cf7_uses_dynamic_mode() ) {
 		return;
 	}
 
 	wp_enqueue_script(
 		'cf7apps-honeypot-refill',
 		CF7APPS_PLUGIN_DIR_URL . '/legacy-honeypot/includes/js/honeypot-refill.js',
-		array( 'contact-form-7' ),
+		array( 'contact-form-7', 'jquery' ),
 		CF7APPS_VERSION,
 		true
 	);
@@ -345,13 +360,96 @@ function honeypot4cf7_add_form_tag() {
  * 
  */
 function honeypot4cf7_form_tag_handler( $tag ) {
-
 	// Global disable must stop rendering so existing forms stop enforcing honeypot (HFCF7-548).
 	if ( ! honeypot4cf7_is_app_enabled() ) {
 		return '';
 	}
 
-	// Test if new 4.6+ functions exists
+	return honeypot4cf7_uses_dynamic_mode()
+		? honeypot4cf7_form_tag_handler_dynamic( $tag )
+		: honeypot4cf7_form_tag_handler_legacy( $tag );
+}
+
+/**
+ * Legacy static honeypot field output.
+ *
+ * @param mixed $tag CF7 form tag.
+ * @return string
+ */
+function honeypot4cf7_form_tag_handler_legacy( $tag ) {
+	$tag = ( class_exists( 'WPCF7_FormTag' ) ) ? new WPCF7_FormTag( $tag ) : new WPCF7_Shortcode( $tag );
+
+	if ( empty( $tag->name ) ) {
+		return '';
+	}
+
+	$validation_error = wpcf7_get_validation_error( $tag->name );
+
+	$honeypot4cf7_config = honeypot4cf7_get_config();
+
+	$class = wpcf7_form_controls_class( 'text' );
+
+	$placeholder = (string) reset( $tag->values );
+
+	$accessibility_message = ( ! empty( $honeypot4cf7_config['accessibility_message'] ) ) ? $honeypot4cf7_config['accessibility_message'] : __( 'Please leave this field empty.', 'contact-form-7-honeypot' );
+
+	$atts = array(
+		'class'             => $tag->get_class_option( $class ),
+		'id'                => $tag->get_option( 'id', 'id', true ),
+		'wrapper_id'        => $tag->get_option( 'wrapper-id' ),
+		'placeholder'       => ( $placeholder ) ? $placeholder : $honeypot4cf7_config['placeholder'],
+		'message'           => apply_filters( 'wpcf7_honeypot_accessibility_message', $accessibility_message ),
+		'name'              => $tag->name,
+		'type'              => $tag->type,
+		'validautocomplete' => ( $tag->get_option( 'validautocomplete' ) ) ? $tag->get_option( 'validautocomplete' ) : $honeypot4cf7_config['w3c_valid_autocomplete'],
+		'move_inline_css'   => ( $tag->get_option( 'move-inline-css' ) ) ? $tag->get_option( 'move-inline-css' ) : $honeypot4cf7_config['move_inline_css'],
+		'nomessage'         => ( $tag->get_option( 'nomessage' ) ) ? $tag->get_option( 'nomessage' ) : $honeypot4cf7_config['nomessage'],
+		'timecheck_enabled' => ( $tag->get_option( 'timecheck_enabled' ) ) ? $tag->get_option( 'timecheck_enabled' ) : $honeypot4cf7_config['timecheck_enabled'],
+		'timecheck_value'   => ( $timecheck_value = $tag->get_option( 'timecheck_value' ) ) ? reset( $timecheck_value ) : $honeypot4cf7_config['timecheck_value'],
+		'validation_error'  => $validation_error,
+		'css'               => apply_filters( 'wpcf7_honeypot_container_css', honeypot4cf7_get_default_container_css() ),
+	);
+
+	$unique_id          = uniqid( 'wpcf7-' );
+	$wrapper_id         = ( ! empty( $atts['wrapper_id'] ) ) ? reset( $atts['wrapper_id'] ) : $unique_id . '-wrapper';
+	$input_placeholder  = ( ! empty( $atts['placeholder'] ) ) ? ' placeholder="' . $atts['placeholder'] . '" ' : '';
+	$input_id           = ( ! empty( $atts['id'] ) ) ? $atts['id'] : $unique_id . '-field';
+	$autocomplete_value = ( $atts['validautocomplete'][0] === 'true' ) ? 'off' : 'new-password';
+
+	if ( ! empty( $atts['move_inline_css'] ) && $atts['move_inline_css'][0] === 'true' ) {
+		$hp_css = '#' . $wrapper_id . ' {' . $atts['css'] . '}';
+		wp_register_style( $unique_id . '-inline', false );
+		wp_enqueue_style( $unique_id . '-inline' );
+		wp_add_inline_style( $unique_id . '-inline', $hp_css );
+		$el_css = '';
+	} else {
+		$el_css = 'style="' . $atts['css'] . '"';
+	}
+
+	$html = '<span id="' . esc_attr( $wrapper_id ) . '" class="wpcf7-form-control-wrap cf7apps-honeypot-wrap ' . esc_attr( $atts['name'] ) . '-wrap" ' . $el_css . '>';
+
+	if ( honeypot4cf7_is_timecheck_live_enabled( $tag ) ) {
+		$html .= '<input type="hidden" name="' . esc_attr( $atts['name'] ) . '-time-start" value="' . esc_attr( (string) time() ) . '">';
+		$html .= '<input type="hidden" name="' . esc_attr( $atts['name'] ) . '-time-check" value="' . esc_attr( (string) $atts['timecheck_value'] ) . '">';
+	}
+
+	if ( empty( $atts['nomessage'] ) || $atts['nomessage'][0] === 'false' ) {
+		$html .= '<label for="' . esc_attr( $input_id ) . '" class="hp-message">' . esc_html( $atts['message'] ) . '</label>';
+	}
+
+	$html .= '<input id="' . esc_attr( $input_id ) . '" ' . $input_placeholder . ' class="' . esc_attr( $atts['class'] ) . '" type="text" name="' . esc_attr( $atts['name'] ) . '" value="" autocomplete="' . esc_attr( $autocomplete_value ) . '" tabindex="1000" data-cf7apps-tabindex="1000" />';
+	$html .= $validation_error . '</span>';
+
+	return apply_filters( 'wpcf7_honeypot_html_output', $html, $atts );
+}
+
+/**
+ * Dynamic transient-based honeypot field output.
+ *
+ * @param mixed $tag CF7 form tag.
+ * @return string
+ */
+function honeypot4cf7_form_tag_handler_dynamic( $tag ) {
 	$tag = ( class_exists( 'WPCF7_FormTag' ) ) ? new WPCF7_FormTag( $tag ) : new WPCF7_Shortcode( $tag );
 
 	if ( empty( $tag->name ) ) {
@@ -451,6 +549,10 @@ function honeypot4cf7_form_tag_handler( $tag ) {
  * @return array
  */
 function honeypot4cf7_filter_posted_data( $posted_data ) {
+	if ( ! honeypot4cf7_uses_dynamic_mode() ) {
+		return $posted_data;
+	}
+
 	if ( ! is_array( $posted_data ) || ! honeypot4cf7_is_app_enabled() ) {
 		return $posted_data;
 	}
@@ -529,7 +631,109 @@ function honeypot4cf7_spam_check( $spam, $submission = null ) {
 		return $spam;
 	}
 
-	$cf7form = WPCF7_ContactForm::get_current();
+	return honeypot4cf7_uses_dynamic_mode()
+		? honeypot4cf7_spam_check_dynamic( $spam, $submission )
+		: honeypot4cf7_spam_check_legacy( $spam, $submission );
+}
+
+/**
+ * Legacy static honeypot spam validation.
+ *
+ * @param bool                    $spam       Current spam flag.
+ * @param WPCF7_Submission|null   $submission Submission instance.
+ * @return bool
+ */
+function honeypot4cf7_spam_check_legacy( $spam, $submission = null ) {
+	$cf7form   = WPCF7_ContactForm::get_current();
+	$form_tags = $cf7form->scan_form_tags();
+	$hp_ids    = array();
+	$hp_tags   = array();
+
+	foreach ( $form_tags as $tag ) {
+		if ( 'honeypot' === $tag->type ) {
+			$hp_ids[] = $tag->name;
+			$hp_tags[ $tag->name ] = $tag;
+		}
+	}
+
+	if ( empty( $hp_ids ) ) {
+		return $spam;
+	}
+
+	foreach ( $hp_ids as $hpid ) {
+		$honeypot4cf7_config = honeypot4cf7_get_config();
+		$cf7apps_settings    = get_option( 'cf7apps_settings' );
+		$value               = isset( $_POST[ $hpid ] ) ? trim( wp_unslash( (string) $_POST[ $hpid ] ) ) : '';
+		$timecheck_start     = isset( $_POST[ $hpid . '-time-start' ] ) ? (int) wp_unslash( $_POST[ $hpid . '-time-start' ] ) : 0;
+		$live_tag            = isset( $hp_tags[ $hpid ] ) ? $hp_tags[ $hpid ] : null;
+
+		if ( $timecheck_start && honeypot4cf7_is_timecheck_live_enabled( $live_tag ) ) {
+			$submission_time     = time();
+			$timecheck_value     = isset( $_POST[ $hpid . '-time-check' ] ) ? (int) wp_unslash( $_POST[ $hpid . '-time-check' ] ) : 0;
+			$submission_interval = $submission_time - $timecheck_start;
+
+			if ( $timecheck_value <= 0 ) {
+				$timecheck_value = isset( $honeypot4cf7_config['timecheck_value'] ) ? (int) $honeypot4cf7_config['timecheck_value'] : 4;
+			}
+
+			if ( $submission_interval < $timecheck_value ) {
+				$spam = true;
+
+				if ( $submission ) {
+					$submission->add_spam_log(
+						array(
+							'agent'  => 'honeypot',
+							'reason' => sprintf(
+								/* translators: 1: submission interval integer 2: honeypot field ID 3: required time */
+								__( 'Honeypot detected form submitted too fast (%1$s seconds, required: %3$s seconds). Field ID = %2$s', 'contact-form-7-honeypot' ),
+								$submission_interval,
+								$hpid,
+								$timecheck_value
+							),
+						)
+					);
+				}
+
+				cf7apps_record_honeypot_spam_detection( $honeypot4cf7_config, (bool) $cf7apps_settings );
+
+				return $spam;
+			}
+		}
+
+		if ( '' !== $value ) {
+			$spam = true;
+
+			if ( $submission ) {
+				$submission->add_spam_log(
+					array(
+						'agent'  => 'honeypot',
+						'reason' => sprintf(
+							/* translators: %s: honeypot field ID */
+							__( 'Something is stuck in the honey. Field ID = %s', 'contact-form-7-honeypot' ),
+							$hpid
+						),
+					)
+				);
+			}
+
+			cf7apps_record_honeypot_spam_detection( $honeypot4cf7_config, (bool) $cf7apps_settings );
+
+			return $spam;
+		}
+	}
+
+	return $spam;
+}
+
+/**
+ * Dynamic transient-based honeypot spam validation.
+ *
+ * @param bool                    $spam       Current spam flag.
+ * @param WPCF7_Submission|null   $submission Submission instance.
+ * @return bool
+ */
+function honeypot4cf7_spam_check_dynamic( $spam, $submission = null ) {
+	$cf7form   = WPCF7_ContactForm::get_current();
 	$form_tags = $cf7form->scan_form_tags();
 	$hp_ids    = array();
 	$hp_tags   = array();
@@ -567,19 +771,7 @@ function honeypot4cf7_spam_check( $spam, $submission = null ) {
 				) );
 			}
 
-			if( $cf7apps_settings ) {
-				// Backward compatibility for CF7APPS settings
-				$honeypot4cf7_config['honeypot_count'] = ( isset( $honeypot4cf7_config['honeypot_count'] ) ) ? $honeypot4cf7_config['honeypot_count'] + 1 : 1;
-				
-				cf7apps_save_app_settings( 'honeypot', array(
-					'honeypot_count'    => $honeypot4cf7_config['honeypot_count'],
-				) );
-			}
-			else {
-				$honeypot4cf7_config['honeypot_count'] = ( isset( $honeypot4cf7_config['honeypot_count'] ) ) ? $honeypot4cf7_config['honeypot_count'] + 1 : 1;
-				
-				update_option( 'honeypot4cf7_config', $honeypot4cf7_config );
-			}
+			cf7apps_record_honeypot_spam_detection( $honeypot4cf7_config, (bool) $cf7apps_settings );
 
 			return $spam;
 		}
@@ -597,18 +789,7 @@ function honeypot4cf7_spam_check( $spam, $submission = null ) {
 				) );
 			}
 
-			if( $cf7apps_settings ) {
-				$honeypot4cf7_config['honeypot_count'] = ( isset( $honeypot4cf7_config['honeypot_count'] ) ) ? $honeypot4cf7_config['honeypot_count'] + 1 : 1;
-				
-				cf7apps_save_app_settings( 'honeypot', array(
-					'honeypot_count'    => $honeypot4cf7_config['honeypot_count'],
-				) );
-			}
-			else {
-				$honeypot4cf7_config['honeypot_count'] = ( isset( $honeypot4cf7_config['honeypot_count'] ) ) ? $honeypot4cf7_config['honeypot_count'] + 1 : 1;
-				
-				update_option( 'honeypot4cf7_config', $honeypot4cf7_config );
-			}
+			cf7apps_record_honeypot_spam_detection( $honeypot4cf7_config, (bool) $cf7apps_settings );
 
 			return $spam;
 		}
@@ -630,19 +811,7 @@ function honeypot4cf7_spam_check( $spam, $submission = null ) {
                 ) );
             }
 
-			if( $cf7apps_settings ) {
-				// Backward compatibility for CF7APPS settings
-				$honeypot4cf7_config['honeypot_count'] = ( isset( $honeypot4cf7_config['honeypot_count'] ) ) ? $honeypot4cf7_config['honeypot_count'] + 1 : 1;
-				
-				cf7apps_save_app_settings( 'honeypot', array(
-					'honeypot_count'    => $honeypot4cf7_config['honeypot_count'],
-				) );
-			}
-			else {
-				$honeypot4cf7_config['honeypot_count'] = ( isset( $honeypot4cf7_config['honeypot_count'] ) ) ? $honeypot4cf7_config['honeypot_count'] + 1 : 1;
-				
-				update_option( 'honeypot4cf7_config', $honeypot4cf7_config );
-			}
+			cf7apps_record_honeypot_spam_detection( $honeypot4cf7_config, (bool) $cf7apps_settings );
 
             return $spam;
         }
@@ -663,19 +832,7 @@ function honeypot4cf7_spam_check( $spam, $submission = null ) {
 				) );
 			}
 
-			if( $cf7apps_settings ) {
-				// Backward compatibility for CF7APPS settings
-				$honeypot4cf7_config['honeypot_count'] = ( isset( $honeypot4cf7_config['honeypot_count'] ) ) ? $honeypot4cf7_config['honeypot_count'] + 1 : 1;
-				
-				cf7apps_save_app_settings( 'honeypot', array(
-					'honeypot_count'    => $honeypot4cf7_config['honeypot_count'],
-				) );
-			}
-			else {
-				$honeypot4cf7_config['honeypot_count'] = ( isset( $honeypot4cf7_config['honeypot_count'] ) ) ? $honeypot4cf7_config['honeypot_count'] + 1 : 1;
-				
-				update_option( 'honeypot4cf7_config', $honeypot4cf7_config );
-			}
+			cf7apps_record_honeypot_spam_detection( $honeypot4cf7_config, (bool) $cf7apps_settings );
 
 			return $spam;
 		}
@@ -694,19 +851,7 @@ function honeypot4cf7_spam_check( $spam, $submission = null ) {
 				) );
 			}
 
-			if( $cf7apps_settings ) {
-				// Backward compatibility for CF7APPS settings
-				$honeypot4cf7_config['honeypot_count'] = ( isset( $honeypot4cf7_config['honeypot_count'] ) ) ? $honeypot4cf7_config['honeypot_count'] + 1 : 1;
-				
-				cf7apps_save_app_settings( 'honeypot', array(
-					'honeypot_count'    => $honeypot4cf7_config['honeypot_count'],
-				) );
-			}
-			else {
-				$honeypot4cf7_config['honeypot_count'] = ( isset( $honeypot4cf7_config['honeypot_count'] ) ) ? $honeypot4cf7_config['honeypot_count'] + 1 : 1;
-				
-				update_option( 'honeypot4cf7_config', $honeypot4cf7_config );
-			}
+			cf7apps_record_honeypot_spam_detection( $honeypot4cf7_config, (bool) $cf7apps_settings );
 
 			return $spam;
 		}
@@ -758,18 +903,7 @@ function honeypot4cf7_spam_check( $spam, $submission = null ) {
 					) );
 				}
 
-				if( $cf7apps_settings ) {
-					$honeypot4cf7_config['honeypot_count'] = ( isset( $honeypot4cf7_config['honeypot_count'] ) ) ? $honeypot4cf7_config['honeypot_count'] + 1 : 1;
-					
-					cf7apps_save_app_settings( 'honeypot', array(
-						'honeypot_count'    => $honeypot4cf7_config['honeypot_count'],
-					) );
-				}
-				else {
-					$honeypot4cf7_config['honeypot_count'] = ( isset( $honeypot4cf7_config['honeypot_count'] ) ) ? $honeypot4cf7_config['honeypot_count'] + 1 : 1;
-					
-					update_option( 'honeypot4cf7_config', $honeypot4cf7_config );
-				}
+				cf7apps_record_honeypot_spam_detection( $honeypot4cf7_config, (bool) $cf7apps_settings );
 
 				honeypot4cf7_invalidate_daily_session( $hpid );
 
@@ -794,19 +928,7 @@ function honeypot4cf7_spam_check( $spam, $submission = null ) {
                     ) );
                 }
 
-				if( $cf7apps_settings ) {
-					// Backward compatibility for CF7APPS settings
-					$honeypot4cf7_config['honeypot_count'] = ( isset( $honeypot4cf7_config['honeypot_count'] ) ) ? $honeypot4cf7_config['honeypot_count'] + 1 : 1;
-					
-					cf7apps_save_app_settings( 'honeypot', array(
-						'honeypot_count'    => $honeypot4cf7_config['honeypot_count'],
-					) );
-				}
-				else {
-					$honeypot4cf7_config['honeypot_count'] = ( isset( $honeypot4cf7_config['honeypot_count'] ) ) ? $honeypot4cf7_config['honeypot_count'] + 1 : 1;
-					
-					update_option( 'honeypot4cf7_config', $honeypot4cf7_config );
-				}
+				cf7apps_record_honeypot_spam_detection( $honeypot4cf7_config, (bool) $cf7apps_settings );
 
                 honeypot4cf7_invalidate_daily_session( $hpid );
 
@@ -829,19 +951,7 @@ function honeypot4cf7_spam_check( $spam, $submission = null ) {
                     ) );
                 }
 
-				if( $cf7apps_settings ) {
-					// Backward compatibility for CF7APPS settings
-					$honeypot4cf7_config['honeypot_count'] = ( isset( $honeypot4cf7_config['honeypot_count'] ) ) ? $honeypot4cf7_config['honeypot_count'] + 1 : 1;
-					
-					cf7apps_save_app_settings( 'honeypot', array(
-						'honeypot_count'    => $honeypot4cf7_config['honeypot_count'],
-					) );
-				}
-				else {
-					$honeypot4cf7_config['honeypot_count'] = ( isset( $honeypot4cf7_config['honeypot_count'] ) ) ? $honeypot4cf7_config['honeypot_count'] + 1 : 1;
-					
-					update_option( 'honeypot4cf7_config', $honeypot4cf7_config );
-				}
+				cf7apps_record_honeypot_spam_detection( $honeypot4cf7_config, (bool) $cf7apps_settings );
 
                 honeypot4cf7_invalidate_daily_session( $hpid );
 
@@ -866,19 +976,7 @@ function honeypot4cf7_spam_check( $spam, $submission = null ) {
                     ) );
                 }
 
-                if( $cf7apps_settings ) {
-                    // Backward compatibility for CF7APPS settings
-                    $honeypot4cf7_config['honeypot_count'] = ( isset( $honeypot4cf7_config['honeypot_count'] ) ) ? $honeypot4cf7_config['honeypot_count'] + 1 : 1;
-                    
-                    cf7apps_save_app_settings( 'honeypot', array(
-                        'honeypot_count'    => $honeypot4cf7_config['honeypot_count'],
-                    ) );
-                }
-                else {
-                    $honeypot4cf7_config['honeypot_count'] = ( isset( $honeypot4cf7_config['honeypot_count'] ) ) ? $honeypot4cf7_config['honeypot_count'] + 1 : 1;
-                    
-                    update_option( 'honeypot4cf7_config', $honeypot4cf7_config );
-                }
+                cf7apps_record_honeypot_spam_detection( $honeypot4cf7_config, (bool) $cf7apps_settings );
 
                 honeypot4cf7_invalidate_daily_session( $hpid );
 
@@ -903,21 +1001,9 @@ function honeypot4cf7_spam_check( $spam, $submission = null ) {
 				) );
 			}
 
-			if( $cf7apps_settings ) {
-                // Backward compatibility for CF7APPS settings
-                $honeypot4cf7_config['honeypot_count'] = ( isset( $honeypot4cf7_config['honeypot_count'] ) ) ? $honeypot4cf7_config['honeypot_count'] + 1 : 1;
-                
-                cf7apps_save_app_settings( 'honeypot', array(
-                    'honeypot_count'    => $honeypot4cf7_config['honeypot_count'],
-                ) );
+			cf7apps_record_honeypot_spam_detection( $honeypot4cf7_config, (bool) $cf7apps_settings );
 
                 return $spam; // There's no need to go on, we've got flies in the honey
-            }
-            else {
-                $honeypot4cf7_config['honeypot_count'] = ( isset( $honeypot4cf7_config['honeypot_count'] ) ) ? $honeypot4cf7_config['honeypot_count'] + 1 : 1;
-                
-                update_option( 'honeypot4cf7_config', $honeypot4cf7_config );
-            }
 			
 			return $spam; // There's no need to go on, we've got flies in the honey.
 		}

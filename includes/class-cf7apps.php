@@ -40,6 +40,9 @@ class CF7Apps {
         }
 
         $this->includes();
+
+        cf7apps_maybe_migrate_dynamic_honeypot_setting();
+
         $this->register_hooks();
         $this->add_actions();
     }
@@ -88,6 +91,7 @@ class CF7Apps {
         require_once 'cf7apps-functions.php';
         require_once 'abstract/abstract-cf7apps-app.php';
         require_once 'class-cf7apps-recommended-plugins.php';
+        require_once 'class-cf7apps-domain-authentication.php';
         require_once 'apps/cf7apps-init-apps.php';
         require_once 'rest-api/class-cf7apps-base-rest-api.php';
         require_once 'rest-api/wp-admin/v1/rest-api.php';
@@ -196,13 +200,16 @@ class CF7Apps {
         wp_localize_script(
             'cf7apps-script',
             'CF7Apps',
-            array(
-                'hasPro'        => cf7apps_has_pro(),
-                'restURL'       => rest_url(),
-                'nonce'         => wp_create_nonce( 'wp_rest' ),
-                'assetsURL'     => CF7APPS_PLUGIN_DIR_URL . '/assets',
-                'appIndexURL'   =>  admin_url( 'admin.php?page=cf7apps' ),
-                'pluginVersion' => CF7APPS_VERSION,
+            apply_filters(
+                'cf7apps_localize_script',
+                array(
+                    'hasPro'        => cf7apps_has_pro(),
+                    'restURL'       => rest_url(),
+                    'nonce'         => wp_create_nonce( 'wp_rest' ),
+                    'assetsURL'     => CF7APPS_PLUGIN_DIR_URL . '/assets',
+                    'appIndexURL'   =>  admin_url( 'admin.php?page=cf7apps' ),
+                    'pluginVersion' => CF7APPS_VERSION,
+                )
             )
         );
 

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "@wordpress/element";
+import { useCallback, useEffect, useMemo, useRef, useState } from "@wordpress/element";
 import { __, sprintf } from "@wordpress/i18n";
 import { getApps } from "../api/api";
 import CF7AppsSkeletonLoader from "../components/CF7AppsSkeletonLoader";
@@ -24,12 +24,32 @@ const FILTER_TABS = [
 		label: __("Integrations", "cf7apps"),
 		icon: "filter-integrations.svg",
 	},
+	{
+		id: "payments",
+		label: __("Payment", "cf7apps"),
+		icon: "filter-payments.svg",
+	},
 ];
 
 const GRID_EXIT_MS = 180;
 const GRID_ENTER_MS = 320;
 /** Longer display so users can read/install ACF (HFCF7-563). */
 const ACF_NOTICE_MS = 10000;
+
+const normalizeParent = (parentMenu) =>
+	String(parentMenu || "")
+		.toLowerCase()
+		.replace(/\s+/g, "-");
+
+const mapRouteParentToFilter = (parent) => {
+	if (parent === "integration" || parent === "integrations") {
+		return "integrations";
+	}
+	if (parent === "payment" || parent === "payment-gate") {
+		return "payments";
+	}
+	return parent;
+};
 
 const getAcfInstallNoticeHtml = () =>
 	sprintf(
@@ -68,53 +88,81 @@ const Apps = () => {
 	const gridTimers = useRef([]);
 	const { parent } = useParams();
 	const assetsBase = CF7Apps?.assetsURL || "";
-	const toolbarIcon = (file) =>
-		file && assetsBase
-			? `${assetsBase}/images/dashboard/toolbar/${file}`
-			: "";
+
+	const toolbarIcon = useCallback(
+		(file) => (file && assetsBase ? `${assetsBase}/images/dashboard/toolbar/${file}` : ""),
+		[assetsBase]
+	);
 
 	useEffect(() => {
-		if (showAcfNotice) {
-			setTimeout(() => {
-				window.scrollTo({ top: 0, behavior: "smooth" });
-			}, 100);
+		if (!showAcfNotice) {
+			return;
 		}
+
+		const timer = setTimeout(() => {
+			window.scrollTo({ top: 0, behavior: "smooth" });
+		}, 100);
+
+		return () => clearTimeout(timer);
 	}, [showAcfNotice]);
+
+	useEffect(() => {
+		let cancelled = false;
+
+		async function fetchApps() {
+			const appsData = await getApps();
+			if (cancelled) {
+				return;
+			}
+			setApps(Array.isArray(appsData) ? appsData : []);
+			setIsLoading(false);
+		}
+
+		fetchApps();
+
+		return () => {
+			cancelled = true;
+		};
+	}, []);
+
+	const hasPaymentApps = useMemo(
+		() => apps.some((app) => isPaymentApp(app)),
+		[apps]
+	);
+
+	const visibleFilterTabs = useMemo(
+		() =>
+			hasPaymentApps
+				? FILTER_TABS
+				: FILTER_TABS.filter((tab) => tab.id !== "payments"),
+		[hasPaymentApps]
+	);
 
 	useEffect(() => {
 		if (!parent) {
 			return;
 		}
 
-		const mapped =
-			parent === "integration" || parent === "integrations"
-				? "integrations"
-				: parent === "payment" || parent === "payment-gate"
-					? "payments"
-					: parent;
+		const mapped = mapRouteParentToFilter(parent);
 
-		if (FILTER_TABS.some((tab) => tab.id === mapped)) {
+		if (mapped === "payments" && !hasPaymentApps) {
+			setActiveFilter("all");
+			return;
+		}
+
+		if (visibleFilterTabs.some((tab) => tab.id === mapped)) {
 			setActiveFilter(mapped);
 		}
-	}, [parent]);
+	}, [parent, visibleFilterTabs, hasPaymentApps]);
 
 	useEffect(() => {
-		async function fetchApps() {
-			const appsData = await getApps();
-			setApps(Array.isArray(appsData) ? appsData : []);
-			setIsLoading(false);
+		if (activeFilter === "payments" && !hasPaymentApps) {
+			setActiveFilter("all");
 		}
-
-		fetchApps();
-	}, []);
-
-	const normalizeParent = (parentMenu) =>
-		String(parentMenu || "")
-			.toLowerCase()
-			.replace(/\s+/g, "-");
+	}, [activeFilter, hasPaymentApps]);
 
 	const filteredApps = useMemo(() => {
-		let list = apps.filter((app) => !isPaymentApp(app));
+		let list = apps;
 
 		if (activeFilter !== "all") {
 			list = list.filter((app) => {
@@ -128,7 +176,11 @@ const Apps = () => {
 					);
 				}
 
-				if (app.id === "acf-integration") {
+				if (activeFilter === "payments") {
+					return isPaymentApp(app);
+				}
+
+				if (app.id === "acf-integration" || isPaymentApp(app)) {
 					return false;
 				}
 
@@ -137,27 +189,27 @@ const Apps = () => {
 		}
 
 		const query = searchQuery.trim().toLowerCase();
-		if (query) {
-			list = list.filter((app) => {
-				const title = String(app.title || "").toLowerCase();
-				const description = String(app.description || "").toLowerCase();
-				return title.includes(query) || description.includes(query);
-			});
+		if (!query) {
+			return list;
 		}
 
-		return list;
+		return list.filter((app) => {
+			const title = String(app.title || "").toLowerCase();
+			const description = String(app.description || "").toLowerCase();
+			return title.includes(query) || description.includes(query);
+		});
 	}, [apps, activeFilter, searchQuery]);
 
-	const clearGridTimers = () => {
+	const clearGridTimers = useCallback(() => {
 		gridTimers.current.forEach((id) => clearTimeout(id));
 		gridTimers.current = [];
-	};
+	}, []);
 
-	const scheduleGridTimer = (fn, delay) => {
+	const scheduleGridTimer = useCallback((fn, delay) => {
 		const id = setTimeout(fn, delay);
 		gridTimers.current.push(id);
 		return id;
-	};
+	}, []);
 
 	useEffect(() => {
 		if (isLoading) {
@@ -180,16 +232,28 @@ const Apps = () => {
 		}, GRID_EXIT_MS);
 
 		return clearGridTimers;
-	}, [filteredApps, isLoading]);
+	}, [filteredApps, isLoading, clearGridTimers, scheduleGridTimer]);
 
-	const handleAcfNotice = () => {
+	const handleAcfNotice = useCallback(() => {
 		setShowAcfNotice(false);
 		setTimeout(() => {
 			setShowAcfNotice(true);
 			window.scrollTo({ top: 0, behavior: "smooth" });
 		}, 10);
 		setTimeout(() => setShowAcfNotice(false), ACF_NOTICE_MS);
-	};
+	}, []);
+
+	const handleSearchChange = useCallback((event) => {
+		setSearchQuery(event.target.value);
+	}, []);
+
+	const gridClassName = gridTransition
+		? `cf7apps-apps-container ${gridTransition}`
+		: "cf7apps-apps-container";
+
+	const emptyClassName = gridTransition
+		? `cf7apps-dashboard-empty ${gridTransition}`
+		: "cf7apps-dashboard-empty";
 
 	return (
 		<div className="cf7apps-dashboard">
@@ -238,9 +302,7 @@ const Apps = () => {
 							className="cf7apps-dashboard__search-input"
 							placeholder={__("Search", "cf7apps")}
 							value={searchQuery}
-							onChange={(event) =>
-								setSearchQuery(event.target.value)
-							}
+							onChange={handleSearchChange}
 							autoComplete="off"
 							spellCheck={false}
 						/>
@@ -250,43 +312,41 @@ const Apps = () => {
 						role="tablist"
 						aria-label={__("Filter apps", "cf7apps")}
 					>
-						{FILTER_TABS.map((tab) => (
-							<button
-								key={tab.id}
-								type="button"
-								role="tab"
-								aria-selected={activeFilter === tab.id}
-								className={
-									activeFilter === tab.id
-										? "cf7apps-dashboard__filter is-active"
-										: "cf7apps-dashboard__filter"
-								}
-								onClick={() => setActiveFilter(tab.id)}
-							>
-								{tab.icon && (
-									<img
-										className="cf7apps-dashboard__filter-icon"
-										src={toolbarIcon(tab.icon)}
-										alt=""
-										width={12}
-										height={12}
-									/>
-								)}
-								<span className="cf7apps-dashboard__filter-label">
-									{tab.label}
-								</span>
-							</button>
-						))}
+						{visibleFilterTabs.map((tab) => {
+							const isActive = activeFilter === tab.id;
+
+							return (
+								<button
+									key={tab.id}
+									type="button"
+									role="tab"
+									aria-selected={isActive}
+									className={
+										isActive
+											? "cf7apps-dashboard__filter is-active"
+											: "cf7apps-dashboard__filter"
+									}
+									onClick={() => setActiveFilter(tab.id)}
+								>
+									{tab.icon && (
+										<img
+											className="cf7apps-dashboard__filter-icon"
+											src={toolbarIcon(tab.icon)}
+											alt=""
+											width={12}
+											height={12}
+										/>
+									)}
+									<span className="cf7apps-dashboard__filter-label">
+										{tab.label}
+									</span>
+								</button>
+							);
+						})}
 					</nav>
 				</div>
 
-				<div
-					className={
-						gridTransition
-							? `cf7apps-apps-container ${gridTransition}`
-							: "cf7apps-apps-container"
-					}
-				>
+				<div className={gridClassName}>
 					{isLoading ? (
 						CARD_SKELETON
 					) : displayApps.length > 0 ? (
@@ -302,13 +362,7 @@ const Apps = () => {
 							/>
 						))
 					) : (
-						<p
-							className={
-								gridTransition
-									? `cf7apps-dashboard-empty ${gridTransition}`
-									: "cf7apps-dashboard-empty"
-							}
-						>
+						<p className={emptyClassName}>
 							{__("No apps match your search or filter.", "cf7apps")}
 						</p>
 					)}

@@ -23,6 +23,32 @@ import CF7AppsAppSettingsHeader from "../components/CF7AppsAppSettingsHeader";
 import CF7AppsAppSettingsTabs from "../components/CF7AppsAppSettingsTabs";
 import CF7AppsFormToggle from "../components/CF7AppsFormToggle";
 
+const PAYMENT_DASHBOARD_APPS = [ 'stripe', 'paypal', 'square' ];
+
+const getSettingsDocumentationUrl = ( appSettings, tabValue ) => {
+	if ( ! appSettings?.tab_documentation_urls || ! appSettings?.setting_tabs ) {
+		return appSettings?.documentation_url;
+	}
+
+	const tabKeys = Object.keys( appSettings.setting_tabs );
+	const tabIndex = parseInt( tabValue, 10 ) - 1;
+	const activeTabKey = tabKeys[ tabIndex ];
+
+	if ( activeTabKey && appSettings.tab_documentation_urls[ activeTabKey ] ) {
+		return appSettings.tab_documentation_urls[ activeTabKey ];
+	}
+
+	return appSettings.documentation_url;
+};
+
+const getPaymentDashboardSettingsTitle = ( appSettings ) => {
+	if ( appSettings?.id === 'square' ) {
+		return __( 'Square Integration Settings', 'cf7apps' );
+	}
+
+	return undefined;
+};
+
 const SettingsPanelHeader = ({ appSettings }) => {
     const assetsBase = CF7Apps?.assetsURL || '';
     const theme = getAppCardTheme(appSettings, assetsBase);
@@ -68,6 +94,13 @@ const SettingsPanelHeader = ({ appSettings }) => {
                             {theme.label}
                         </span>
                     </span>
+                    {theme.isNew && (
+                        <span className="cf7apps-app-card__new-tag">
+                            <span className="cf7apps-app-card__new-tag-label">
+                                {__('NEW', 'cf7apps')}
+                            </span>
+                        </span>
+                    )}
                     {theme.isBeta && theme.betaIconUrl && (
                         <span className="cf7apps-app-card__beta-tag">
                             <img
@@ -547,7 +580,8 @@ const AppSettings = () => {
         const isAiFormSettings = app === 'cf7-ai-form-generator';
         const isHoneypotSettings = app === 'honeypot';
         const isHcaptchaSettings = app === 'hcaptcha';
-        const isAppSettingsShell = isRedirectionSettings || isEntriesSettings || isWebhookSettings || isAcfSettings || isAiFormSettings || isHoneypotSettings || isHcaptchaSettings;
+        const isWeeklySummarySettings = app === 'weekly-summary';
+        const isAppSettingsShell = isRedirectionSettings || isEntriesSettings || isWebhookSettings || isAcfSettings || isAiFormSettings || isHoneypotSettings || isHcaptchaSettings || isWeeklySummarySettings;
         const formClassName = [
             'cf7apps-form',
             isAppSettingsShell ? 'cf7apps-app-settings-form' : '',
@@ -667,7 +701,7 @@ const AppSettings = () => {
             window.location.hash = explodedHash.join('/');
         };
 
-        const renderTabField = (fieldKey, field, tabSettings) => {
+        const renderTabField = (fieldKey, field, tabSettings, tabKey) => {
             const className = field?.class === undefined ? '' : field.class;
             const help = field?.help;
             const palceholder = field?.placeholder === undefined ? '' : field.placeholder;
@@ -692,6 +726,7 @@ const AppSettings = () => {
                         key={fieldKey}
                         appSettings={appSettings}
                         formData={formData}
+                        tabKey={tabKey}
                     />
                 );
             }
@@ -844,7 +879,7 @@ const AppSettings = () => {
                                         className={`MuiTabPanel-root cf7apps-app-settings-tabpanel cf7apps-app-settings-tabpanel-${tabKey}`}
                                     >
                                         {Object.keys(tabSettings).map((fieldKey) =>
-                                            renderTabField(fieldKey, tabSettings[fieldKey], tabSettings)
+                                            renderTabField(fieldKey, tabSettings[fieldKey], tabSettings, tabKey)
                                         )}
                                     </div>
                                 );
@@ -1035,6 +1070,7 @@ const AppSettings = () => {
                                                             key={fieldKey}
                                                             appSettings={appSettings}
                                                             formData={formData}
+                                                            tabKey={tabKey}
                                                         />
                                                     )
                                                 }
@@ -1069,6 +1105,10 @@ const AppSettings = () => {
                             Object.keys(generalFields).map((fieldKey) => {
                                 const field = generalFields[fieldKey];
 
+                                if (isWeeklySummarySettings && (fieldKey === 'is_enabled' || fieldKey === 'additional_recipients')) {
+                                    return null;
+                                }
+
                                 if (isWebhookSettings && fieldKey === 'data_type') {
                                     return null;
                                 }
@@ -1099,7 +1139,9 @@ const AppSettings = () => {
     const isAiFormSettings = app === 'cf7-ai-form-generator';
     const isHoneypotSettings = app === 'honeypot';
     const isHcaptchaSettings = app === 'hcaptcha';
-    const isAppSettingsShell = isRedirectionSettings || isEntriesSettings || isWebhookSettings || isAcfSettings || isAiFormSettings || isHoneypotSettings || isHcaptchaSettings;
+    const isWeeklySummarySettings = app === 'weekly-summary';
+    const isPaymentDashboardSettings = PAYMENT_DASHBOARD_APPS.includes( app );
+    const isAppSettingsShell = isRedirectionSettings || isEntriesSettings || isWebhookSettings || isAcfSettings || isAiFormSettings || isHoneypotSettings || isHcaptchaSettings || isWeeklySummarySettings;
     const appSettingsPanelClass = isRedirectionSettings
         ? ' cf7apps-redirection-settings'
         : (isEntriesSettings
@@ -1112,10 +1154,16 @@ const AppSettings = () => {
                         ? ' cf7apps-ai-form-settings'
                         : (isHoneypotSettings
                             ? ' cf7apps-honeypot-settings'
-                            : (isHcaptchaSettings ? ' cf7apps-hcaptcha-settings' : ''))))));
+                            : (isHcaptchaSettings
+                                ? ' cf7apps-hcaptcha-settings'
+                                : ( isWeeklySummarySettings
+                                    ? ' cf7apps-weekly-summary-settings'
+                                    : ( isPaymentDashboardSettings
+                                    ? ' cf7apps-payment-dashboard-settings'
+                                    : '' ) ) ) ) ) ) ) );
     const panelStyle =
-        appSettings && appSettings.id === app && !isAppSettingsShell
-            ? getAppSettingsPanelStyle(appSettings, assetsBase)
+        appSettings && appSettings.id === app && ! isAppSettingsShell
+            ? getAppSettingsPanelStyle( appSettings, assetsBase )
             : undefined;
 
     return (
@@ -1126,8 +1174,16 @@ const AppSettings = () => {
                     className={`cf7apps-dashboard__panel cf7apps-settings-panel cf7apps-app-${appSettings.id}${appSettingsPanelClass}`}
                     style={panelStyle}
                 >
-                    {isAppSettingsShell ? (
-                        <CF7AppsAppSettingsHeader appSettings={appSettings} />
+                    {isAppSettingsShell || isPaymentDashboardSettings ? (
+                        <CF7AppsAppSettingsHeader
+                            appSettings={appSettings}
+                            documentationUrl={ getSettingsDocumentationUrl( appSettings, tabValue ) }
+                            title={
+                                isPaymentDashboardSettings
+                                    ? getPaymentDashboardSettingsTitle( appSettings )
+                                    : ( isWeeklySummarySettings ? appSettings.title : undefined )
+                            }
+                        />
                     ) : (
                         <SettingsPanelHeader appSettings={appSettings} />
                     )}
