@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "@wordpress/element";
+import { useEffect, useState, useCallback, useMemo } from "@wordpress/element";
 import { __, sprintf } from "@wordpress/i18n";
 import CF7AppsSkeletonLoader from "../components/CF7AppsSkeletonLoader";
 import { Link, useParams } from "react-router";
@@ -12,41 +12,32 @@ import CF7AppsNumberField from "../components/CF7AppsNumberField";
 import CF7AppsRadioField from "../components/CF7AppsRadioField";
 import CF7AppsHelpText from "../components/CF7AppsHelpText";
 import { Button } from "@wordpress/components";
-import CF7AppsTemplates from "../templates/CF7AppsTemplates";
+import CF7AppsTemplates, { getTemplate, hasTemplate } from "../templates/CF7AppsTemplates";
 import { toast } from 'react-toastify';
 import parse from 'html-react-parser';
 import CF7AppsSelectField from "../components/CF7AppsSelectField";
 import CF7AppsNotice from "../components/CF7AppsNotice";
 import { getWebhookDataTypeOptions } from "../utils/webhookUiUtils";
-import { getAppCardTheme, getAppSettingsPanelStyle } from "../utils/appCardTheme";
+import {
+    getAppCardTheme,
+    getAppSettingsPanelStyle,
+    getCf7AppsRuntime,
+} from "../utils/appCardTheme";
 import CF7AppsAppSettingsHeader from "../components/CF7AppsAppSettingsHeader";
 import CF7AppsAppSettingsTabs from "../components/CF7AppsAppSettingsTabs";
 import CF7AppsFormToggle from "../components/CF7AppsFormToggle";
+import {
+    collectEntriesProSettingsForSave,
+    getEntriesProLastSaveError,
+    readEntriesProSettingsForSave,
+    registerEntriesProSettingsSnapshot,
+    saveRegisteredEntriesProSettings,
+} from "../utils/entriesProSettingsBridge";
+import { validateWebhookUrls } from "../utils/webhookValidation";
 
-const PAYMENT_DASHBOARD_APPS = [ 'stripe', 'paypal', 'square' ];
-
-const getSettingsDocumentationUrl = ( appSettings, tabValue ) => {
-	if ( ! appSettings?.tab_documentation_urls || ! appSettings?.setting_tabs ) {
-		return appSettings?.documentation_url;
-	}
-
-	const tabKeys = Object.keys( appSettings.setting_tabs );
-	const tabIndex = parseInt( tabValue, 10 ) - 1;
-	const activeTabKey = tabKeys[ tabIndex ];
-
-	if ( activeTabKey && appSettings.tab_documentation_urls[ activeTabKey ] ) {
-		return appSettings.tab_documentation_urls[ activeTabKey ];
-	}
-
-	return appSettings.documentation_url;
-};
-
-const getPaymentDashboardSettingsTitle = ( appSettings ) => {
-	if ( appSettings?.id === 'square' ) {
-		return __( 'Square Integration Settings', 'cf7apps' );
-	}
-
-	return undefined;
+const getAdminTabFields = ( adminSettings, tabKey ) => {
+	const tabFields = adminSettings?.general?.fields?.[ tabKey ];
+	return tabFields && typeof tabFields === 'object' ? tabFields : {};
 };
 
 const SettingsPanelHeader = ({ appSettings }) => {
@@ -94,13 +85,6 @@ const SettingsPanelHeader = ({ appSettings }) => {
                             {theme.label}
                         </span>
                     </span>
-                    {theme.isNew && (
-                        <span className="cf7apps-app-card__new-tag">
-                            <span className="cf7apps-app-card__new-tag-label">
-                                {__('NEW', 'cf7apps')}
-                            </span>
-                        </span>
-                    )}
                     {theme.isBeta && theme.betaIconUrl && (
                         <span className="cf7apps-app-card__beta-tag">
                             <img
@@ -300,26 +284,37 @@ const AppSettings = () => {
 
                 setHasTabs(hasTabs);
 
+                if (
+                    app === 'cf7-entries' &&
+                    appSettings.entries_pro_settings &&
+                    typeof appSettings.entries_pro_settings === 'object'
+                ) {
+                    registerEntriesProSettingsSnapshot(
+                        appSettings.entries_pro_settings
+                    );
+                }
+
                 if (hasTabs) {
                     let settingsTabs = appSettings['setting_tabs'];
                     let settings = appSettings['admin_settings']['general'];
 
                     Object.keys(settingsTabs).map((tabKey, tabIndex) => {
-                        Object.keys(settings['fields'][tabKey]).map((fieldKey, fieldIndex) => {
-                            if (fieldKey !== 'template') {
-                                if (settings['fields'][tabKey][fieldKey].type === 'text' || settings['fields'][tabKey][fieldKey].type === 'number' || 'radio' === settings['fields'][tabKey][fieldKey].type) {
-                                    if (settings['fields'][tabKey][fieldKey].value !== undefined) {
-                                        _formData[fieldKey] = settings['fields'][tabKey][fieldKey].value;
+                        const tabFields = getAdminTabFields( appSettings.admin_settings, tabKey );
+                        Object.keys(tabFields).map((fieldKey, fieldIndex) => {
+                            if (fieldKey !== 'template' && typeof tabFields[fieldKey] === 'object') {
+                                if (tabFields[fieldKey].type === 'text' || tabFields[fieldKey].type === 'number' || 'radio' === tabFields[fieldKey].type) {
+                                    if (tabFields[fieldKey].value !== undefined) {
+                                        _formData[fieldKey] = tabFields[fieldKey].value;
                                     } else {
-                                        _formData[fieldKey] = settings['fields'][tabKey][fieldKey].default;
+                                        _formData[fieldKey] = tabFields[fieldKey].default;
                                     }
                                 }
-                                else if (settings['fields'][tabKey][fieldKey].type === 'checkbox') {
-                                    _formData[fieldKey] = settings['fields'][tabKey][fieldKey].checked;
-                                } else if (settings['fields'][tabKey][fieldKey].type === 'textarea') {
-                                    _formData[fieldKey] = settings['fields'][tabKey][fieldKey].value !== undefined ? settings['fields'][tabKey][fieldKey].value : (settings['fields'][tabKey][fieldKey].default ? settings['fields'][tabKey][fieldKey].default : '');
-                                } else if (settings['fields'][tabKey][fieldKey].type === 'select') {
-                                    const f = settings['fields'][tabKey][fieldKey];
+                                else if (tabFields[fieldKey].type === 'checkbox') {
+                                    _formData[fieldKey] = tabFields[fieldKey].checked;
+                                } else if (tabFields[fieldKey].type === 'textarea') {
+                                    _formData[fieldKey] = tabFields[fieldKey].value !== undefined ? tabFields[fieldKey].value : (tabFields[fieldKey].default ? tabFields[fieldKey].default : '');
+                                } else if (tabFields[fieldKey].type === 'select') {
+                                    const f = tabFields[fieldKey];
                                     if (f.selected !== undefined && f.selected !== null && f.selected !== '') {
                                         _formData[fieldKey] = f.selected;
                                     } else {
@@ -334,7 +329,7 @@ const AppSettings = () => {
                     let settings = appSettings['admin_settings']['general'];
 
                     Object.keys(settings['fields']).map((fieldKey, fieldIndex) => {
-                        if (fieldKey !== 'template') {
+                        if (fieldKey !== 'template' && typeof settings['fields'][fieldKey] === 'object') {
                             let field = settings['fields'][fieldKey];
                             if (field.type === 'text' || field.type === 'number' || 'radio' === field.type) {
                                 if (field.value !== undefined && field.value !== null) {
@@ -388,12 +383,21 @@ const AppSettings = () => {
                 if (app === 'webhook' && String(_formData.method || '').toUpperCase() === 'GET' && _formData.data_type === 'form') {
                     _formData.data_type = 'json';
                 }
+                if (app === 'webhook' && appSettings.has_pro) {
+                    const pro = appSettings.webhook_pro_settings || {};
+                    _formData.selected_fields = Array.isArray(pro.selected_fields) ? pro.selected_fields : [];
+                    _formData.selected_fields_mode = pro.selected_fields_mode || 'all';
+                    _formData.webhooks = Array.isArray(pro.webhooks) ? pro.webhooks : [];
+                    if (_formData.failure_notifications === undefined) {
+                        _formData.failure_notifications = !!pro.failure_notifications;
+                    }
+                }
                 setFormData(_formData);
                 // initialize openMap for textarea fields across tabs
                 let _openMap = {};
                 if (hasTabs) {
                     Object.keys(appSettings.setting_tabs).map((tabKey) => {
-                        const tabSettings = appSettings.admin_settings['general']['fields'][tabKey];
+                        const tabSettings = getAdminTabFields( appSettings.admin_settings, tabKey );
                         Object.keys(tabSettings).map((fieldKey) => {
                             const field = tabSettings[fieldKey];
                             if (field && field.type === 'textarea') {
@@ -470,13 +474,32 @@ const AppSettings = () => {
             return;
         }
 
+        // HFCF7-646: Global Settings cannot be saved while Webhook App is disabled.
+        if (app === 'webhook' && formData.global_settings && !isEnabled) {
+            const errorMessage = __(
+                'Enable Webhook App before turning on Global Settings.',
+                'cf7apps'
+            );
+            setNotice({ show: true, text: errorMessage });
+            toast.error(errorMessage);
+            setIsSaving(false);
+            return;
+        }
+
         // Only validate required fields if app is enabled
         if (isEnabled) {
+            const hasMultiWebhooks = app === 'webhook'
+                && Array.isArray(formData.webhooks)
+                && formData.webhooks.some((item) => item && item.enabled !== false && String(item.webhook_url || '').trim());
+
             if (hasTabs) {
                 Object.keys(appSettings.setting_tabs).some((tabKey) => {
-                    const tabSettings = appSettings.admin_settings['general']['fields'][tabKey];
+                    const tabSettings = getAdminTabFields( appSettings.admin_settings, tabKey );
                     return Object.keys(tabSettings).some((fieldKey) => {
                         const field = tabSettings[fieldKey];
+                        if (hasMultiWebhooks && fieldKey === 'webhook_url') {
+                            return false;
+                        }
                         if (field && field.required && (formData[fieldKey] === '' || formData[fieldKey] === undefined)) {
                             missingRequired = true;
                             requiredMessage = field.required_message || __('Please fill all required fields.', 'cf7apps');
@@ -489,6 +512,9 @@ const AppSettings = () => {
                 const fields = appSettings.admin_settings['general']['fields'];
                 Object.keys(fields).some((fieldKey) => {
                     const field = fields[fieldKey];
+                    if (hasMultiWebhooks && fieldKey === 'webhook_url') {
+                        return false;
+                    }
                     if (field && field.required && (formData[fieldKey] === '' || formData[fieldKey] === undefined)) {
                         missingRequired = true;
                         requiredMessage = field.required_message || __('Please fill all required fields.', 'cf7apps');
@@ -519,25 +545,12 @@ const AppSettings = () => {
             }
         }
 
-        // Validate webhook URL format (only for webhook app)
-        if (app === 'webhook' && isEnabled) {
-            const webhookUrl = formData['webhook_url'] ? formData['webhook_url'].trim() : '';
-
-            // Check if webhook URL is empty
-            if (webhookUrl === '') {
-                const errorMessage = __('Webhook URL cannot be empty.', 'cf7apps');
-                setNotice({ show: true, text: errorMessage });
-                toast.error(errorMessage);
-                setIsSaving(false);
-                return;
-            }
-
-            // Check if webhook URL has correct format
-            if (!webhookUrl.startsWith('http://') && !webhookUrl.startsWith('https://')) {
-                const errorMessage = __('Webhook URL must start with http:// or https://', 'cf7apps');
-                setNotice({ show: true, text: errorMessage });
-                toast.error(errorMessage);
-                setIsSaving(false);
+        if ( app === 'webhook' && isEnabled ) {
+            const webhookValidation = validateWebhookUrls( formData );
+            if ( ! webhookValidation.valid ) {
+                setNotice( { show: true, text: webhookValidation.message } );
+                toast.error( webhookValidation.message );
+                setIsSaving( false );
                 return;
             }
         }
@@ -545,9 +558,37 @@ const AppSettings = () => {
         setNotice({ show: false, text: '' });
         setIsSaving(true);
 
-        const response = await saveSettings(app, formData);
+        let entriesProSaved = true;
+        let entriesProSnapshot = null;
 
-        if (response) {
+        if ( app === 'cf7-entries' && getCf7AppsRuntime().hasPro ) {
+            entriesProSnapshot =
+                readEntriesProSettingsForSave() ||
+                ( await collectEntriesProSettingsForSave() );
+
+            entriesProSaved = await saveRegisteredEntriesProSettings(
+                entriesProSnapshot
+            );
+            if ( ! entriesProSaved ) {
+                toast.error(
+                    getEntriesProLastSaveError() ||
+                        __( 'Failed to save Entries Pro settings.', 'cf7apps' )
+                );
+                setIsSaving( false );
+                return;
+            }
+        }
+
+        const saveExtras =
+            app === 'cf7-entries' && entriesProSnapshot
+                ? { entries_pro_settings: entriesProSnapshot }
+                : {};
+
+        const response = entriesProSaved
+            ? await saveSettings( app, formData, saveExtras )
+            : false;
+
+        if (response && entriesProSaved) {
             toast.success(__('Great! Settings Saved Successfully', 'cf7apps'));
         }
         else {
@@ -563,6 +604,16 @@ const AppSettings = () => {
         explodedHash[3] = newValue;
         window.location.hash = explodedHash.join('/');
     };
+
+    const visibleSettingTabs = useMemo( () => {
+        const tabs = appSettings?.setting_tabs || {};
+        if ( app === 'webhook' && ! appSettings?.has_pro ) {
+            return Object.fromEntries(
+                Object.entries( tabs ).filter( ( [ key ] ) => key !== 'logs' )
+            );
+        }
+        return tabs;
+    }, [ app, appSettings?.setting_tabs, appSettings?.has_pro ] );
 
     /**
      * Settings of the App.
@@ -581,7 +632,8 @@ const AppSettings = () => {
         const isHoneypotSettings = app === 'honeypot';
         const isHcaptchaSettings = app === 'hcaptcha';
         const isWeeklySummarySettings = app === 'weekly-summary';
-        const isAppSettingsShell = isRedirectionSettings || isEntriesSettings || isWebhookSettings || isAcfSettings || isAiFormSettings || isHoneypotSettings || isHcaptchaSettings || isWeeklySummarySettings;
+        const isPaymentSettings = app === 'stripe' || app === 'paypal' || app === 'square';
+        const isAppSettingsShell = isRedirectionSettings || isEntriesSettings || isWebhookSettings || isAcfSettings || isAiFormSettings || isHoneypotSettings || isHcaptchaSettings || isWeeklySummarySettings || isPaymentSettings;
         const formClassName = [
             'cf7apps-form',
             isAppSettingsShell ? 'cf7apps-app-settings-form' : '',
@@ -624,7 +676,7 @@ const AppSettings = () => {
                 );
             }
 
-            if (isWebhookSettings || isAcfSettings || isAiFormSettings || isHoneypotSettings || isHcaptchaSettings) {
+            if (isWebhookSettings || isAcfSettings || isAiFormSettings || isHoneypotSettings || isHcaptchaSettings || isWeeklySummarySettings) {
                 return (
                     <div key={fieldKey} className="cf7apps-app-settings-save-wrap">
                         {saveButton}
@@ -714,8 +766,9 @@ const AppSettings = () => {
                 );
             }
 
-            if (fieldKey === 'template') {
-                const Template = CF7AppsTemplates[field];
+            if (fieldKey === 'template' || (typeof field === 'string' && hasTemplate(field))) {
+                const templateKey = typeof field === 'string' ? field : field;
+                const Template = getTemplate(templateKey);
 
                 if (!Template) {
                     return null;
@@ -726,6 +779,7 @@ const AppSettings = () => {
                         key={fieldKey}
                         appSettings={appSettings}
                         formData={formData}
+                        setFormData={setFormData}
                         tabKey={tabKey}
                     />
                 );
@@ -857,30 +911,43 @@ const AppSettings = () => {
         };
 
         if (hasTabs) {
-            if (isEntriesSettings || isHoneypotSettings) {
+            if (isEntriesSettings || isHoneypotSettings || isWebhookSettings) {
                 return (
                     <div className={formClassName}>
                         <CF7AppsAppSettingsTabs
-                            tabs={appSettings.setting_tabs}
+                            tabs={ visibleSettingTabs }
                             activeTab={tabValue}
                             onChange={handleAppSettingsTabChange}
                         />
                         {
-                            Object.keys(appSettings.setting_tabs).map((tabKey, tabIndex) => {
+                            Object.keys(visibleSettingTabs).map((tabKey, tabIndex) => {
                                 if (`${tabIndex + 1}` !== tabValue) {
                                     return null;
                                 }
 
-                                const tabSettings = appSettings.admin_settings['general']['fields'][tabKey] || {};
+                                const tabSettings = getAdminTabFields( appSettings.admin_settings, tabKey );
 
                                 return (
                                     <div
                                         key={tabKey}
                                         className={`MuiTabPanel-root cf7apps-app-settings-tabpanel cf7apps-app-settings-tabpanel-${tabKey}`}
                                     >
-                                        {Object.keys(tabSettings).map((fieldKey) =>
-                                            renderTabField(fieldKey, tabSettings[fieldKey], tabSettings, tabKey)
-                                        )}
+                                        {Object.keys(tabSettings).map((fieldKey) => {
+                                            if (isWebhookSettings && fieldKey === 'data_type') {
+                                                return null;
+                                            }
+
+                                            if (isWebhookSettings && fieldKey === 'method') {
+                                                return (
+                                                    <div key="webhook-method-row" className="cf7apps-webhook-method-row">
+                                                        {renderTabField('method', tabSettings.method, tabSettings, tabKey)}
+                                                        {renderTabField('data_type', tabSettings.data_type, tabSettings, tabKey)}
+                                                    </div>
+                                                );
+                                            }
+
+                                            return renderTabField(fieldKey, tabSettings[fieldKey], tabSettings, tabKey);
+                                        })}
                                     </div>
                                 );
                             })
@@ -911,7 +978,7 @@ const AppSettings = () => {
                         </Box>
                         {
                             Object.keys(appSettings.setting_tabs).map((tabKey, tabIndex) => {
-                                const tabSettings = appSettings.admin_settings['general']['fields'][tabKey];
+                                const tabSettings = getAdminTabFields( appSettings.admin_settings, tabKey );
 
                                 return (
                                     <TabPanel key={tabKey} value={`${tabIndex + 1}`}>
@@ -1061,15 +1128,21 @@ const AppSettings = () => {
                                                         </div>
                                                     )
                                                 }
-                                                else if (fieldKey === 'template') {
-                                                    const Template = CF7AppsTemplates[field];
+                                                else if (fieldKey === 'template' || (typeof field === 'string' && hasTemplate(field))) {
+                                                    const templateKey = typeof field === 'string' ? field : field;
+                                                    const Template = getTemplate(templateKey);
 
                                                     // passing app settings to template for enable and disable the entries app.
+                                                    if ( ! Template ) {
+                                                        return null;
+                                                    }
+
                                                     return (
                                                         <Template
                                                             key={fieldKey}
                                                             appSettings={appSettings}
                                                             formData={formData}
+                                                            setFormData={setFormData}
                                                             tabKey={tabKey}
                                                         />
                                                     )
@@ -1090,6 +1163,22 @@ const AppSettings = () => {
             // No Tabs
             const generalFields = appSettings.admin_settings['general']['fields'];
 
+            if ( isWeeklySummarySettings && hasTemplate( 'weeklySummaryAdmin' ) ) {
+                const WeeklySummaryTemplate = getTemplate( 'weeklySummaryAdmin' );
+
+                return (
+                    <div className={formClassName}>
+                        <div className="MuiTabPanel-root cf7apps-weekly-summary-settings-panel">
+                            <WeeklySummaryTemplate
+                                appSettings={appSettings}
+                                formData={formData}
+                                setFormData={setFormData}
+                            />
+                        </div>
+                    </div>
+                );
+            }
+
             return (
                 <div className={formClassName}>
                     <div className="MuiTabPanel-root">
@@ -1104,10 +1193,6 @@ const AppSettings = () => {
                         {
                             Object.keys(generalFields).map((fieldKey) => {
                                 const field = generalFields[fieldKey];
-
-                                if (isWeeklySummarySettings && (fieldKey === 'is_enabled' || fieldKey === 'additional_recipients')) {
-                                    return null;
-                                }
 
                                 if (isWebhookSettings && fieldKey === 'data_type') {
                                     return null;
@@ -1140,8 +1225,8 @@ const AppSettings = () => {
     const isHoneypotSettings = app === 'honeypot';
     const isHcaptchaSettings = app === 'hcaptcha';
     const isWeeklySummarySettings = app === 'weekly-summary';
-    const isPaymentDashboardSettings = PAYMENT_DASHBOARD_APPS.includes( app );
-    const isAppSettingsShell = isRedirectionSettings || isEntriesSettings || isWebhookSettings || isAcfSettings || isAiFormSettings || isHoneypotSettings || isHcaptchaSettings || isWeeklySummarySettings;
+    const isPaymentSettings = app === 'stripe' || app === 'paypal' || app === 'square';
+    const isAppSettingsShell = isRedirectionSettings || isEntriesSettings || isWebhookSettings || isAcfSettings || isAiFormSettings || isHoneypotSettings || isHcaptchaSettings || isWeeklySummarySettings || isPaymentSettings;
     const appSettingsPanelClass = isRedirectionSettings
         ? ' cf7apps-redirection-settings'
         : (isEntriesSettings
@@ -1156,14 +1241,14 @@ const AppSettings = () => {
                             ? ' cf7apps-honeypot-settings'
                             : (isHcaptchaSettings
                                 ? ' cf7apps-hcaptcha-settings'
-                                : ( isWeeklySummarySettings
+                                : (isWeeklySummarySettings
                                     ? ' cf7apps-weekly-summary-settings'
-                                    : ( isPaymentDashboardSettings
-                                    ? ' cf7apps-payment-dashboard-settings'
-                                    : '' ) ) ) ) ) ) ) );
+                                    : (isPaymentSettings
+                                        ? ` cf7apps-payment-dashboard-settings cf7apps-${app}-settings`
+                                        : ''))))))));
     const panelStyle =
         appSettings && appSettings.id === app && ! isAppSettingsShell
-            ? getAppSettingsPanelStyle( appSettings, assetsBase )
+            ? getAppSettingsPanelStyle(appSettings, assetsBase)
             : undefined;
 
     return (
@@ -1174,16 +1259,8 @@ const AppSettings = () => {
                     className={`cf7apps-dashboard__panel cf7apps-settings-panel cf7apps-app-${appSettings.id}${appSettingsPanelClass}`}
                     style={panelStyle}
                 >
-                    {isAppSettingsShell || isPaymentDashboardSettings ? (
-                        <CF7AppsAppSettingsHeader
-                            appSettings={appSettings}
-                            documentationUrl={ getSettingsDocumentationUrl( appSettings, tabValue ) }
-                            title={
-                                isPaymentDashboardSettings
-                                    ? getPaymentDashboardSettingsTitle( appSettings )
-                                    : ( isWeeklySummarySettings ? appSettings.title : undefined )
-                            }
-                        />
+                    {isAppSettingsShell ? (
+                        <CF7AppsAppSettingsHeader appSettings={appSettings} />
                     ) : (
                         <SettingsPanelHeader appSettings={appSettings} />
                     )}
@@ -1210,7 +1287,7 @@ const AppSettings = () => {
                         </div>
                     )}
                     <div className="cf7apps-app-setting-section">
-                        {Settings()}
+                        { Settings() }
                     </div>
                 </div>
             </div>

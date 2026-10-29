@@ -19,7 +19,7 @@ const CF7AppsAppSettingsTabs = ( { tabs, activeTab, onChange } ) => {
 						aria-selected={ activeTab === tabValue }
 						onClick={ () => onChange( tabValue ) }
 					>
-						{ label }
+						<span className="cf7apps-app-settings-tabs__label">{ label }</span>
 					</button>
 				);
 			} ) }

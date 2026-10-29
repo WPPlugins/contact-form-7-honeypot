@@ -225,6 +225,71 @@ function cf7apps_maybe_migrate_dynamic_honeypot_setting() {
 }
 endif;
 
+/**
+ * Restore redirection_type when a valid external URL was saved but type was reset.
+ *
+ * @since 3.8.1
+ *
+ * @param array $redir_settings cf7-redirection app settings.
+ * @return array
+ */
+if ( ! function_exists( 'cf7apps_repair_redirection_type_settings' ) ) :
+function cf7apps_repair_redirection_type_settings( array $redir_settings ) {
+    $external = isset( $redir_settings['external_url'] ) ? trim( (string) $redir_settings['external_url'] ) : '';
+
+    if ( '' === $external || ! filter_var( $external, FILTER_VALIDATE_URL ) ) {
+        return $redir_settings;
+    }
+
+    $type = isset( $redir_settings['redirection_type'] ) ? (string) $redir_settings['redirection_type'] : '';
+
+    if ( 'external_url' === $type ) {
+        return $redir_settings;
+    }
+
+    if ( '' === $type || 'post_type' === $type ) {
+        $redir_settings['redirection_type'] = 'external_url';
+    }
+
+    return $redir_settings;
+}
+endif;
+
+/**
+ * Run one-time tasks after a plugin version bump (admin).
+ *
+ * @since 3.8.1
+ */
+if ( ! function_exists( 'cf7apps_maybe_run_plugin_upgrade_tasks' ) ) :
+function cf7apps_maybe_run_plugin_upgrade_tasks() {
+    if ( ! is_admin() || ! current_user_can( 'manage_options' ) ) {
+        return;
+    }
+
+    $stored = get_option( 'cf7apps_plugin_db_version', '0' );
+
+    if ( version_compare( (string) $stored, CF7APPS_VERSION, '>=' ) ) {
+        return;
+    }
+
+    cf7apps_maybe_migrate_dynamic_honeypot_setting();
+
+    $settings = get_option( 'cf7apps_settings', array() );
+
+    if ( ! empty( $settings['cf7-redirection'] ) && is_array( $settings['cf7-redirection'] ) ) {
+        $repaired = cf7apps_repair_redirection_type_settings( $settings['cf7-redirection'] );
+
+        if ( $repaired !== $settings['cf7-redirection'] ) {
+            $settings['cf7-redirection'] = $repaired;
+            update_option( 'cf7apps_settings', $settings );
+        }
+    }
+
+    update_option( 'cf7apps_plugin_db_version', CF7APPS_VERSION, false );
+}
+endif;
+add_action( 'admin_init', 'cf7apps_maybe_run_plugin_upgrade_tasks', 5 );
+
 if ( ! function_exists( 'cf7apps_get_post_types_options' ) ) :
     /**
      * Get Post Types Options
@@ -568,5 +633,64 @@ function cf7apps_has_pro() {
         'cf7apps_has_pro',
         class_exists( 'CF7Apps_Pro_Stripe', false )
     );
+}
+endif;
+
+if ( ! function_exists( 'cf7apps_get_entries_forms_options' ) ) :
+/**
+ * Get Contact Form 7 forms for Entries settings and exports.
+ *
+ * @since 3.7.3
+ *
+ * @return array
+ */
+function cf7apps_get_entries_forms_options() {
+    $cf7_forms = get_posts(
+        array(
+            'post_type'      => 'wpcf7_contact_form',
+            'posts_per_page' => -1,
+            'post_status'    => 'publish',
+            'orderby'        => 'title',
+            'order'          => 'ASC',
+        )
+    );
+
+    $options = array(
+        'all' => __( 'All Forms', 'cf7apps' ),
+    );
+
+    foreach ( $cf7_forms as $cf7_form ) {
+        $options[ (string) $cf7_form->ID ] = $cf7_form->post_title;
+    }
+
+    return $options;
+}
+endif;
+
+/**
+ * Whether the current request is the CF7 Apps form Preview (display-only).
+ *
+ * HFCF7-640: Preview must not submit, log entries, or trigger integrations.
+ *
+ * @since 3.9.0
+ *
+ * @return bool
+ */
+if ( ! function_exists( 'cf7apps_is_form_preview_request' ) ) :
+function cf7apps_is_form_preview_request() {
+	if ( isset( $_GET['cf7apps_form_preview'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		return true;
+	}
+
+	if ( ! empty( $_POST['_cf7apps_form_preview'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
+		return true;
+	}
+
+	$referer = isset( $_SERVER['HTTP_REFERER'] ) ? (string) wp_unslash( $_SERVER['HTTP_REFERER'] ) : '';
+	if ( '' !== $referer && false !== strpos( $referer, 'cf7apps_form_preview=' ) ) {
+		return true;
+	}
+
+	return (bool) apply_filters( 'cf7apps_is_form_preview_request', false );
 }
 endif;

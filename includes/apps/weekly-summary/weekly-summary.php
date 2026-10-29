@@ -96,39 +96,37 @@ if ( ! class_exists( 'CF7Apps_Weekly_Summary_App' ) && class_exists( 'CF7Apps_Ap
 		 */
 
 		public function admin_settings() {
-
 			return array(
-
 				'general' => array(
-
 					'fields' => array(
-
-						'is_enabled'             => array(
-
+						'is_enabled'            => array(
+							'title'   => __( 'Enable Email Summary Report', 'cf7apps' ),
 							'type'    => 'checkbox',
-
 							'default' => false,
-
+							'help'    => __(
+								'Enable automated generation of weekly summary reports for Contact Form 7 entries, delivered directly to users.',
+								'cf7apps'
+							),
 						),
-
 						'additional_recipients' => array(
-
+							'title'       => __( 'Additional Recipients', 'cf7apps' ),
 							'type'        => 'text',
-
 							'default'     => '',
-
 							'placeholder' => __( 'email1@example.com, email2@example.com', 'cf7apps' ),
-
+							'class'       => '',
+							'description' => __(
+								'Optional. Comma-separated email addresses that will also receive the weekly summary report. The admin email is always included.',
+								'cf7apps'
+							),
 						),
-
-						'template'               => 'weeklySummaryAdmin',
-
+						'save_settings'         => array(
+							'type'  => 'save_button',
+							'text'  => __( 'Save Settings', 'cf7apps' ),
+							'class' => 'button-primary',
+						),
 					),
-
 				),
-
 			);
-
 		}
 
 

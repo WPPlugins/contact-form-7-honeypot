@@ -111,6 +111,11 @@ const CF7AppsHeader = ( { showNavToggle = true } ) => {
 									V { CF7Apps.pluginVersion }
 								</span>
 							) }
+							{ CF7Apps?.hasPro && CF7Apps?.proPluginVersion && (
+								<span className="cf7apps-header-version cf7apps-header-version--pro">
+									Pro V { CF7Apps.proPluginVersion }
+								</span>
+							) }
 						</div>
 					</div>
 				</div>

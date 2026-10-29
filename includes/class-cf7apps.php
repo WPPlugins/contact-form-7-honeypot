@@ -35,16 +35,32 @@ class CF7Apps {
         // Check if Contact Form 7 is active
         if ( ! $this->is_contact_form_7_active() ) {
             add_action( 'admin_notices', array( $this, 'cf7_not_active_notice' ) );
-            deactivate_plugins( CF7APPS_PLUGIN );
+            // Never deactivate during the activation request — that races WP's
+            // activate flow and can leave menus/hooks unregistered.
+            add_action( 'admin_init', array( $this, 'maybe_deactivate_without_cf7' ) );
             return; // Don't initialize if CF7 is not active
         }
 
         $this->includes();
-
-        cf7apps_maybe_migrate_dynamic_honeypot_setting();
-
         $this->register_hooks();
         $this->add_actions();
+    }
+
+    /**
+     * Deactivate CF7 Apps when Contact Form 7 is missing (outside activation).
+     *
+     * @since 3.8.1
+     */
+    public function maybe_deactivate_without_cf7() {
+        if ( $this->is_contact_form_7_active() ) {
+            return;
+        }
+
+        if ( ! function_exists( 'deactivate_plugins' ) ) {
+            include_once ABSPATH . 'wp-admin/includes/plugin.php';
+        }
+
+        deactivate_plugins( CF7APPS_PLUGIN );
     }
 
     /**
@@ -145,7 +161,8 @@ class CF7Apps {
      * @since 3.0.0
      */
     public function add_actions() {
-        add_action( 'admin_menu', array( $this, 'admin_menu' ) );
+        // Priority 20: after Contact Form 7 registers its parent menu (priority 9).
+        add_action( 'admin_menu', array( $this, 'admin_menu' ), 20 );
     }
 
     /**
@@ -155,7 +172,7 @@ class CF7Apps {
      */
     public function admin_menu() {
         $page_id = add_submenu_page(
-            'wpcf7',
+            cf7apps_get_cf7_parent_menu_slug(),
             'CF7 Apps',
             'CF7 Apps',
             'manage_options', 
@@ -207,7 +224,7 @@ class CF7Apps {
                     'restURL'       => rest_url(),
                     'nonce'         => wp_create_nonce( 'wp_rest' ),
                     'assetsURL'     => CF7APPS_PLUGIN_DIR_URL . '/assets',
-                    'appIndexURL'   =>  admin_url( 'admin.php?page=cf7apps' ),
+                    'appIndexURL'   => admin_url( 'admin.php?page=cf7apps' ),
                     'pluginVersion' => CF7APPS_VERSION,
                 )
             )
@@ -226,6 +243,15 @@ class CF7Apps {
             ),
             $asset['version']
         );
+
+        /**
+         * Fires after CF7 Apps dashboard assets are enqueued.
+         *
+         * Used by CF7 Apps Pro to attach its admin bundle after the free shell.
+         *
+         * @since 3.8.0
+         */
+        do_action( 'cf7apps_admin_assets_enqueued' );
     }
 
     /**

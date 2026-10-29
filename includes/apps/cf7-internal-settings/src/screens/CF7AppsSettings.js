@@ -20,14 +20,15 @@ import { getWebhookDataTypeOptions } from '../../../../../src/utils/webhookUiUti
 import { getFormEditorSettingsPanelStyle, normalizeParentMenu } from '../../../../../src/utils/appCardTheme';
 import CF7AppsAppSettingsHeader from '../../../../../src/components/CF7AppsAppSettingsHeader';
 import CF7AppsAppSettingsTabs from '../../../../../src/components/CF7AppsAppSettingsTabs';
-import CF7AppsTemplates from '../../../../../src/templates/CF7AppsTemplates';
-import PaymentFormSettingsFields from '../components/PaymentFormSettingsFields';
-import {
-    getPaymentGatewayActivationNoticeHtml,
-    hasCf7AppsPro,
-} from '../../../../../src/utils/paymentGatewayActivationNotice';
+import CF7AppsTemplates, { getTemplate, hasTemplate } from '../../../../../src/templates/CF7AppsTemplates';
+import { validateWebhookUrls } from '../../../../../src/utils/webhookValidation';
 
 const PAYMENT_FORM_APPS = [ 'stripe', 'paypal', 'square' ];
+
+/** Pro registers this via CF7AppsTemplateRegistry as PaymentFormSettingsFields. */
+const getPaymentFormSettingsFields = () =>
+	getTemplate( 'PaymentFormSettingsFields' ) ||
+	( typeof window !== 'undefined' ? window.CF7AppsPaymentFormSettingsFields : null );
 const REDIRECT_URL_APPS = [ 'stripe', 'paypal' ];
 
 const validateRedirectUrls = ( app, formData ) => {
@@ -175,6 +176,16 @@ const buildFormStateFromSettings = ( appSettings, app ) => {
         const globalCurrency = resolveGlobalPaymentCurrency( appSettings, app );
         if ( globalCurrency ) {
             formState.currency = globalCurrency;
+        }
+    }
+
+    if (app === 'webhook' && appSettings.has_pro) {
+        const pro = appSettings.webhook_pro_settings || {};
+        formState.selected_fields = Array.isArray(pro.selected_fields) ? pro.selected_fields : [];
+        formState.selected_fields_mode = pro.selected_fields_mode || 'all';
+        formState.webhooks = Array.isArray(pro.webhooks) ? pro.webhooks : [];
+        if (formState.failure_notifications === undefined) {
+            formState.failure_notifications = !!pro.failure_notifications;
         }
     }
 
@@ -445,8 +456,24 @@ const CF7AppsSettings = () => {
     const [notice, setNotice] = useState({ show: false, text: '' });
     const [hasTabs, setHasTabs] = useState(false);
     const [tabValue, setTabValue] = useState('1');
+    const [, setProTemplateRevision] = useState(0);
 
     app = app ? app : 'cf7-redirection';
+
+    useEffect( () => {
+        if ( typeof window === 'undefined' ) {
+            return undefined;
+        }
+
+        const onTemplateRegistered = () => {
+            setProTemplateRevision( ( revision ) => revision + 1 );
+        };
+
+        window.addEventListener( 'cf7apps-template-registered', onTemplateRegistered );
+        return () => {
+            window.removeEventListener( 'cf7apps-template-registered', onTemplateRegistered );
+        };
+    }, [] );
     useEffect(() => {
         const hash = window.location.hash;
         const explodedHash = hash.split('/');
@@ -503,15 +530,25 @@ const CF7AppsSettings = () => {
             return;
         }
 
+        const appGloballyEnabled = appSettings.is_enabled === true;
+
         let missingRequired = false;
         let requiredMessage = '';
         let missingFieldKey = null;
 
         const validateFields = (fields) => {
+            const hasMultiWebhooks = app === 'webhook'
+                && Array.isArray(formData.webhooks)
+                && formData.webhooks.some((item) => item && item.enabled !== false && String(item.webhook_url || '').trim());
+
             Object.keys(fields).some((fieldKey) => {
                 const field = fields[fieldKey];
 
                 if ( ! field || typeof field !== 'object' || ! field.type ) {
+                    return false;
+                }
+
+                if (hasMultiWebhooks && fieldKey === 'webhook_url') {
                     return false;
                 }
 
@@ -550,16 +587,18 @@ const CF7AppsSettings = () => {
             setIsSaving( false );
         };
 
-        if (hasTabs) {
-            Object.keys(appSettings.setting_tabs).forEach((tabKey) => {
-                if (missingRequired) {
-                    return;
-                }
+        if (appGloballyEnabled) {
+            if (hasTabs) {
+                Object.keys(appSettings.setting_tabs).forEach((tabKey) => {
+                    if (missingRequired) {
+                        return;
+                    }
 
-                validateFields(appSettings.admin_settings['general']['fields'][tabKey] || {});
-            });
-        } else {
-            validateFields(appSettings.admin_settings['general']['fields']);
+                    validateFields(appSettings.admin_settings['general']['fields'][tabKey] || {});
+                });
+            } else {
+                validateFields(appSettings.admin_settings['general']['fields']);
+            }
         }
 
         if (missingRequired) {
@@ -571,6 +610,7 @@ const CF7AppsSettings = () => {
         }
 
         if (
+            appGloballyEnabled &&
             PAYMENT_FORM_APPS.includes(app) &&
             isPaymentFormEnabled(formData['is_enabled'])
         ) {
@@ -635,25 +675,10 @@ const CF7AppsSettings = () => {
             }
         }
 
-        // Validate webhook URL format (only for webhook app)
-        if (app === 'webhook' && formData['is_enabled']) {
-            const webhookUrl = formData['webhook_url'] ? formData['webhook_url'].trim() : '';
-
-            // Check if webhook URL is empty
-            if (webhookUrl === '') {
-                const errorMessage = __('Webhook URL cannot be empty.', 'cf7apps');
-                setNotice({ show: true, text: errorMessage });
-                toast.error(errorMessage);
-                setIsSaving(false);
-                return;
-            }
-
-            // Check if webhook URL has correct format
-            if (!webhookUrl.startsWith('http://') && !webhookUrl.startsWith('https://')) {
-                const errorMessage = __('Webhook URL must start with http:// or https://', 'cf7apps');
-                setNotice({ show: true, text: errorMessage });
-                toast.error(errorMessage);
-                setIsSaving(false);
+        if ( appGloballyEnabled && app === 'webhook' && formData.is_enabled ) {
+            const webhookValidation = validateWebhookUrls( formData );
+            if ( ! webhookValidation.valid ) {
+                failValidation( webhookValidation.message );
                 return;
             }
         }
@@ -707,6 +732,7 @@ const CF7AppsSettings = () => {
         const isEntriesSettings = app === 'cf7-entries';
         const isWebhookSettings = app === 'webhook';
         const isPaymentFormSettings = PAYMENT_FORM_APPS.includes(app);
+        const appGloballyEnabled = appSettings.is_enabled === true;
         const isAppSettingsShell = isRedirectionSettings || isEntriesSettings || isWebhookSettings;
         const formClassName = [
             'cf7apps-form',
@@ -770,6 +796,7 @@ const CF7AppsSettings = () => {
         };
 
         const renderCheckboxField = (fieldKey, field, className, help) => {
+            const toggleDisabled = ! appGloballyEnabled || field.disabled;
             if (isAppSettingsShell) {
                 return (
                     <div key={fieldKey} className="cf7apps-form-toggle-field">
@@ -779,7 +806,7 @@ const CF7AppsSettings = () => {
                             help={help}
                             className={className}
                             isSelected={formData[fieldKey]}
-                            disabled={field.disabled}
+                            disabled={ toggleDisabled }
                             onChange={(nextValue) => {
                                 setFormData((prevFormData) => ({
                                     ...prevFormData,
@@ -803,7 +830,7 @@ const CF7AppsSettings = () => {
                                 [fieldKey]: !prevFormData[fieldKey],
                             }));
                         }}
-                        disabled={field.disabled}
+                        disabled={ toggleDisabled }
                     />
                 </div>
             );
@@ -813,6 +840,7 @@ const CF7AppsSettings = () => {
             const className = undefined === field?.class ? '' : field.class;
             const help = field?.help;
             const placeholder = undefined === field?.placeholder ? '' : field.placeholder;
+            const fieldDisabled = ! appGloballyEnabled || field.disabled;
 
             if (app === 'webhook') {
                 const webhookEnabled = formData['is_enabled'];
@@ -852,10 +880,23 @@ const CF7AppsSettings = () => {
                 );
             }
 
-            if (fieldKey === 'template') {
-                const Template = CF7AppsTemplates[field];
+            if (fieldKey === 'template' || (typeof field === 'string' && hasTemplate(field))) {
+                const templateKey = fieldKey === 'template' ? field : field;
+                const Template = getTemplate(templateKey);
 
                 if (!Template) {
+                    if (
+                        templateKey === 'cf7WebhookFormProSettings' ||
+                        templateKey === 'PaymentFormSettingsFields'
+                    ) {
+                        return (
+                            <CF7AppsSkeletonLoader
+                                key={ fieldKey }
+                                height={ 140 }
+                            />
+                        );
+                    }
+
                     return null;
                 }
 
@@ -864,6 +905,7 @@ const CF7AppsSettings = () => {
                         key={fieldKey}
                         appSettings={appSettings}
                         formData={formData}
+                        setFormData={setFormData}
                         tabKey={tabKey}
                     />
                 );
@@ -894,8 +936,8 @@ const CF7AppsSettings = () => {
                         value={formData[fieldKey]}
                         name={fieldKey}
                         onChange={handleInputChange}
-                        required={field.required}
-                        disabled={field.disabled}
+                        required={ appGloballyEnabled && field.required }
+                        disabled={ fieldDisabled }
                         variant={isAppSettingsShell ? 'app' : undefined}
                     />
                 );
@@ -912,7 +954,7 @@ const CF7AppsSettings = () => {
                         placeholder={placeholder}
                         value={formData[fieldKey]}
                         onChange={handleInputChange}
-                        disabled={field.disabled}
+                        disabled={ fieldDisabled }
                         min={field.min}
                     />
                 );
@@ -940,14 +982,14 @@ const CF7AppsSettings = () => {
                         options={selectOptions}
                         onChange={handleInputChange}
                         description={parse(String(field.description))}
-                        disabled={field.disabled}
+                        disabled={ fieldDisabled }
                         variant={isAppSettingsShell ? 'app' : undefined}
                     />
                 );
             }
 
             if ('textarea' === field?.type) {
-                const isWebhookDisabled = app === 'webhook' && !formData['is_enabled'];
+                const isWebhookDisabled = app === 'webhook' && ( ! formData['is_enabled'] || ! appGloballyEnabled );
                 return (
                     <TextareaField
                         key={fieldKey}
@@ -955,7 +997,7 @@ const CF7AppsSettings = () => {
                         field={field}
                         className={className}
                         description={parse(String(field.description))}
-                        disabled={field.disabled}
+                        disabled={ fieldDisabled }
                         openMap={openMap}
                         setOpenMap={setOpenMap}
                         formData={formData}
@@ -980,6 +1022,9 @@ const CF7AppsSettings = () => {
                     } else {
                         subField = { ...subField, value: currentSubValue };
                     }
+                    if ( ! appGloballyEnabled && subField.required ) {
+                        subField = { ...subField, required: false };
+                    }
                 }
 
                 return (
@@ -992,7 +1037,7 @@ const CF7AppsSettings = () => {
                         onChange={handleInputChange}
                         value={formData[fieldKey]}
                         subFields={subField}
-                        disabled={field.disabled}
+                        disabled={ fieldDisabled }
                         variant={isAppSettingsShell ? 'app' : undefined}
                     />
                 );
@@ -1046,6 +1091,12 @@ const CF7AppsSettings = () => {
         }
 
         if (isPaymentFormSettings) {
+            const PaymentFormSettingsFields = getPaymentFormSettingsFields();
+            if ( ! PaymentFormSettingsFields ) {
+                return (
+                    <CF7AppsSkeletonLoader height={ 420 } width="100%" />
+                );
+            }
             return (
                 <PaymentFormSettingsFields
                     app={app}
@@ -1069,6 +1120,7 @@ const CF7AppsSettings = () => {
                     enabledFormPaymentGatewayLabel={
                         appSettings.enabled_form_payment_gateway_label || ''
                     }
+                    appGloballyEnabled={ appSettings.is_enabled === true }
                 />
             );
         }
@@ -1179,20 +1231,13 @@ const CF7AppsSettings = () => {
                             )}
                         />
                     )}
-                    {isPaymentFormSettings &&
-                    hasCf7AppsPro() &&
-                    appSettings.is_enabled !== true ? (
-                        <div className="cf7apps-payment-activation-notice">
-                            <CF7AppsNotice
-                                type="warning"
-                                text={getPaymentGatewayActivationNoticeHtml(
-                                    appSettings.id,
-                                    appSettings.title
-                                )}
-                            />
-                        </div>
-                    ) : null}
-                    <div className="cf7apps-settings-content-wrapper">
+                    <div
+                        className={
+                            isPaymentFormSettings && appSettings.is_enabled !== true
+                                ? 'cf7apps-settings-content-wrapper cf7apps-settings-content-wrapper--payment-disabled'
+                                : 'cf7apps-settings-content-wrapper'
+                        }
+                    >
                         <div className={appSettings.is_enabled ? 'cf7apps-enabled-content' : 'cf7apps-disabled-content'}>
                             {Settings()}
                         </div>
@@ -1200,9 +1245,7 @@ const CF7AppsSettings = () => {
                             <CF7AppsDisabledOverlay
                                 appId={appSettings.id}
                                 appTitle={appSettings.title}
-                                showActivationMessage={
-                                    isPaymentFormSettings && hasCf7AppsPro()
-                                }
+                                showActivationMessage={ false }
                             />
                         )}
                     </div>

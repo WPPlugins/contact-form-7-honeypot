@@ -608,6 +608,195 @@ if ( ! class_exists( 'CF7Apps_Form_Entries' ) ) :
 		}
 
 		/**
+		 * Count entries grouped by form ID.
+		 *
+		 * @since 3.7.3
+		 *
+		 * @param int[] $form_ids Optional form IDs.
+		 * @return array<int,int>
+		 */
+		public static function get_form_counts( $form_ids = array() ) {
+			global $wpdb;
+
+			$table_name = $wpdb->prefix . 'cf7apps_form_entries';
+
+			if ( ! self::table_exists( $table_name ) ) {
+				return array();
+			}
+
+			$form_ids = array_values( array_filter( array_map( 'absint', (array) $form_ids ) ) );
+			$sql      = "SELECT form_id, COUNT(*) AS total FROM {$table_name}";
+
+			if ( ! empty( $form_ids ) ) {
+				$placeholders = implode( ',', array_fill( 0, count( $form_ids ), '%d' ) );
+				$sql         .= $wpdb->prepare( " WHERE form_id IN ($placeholders)", $form_ids );
+			}
+
+			$sql    .= ' GROUP BY form_id';
+			$rows    = $wpdb->get_results( $sql, ARRAY_A );
+			$counts  = array();
+
+			if ( ! is_array( $rows ) ) {
+				return $counts;
+			}
+
+			foreach ( $rows as $row ) {
+				$counts[ absint( $row['form_id'] ) ] = absint( $row['total'] );
+			}
+
+			return $counts;
+		}
+
+		/**
+		 * Count entries for a single form.
+		 *
+		 * @since 3.7.3
+		 *
+		 * @param int $form_id Form ID.
+		 * @return int
+		 */
+		public static function get_entry_count_for_form( $form_id ) {
+			$counts = self::get_form_counts( array( $form_id ) );
+			return isset( $counts[ $form_id ] ) ? absint( $counts[ $form_id ] ) : 0;
+		}
+
+		/**
+		 * Delete entries older than a cutoff timestamp.
+		 *
+		 * @since 3.7.3
+		 *
+		 * @param int   $cutoff_timestamp Unix timestamp.
+		 * @param int[] $form_ids         Optional form IDs.
+		 * @return int
+		 */
+		public static function delete_entries_older_than( $cutoff_timestamp, $form_ids = array() ) {
+			global $wpdb;
+
+			$table_name = $wpdb->prefix . 'cf7apps_form_entries';
+
+			if ( ! self::table_exists( $table_name ) ) {
+				return 0;
+			}
+
+			$cutoff_timestamp = absint( $cutoff_timestamp );
+			if ( ! $cutoff_timestamp ) {
+				return 0;
+			}
+
+			$form_ids = array_values( array_filter( array_map( 'absint', (array) $form_ids ) ) );
+			$sql      = "DELETE FROM {$table_name} WHERE CAST(date_time AS UNSIGNED) < %d";
+			$args     = array( $cutoff_timestamp );
+
+			if ( ! empty( $form_ids ) ) {
+				$placeholders = implode( ',', array_fill( 0, count( $form_ids ), '%d' ) );
+				$sql         .= " AND form_id IN ($placeholders)";
+				$args         = array_merge( $args, $form_ids );
+			}
+
+			$prepared = $wpdb->prepare( $sql, $args );
+			$deleted  = $wpdb->query( $prepared );
+
+			return is_numeric( $deleted ) ? (int) $deleted : 0;
+		}
+
+		/**
+		 * Get raw rows prepared for export serializers.
+		 *
+		 * @since 3.7.3
+		 *
+		 * @param array $args Query args.
+		 * @return array<int,array<string,mixed>>
+		 */
+		public static function get_export_rows( $args = array() ) {
+			global $wpdb;
+
+			$table_name = $wpdb->prefix . 'cf7apps_form_entries';
+
+			if ( ! self::table_exists( $table_name ) ) {
+				return array();
+			}
+
+			$defaults = array(
+				'form_ids'   => array(),
+				'search'     => '',
+				'start_date' => 0,
+				'end_date'   => 0,
+				'limit'      => 0,
+				'offset'     => 0,
+			);
+
+			$args       = wp_parse_args( $args, $defaults );
+			$form_ids   = array_values( array_filter( array_map( 'absint', (array) $args['form_ids'] ) ) );
+			$search     = trim( (string) $args['search'] );
+			$start_date = absint( $args['start_date'] );
+			$end_date   = absint( $args['end_date'] );
+			$limit      = absint( $args['limit'] );
+			$offset     = absint( $args['offset'] );
+			$sql        = "SELECT * FROM {$table_name} WHERE 1=1";
+			$query_args = array();
+
+			if ( ! empty( $form_ids ) ) {
+				$placeholders = implode( ',', array_fill( 0, count( $form_ids ), '%d' ) );
+				$sql         .= " AND form_id IN ($placeholders)";
+				$query_args   = array_merge( $query_args, $form_ids );
+			}
+
+			if ( '' !== $search ) {
+				$search_like = '%' . $wpdb->esc_like( $search ) . '%';
+				$sql        .= ' AND (form_name LIKE %s OR email LIKE %s)';
+				$query_args[] = $search_like;
+				$query_args[] = $search_like;
+			}
+
+			if ( $start_date && $end_date ) {
+				$sql         .= ' AND CAST(date_time AS UNSIGNED) BETWEEN %d AND %d';
+				$query_args[] = $start_date;
+				$query_args[] = $end_date;
+			} elseif ( $start_date ) {
+				$sql         .= ' AND CAST(date_time AS UNSIGNED) >= %d';
+				$query_args[] = $start_date;
+			} elseif ( $end_date ) {
+				$sql         .= ' AND CAST(date_time AS UNSIGNED) <= %d';
+				$query_args[] = $end_date;
+			}
+
+			$sql .= ' ORDER BY id DESC';
+
+			if ( $limit > 0 ) {
+				$sql         .= ' LIMIT %d OFFSET %d';
+				$query_args[] = $limit;
+				$query_args[] = $offset;
+			}
+
+			if ( ! empty( $query_args ) ) {
+				$sql = $wpdb->prepare( $sql, $query_args );
+			}
+
+			$rows = $wpdb->get_results( $sql, ARRAY_A );
+
+			if ( ! is_array( $rows ) ) {
+				return array();
+			}
+
+			return array_map(
+				static function( $row ) {
+					$timestamp = isset( $row['date_time'] ) ? absint( $row['date_time'] ) : 0;
+					return array(
+						'id'             => absint( $row['id'] ),
+						'form_id'        => absint( $row['form_id'] ),
+						'form_name'      => (string) $row['form_name'],
+						'email'          => (string) $row['email'],
+						'date_time'      => $timestamp,
+						'date_time_human'=> $timestamp ? date_i18n( 'F j, Y h:i a', $timestamp ) : '',
+						'data'           => maybe_unserialize( $row['data'] ),
+						'raw_data'       => (string) $row['data'],
+					);
+				},
+				$rows
+			);
+		}
+
+		/**
 		 * Helper: check whether the entries table exists.
 		 *
 		 * @since 3.4.0

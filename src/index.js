@@ -9,7 +9,10 @@ import { hasMigrated, migrate } from './api/api';
 import { __ } from '@wordpress/i18n';
 import { Button } from '@wordpress/components';
 import { toast } from 'react-toastify';
+import { registerCf7appsReactToastifyGlobal } from './utils/cf7appsReactToastifyBridge';
 import CF7AppsToastNotification from './components/CF7AppsToastNotification';
+
+registerCf7appsReactToastifyGlobal();
 import { CF7AppsNavProvider } from './context/CF7AppsNavContext';
 
 const CF7AppsDashboardShell = () => {

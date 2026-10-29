@@ -740,7 +740,14 @@ if ( ! class_exists( 'CF7Apps_ACF_Integration' ) ) {
 			}
 
 			// Method 2: Check hook parameter
-			$cf7_hooks = array( 'toplevel_page_wpcf7', 'contact_page_wpcf7', 'contact_page_wpcf7-new' );
+			$cf7_hooks = array(
+				'toplevel_page_wpcf7',
+				'toplevel_page_wpcf7-dashboard',
+				'contact_page_wpcf7',
+				'contact_page_wpcf7-new',
+				'wpcf7-dashboard_page_wpcf7',
+				'wpcf7-dashboard_page_wpcf7-new',
+			);
 			if ( in_array( $hook, $cf7_hooks, true ) ) {
 				$is_cf7_page = true;
 			}

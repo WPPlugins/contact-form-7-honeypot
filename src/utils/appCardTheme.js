@@ -36,6 +36,14 @@ export const getCf7AppsRuntime = () => {
 		return {
 			restURL: CF7AppsInternalSettings.restURL || '',
 			nonce: CF7AppsInternalSettings.nonce || '',
+			proRestBase:
+				CF7AppsInternalSettings.proRestBase ||
+				( typeof CF7Apps !== 'undefined' ? CF7Apps.proRestBase : '' ) ||
+				'',
+			hasPro: !!(
+				CF7AppsInternalSettings.hasPro ||
+				( typeof CF7Apps !== 'undefined' && CF7Apps.hasPro )
+			),
 		};
 	}
 
@@ -43,12 +51,16 @@ export const getCf7AppsRuntime = () => {
 		return {
 			restURL: CF7Apps.restURL || '',
 			nonce: CF7Apps.nonce || '',
+			proRestBase: CF7Apps.proRestBase || '',
+			hasPro: !! CF7Apps.hasPro,
 		};
 	}
 
 	return {
 		restURL: '',
 		nonce: '',
+		proRestBase: '',
+		hasPro: false,
 	};
 };
 
@@ -320,10 +332,14 @@ export const getAppCardTheme = (settings, assetsBase = '') => {
 	};
 };
 
+/** Same illustration as the dashboard app card decoration. */
 export const getAppSettingsHeaderIcon = ( settings, assetsBase = '' ) => {
-	const decorFile = APP_DECORATIONS[ settings?.id ]?.[ 0 ];
+	if ( ! assetsBase ) {
+		return settings?.icon || '';
+	}
 
-	if ( decorFile && assetsBase ) {
+	const decorFile = APP_DECORATIONS[ settings?.id ]?.[ 0 ];
+	if ( decorFile ) {
 		return `${ assetsBase }/images/dashboard/${ decorFile }`;
 	}
 

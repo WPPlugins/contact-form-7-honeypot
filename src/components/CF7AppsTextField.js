@@ -2,7 +2,9 @@ import { __ } from "@wordpress/i18n";
 import CF7AppsHelpText from "./CF7AppsHelpText";
 
 const RequiredMark = () => (
-    <span className="required" aria-hidden="true">*</span>
+    <span className="cf7apps-required" aria-hidden="true">
+		{' *'}
+	</span>
 );
 
 const CF7AppsTextField = ({ label, value, description, onChange, className, placeholder, name, required, disabled, variant }) => {

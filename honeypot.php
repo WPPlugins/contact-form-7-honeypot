@@ -5,13 +5,54 @@
  * Description: Contact Form 7 Apps is a collection of useful modules and extensions for Contact Form 7.
  * Author: CF7 Apps
  * Author URI: https://cf7apps.com/
- * Version: 3.8.0
+ * Version: 3.9.0
+ * Requires at least: 6.7
+ * Requires PHP: 7.4
+ * Tested up to: 7.1.2
  * Text Domain: contact-form-7-honeypot
  * Domain Path: /languages/
  * Requires Plugins: contact-form-7
  */
 
 defined( 'ABSPATH' ) || exit;
+
+if ( ! function_exists( 'cf7apps_get_cf7_parent_menu_slug' ) ) {
+	/**
+	 * Contact Form 7 top-level admin menu slug.
+	 *
+	 * CF7 6.2+ renamed the parent from `wpcf7` to `wpcf7-dashboard`.
+	 *
+	 * @since 3.8.1
+	 *
+	 * @return string
+	 */
+	function cf7apps_get_cf7_parent_menu_slug() {
+		$version = defined( 'WPCF7_VERSION' ) ? WPCF7_VERSION : '';
+
+		if ( ! $version && defined( 'WP_PLUGIN_DIR' ) ) {
+			$cf7_main = WP_PLUGIN_DIR . '/contact-form-7/wp-contact-form-7.php';
+			if ( is_readable( $cf7_main ) ) {
+				$plugin_data = get_file_data( $cf7_main, array( 'Version' => 'Version' ), 'plugin' );
+				$version     = isset( $plugin_data['Version'] ) ? $plugin_data['Version'] : '';
+			}
+		}
+
+		if ( $version && version_compare( $version, '6.2', '>=' ) ) {
+			return 'wpcf7-dashboard';
+		}
+
+		global $menu;
+		if ( is_array( $menu ) ) {
+			foreach ( $menu as $item ) {
+				if ( isset( $item[2] ) && 'wpcf7-dashboard' === $item[2] ) {
+					return 'wpcf7-dashboard';
+				}
+			}
+		}
+
+		return 'wpcf7';
+	}
+}
 
 if ( ! function_exists( 'cf7apps_map_free_plugin_dependency_slug' ) ) {
 	/**
@@ -75,6 +116,10 @@ if ( ! function_exists( 'cf7h_fs' ) ) {
                 'menu'                => array(
                     'slug'           => 'cf7apps',
                     'first-path'     => 'admin.php?page=cf7apps',
+                    'parent'         => array(
+                        // CF7 6.2+ uses wpcf7-dashboard; older builds use wpcf7.
+                        'slug' => cf7apps_get_cf7_parent_menu_slug(),
+                    ),
                     'account'        => false,
                     'contact'        => false,
                     'support'        => false,
@@ -95,7 +140,7 @@ if ( ! function_exists( 'cf7h_fs' ) ) {
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'CF7APPS_VERSION', '3.8.0' );
+define( 'CF7APPS_VERSION', '3.9.0' );
 define( 'CF7APPS_PLUGIN', __FILE__ );
 define( 'CF7APPS_PLUGIN_BASENAME', plugin_basename( CF7APPS_PLUGIN ) );
 define( 'CF7APPS_PLUGIN_NAME', trim( dirname( CF7APPS_PLUGIN_BASENAME ), '/' ) );

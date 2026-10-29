@@ -454,7 +454,15 @@ if ( ! class_exists( 'CF7Apps_AI_Form_Generator' ) && class_exists( 'CF7Apps_App
 
 		/** Modal CSS/JS on CF7 form edit screens. */
 		public function enqueue_cf7_editor_assets( $hook_suffix ) {
-			if ( ! in_array( $hook_suffix, array( 'toplevel_page_wpcf7', 'contact_page_wpcf7', 'contact_page_wpcf7-new' ), true ) ) {
+			$cf7_admin_hooks = array(
+				'toplevel_page_wpcf7',
+				'toplevel_page_wpcf7-dashboard',
+				'contact_page_wpcf7',
+				'contact_page_wpcf7-new',
+				'wpcf7-dashboard_page_wpcf7',
+				'wpcf7-dashboard_page_wpcf7-new',
+			);
+			if ( ! in_array( $hook_suffix, $cf7_admin_hooks, true ) ) {
 				return;
 			}
 

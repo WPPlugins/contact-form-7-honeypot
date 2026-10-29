@@ -56,7 +56,7 @@ const WeeklySummaryAdmin = ( { formData } ) => {
 		: '';
 
 	return (
-		<>
+		<div className="cf7apps-weekly-summary-settings-stack">
 			<CF7AppsFormToggle
 				label={ __( 'Enable Email Summary Report', 'cf7apps' ) }
 				isSelected={ isEnabled }
@@ -90,7 +90,7 @@ const WeeklySummaryAdmin = ( { formData } ) => {
 					{ __( 'Save Settings', 'cf7apps' ) }
 				</Button>
 			</div>
-		</>
+		</div>
 	);
 };
 

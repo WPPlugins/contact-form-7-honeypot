@@ -70,6 +70,12 @@ const CF7AppsHeader = () => {
 									V { CF7AppsInternalSettings.pluginVersion }
 								</span>
 							) }
+							{ CF7AppsInternalSettings?.hasPro &&
+								CF7AppsInternalSettings?.proPluginVersion && (
+									<span className="cf7apps-header-version cf7apps-header-version--pro cf7apps-form-editor-header__version">
+										Pro V { CF7AppsInternalSettings.proPluginVersion }
+									</span>
+								) }
 						</div>
 					</div>
 				</div>

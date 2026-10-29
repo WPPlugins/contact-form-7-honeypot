@@ -172,10 +172,11 @@ function honeypot4cf7_get_config( $context = false ) {
 *
 *********** */
 
-add_action( 'admin_menu', 'honeypot4cf7_admin_menu' );
+add_action( 'admin_menu', 'honeypot4cf7_admin_menu', 20 );
 function honeypot4cf7_admin_menu() {
+	$parent = function_exists( 'cf7apps_get_cf7_parent_menu_slug' ) ? cf7apps_get_cf7_parent_menu_slug() : 'wpcf7';
 	add_submenu_page(
-		'wpcf7', 
+		$parent,
 		__('Honeypot for Contact Form 7', 'contact-form-7-honeypot'),
 		__('Honeypot', 'contact-form-7-honeypot'),
 		'manage_options','honeypot4cf7',

@@ -5,7 +5,7 @@ import CF7AppsSkeletonLoader from "../components/CF7AppsSkeletonLoader";
 import CF7AppsApp from "../components/CF7AppsApp";
 import CF7AppsNotice from "../components/CF7AppsNotice";
 import { isPaymentApp } from "../utils/appCardTheme";
-import { useParams } from "react-router";
+import { useNavigate, useParams } from "react-router";
 
 const FILTER_TABS = [
 	{ id: "all", label: __("All", "cf7apps"), icon: null },
@@ -87,7 +87,22 @@ const Apps = () => {
 	const skipGridAnimation = useRef(true);
 	const gridTimers = useRef([]);
 	const { parent } = useParams();
+	const navigate = useNavigate();
 	const assetsBase = CF7Apps?.assetsURL || "";
+
+	const handleFilterClick = useCallback(
+		( tabId ) => {
+			setActiveFilter( tabId );
+
+			if ( tabId === "all" ) {
+				navigate( "/" );
+				return;
+			}
+
+			navigate( `/${ tabId }` );
+		},
+		[ navigate ]
+	);
 
 	const toolbarIcon = useCallback(
 		(file) => (file && assetsBase ? `${assetsBase}/images/dashboard/toolbar/${file}` : ""),
@@ -326,7 +341,7 @@ const Apps = () => {
 											? "cf7apps-dashboard__filter is-active"
 											: "cf7apps-dashboard__filter"
 									}
-									onClick={() => setActiveFilter(tab.id)}
+									onClick={() => handleFilterClick( tab.id )}
 								>
 									{tab.icon && (
 										<img

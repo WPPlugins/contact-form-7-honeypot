@@ -5,7 +5,6 @@ import { saveSettings } from '../api/api';
 import { toast } from 'react-toastify';
 import { getAppCardTheme } from '../utils/appCardTheme';
 
-const PAYMENT_PRO_UPGRADE_URL = 'https://cf7apps.com/pricing/';
 /** Match default ToastContainer autoClose (CF7AppsToastNotification). */
 const TOGGLE_NOTICE_MS = 4000;
 
@@ -16,9 +15,6 @@ const CF7AppsApp = ( { settings, onShowAcfNotice } ) => {
 
 	const assetsBase = CF7Apps?.assetsURL || '';
 	const theme = getAppCardTheme( settings, assetsBase );
-	const crownIconUrl = assetsBase
-		? `${ assetsBase }/images/dashboard/pro-crown.svg`
-		: '';
 	const settingsIconUrl = assetsBase
 		? `${ assetsBase }/images/dashboard/card-settings.svg`
 		: '';
@@ -50,8 +46,6 @@ const CF7AppsApp = ( { settings, onShowAcfNotice } ) => {
 		};
 	}, [] );
 
-	const isProTeaser = Boolean( settings.is_pro_teaser );
-	const upgradeUrl = settings.upgrade_url || PAYMENT_PRO_UPGRADE_URL;
 	const titleImage = settings.title_image || '';
 	const badgeIconMaskStyle = theme.badgeIconUrl
 		? {
@@ -81,12 +75,7 @@ const CF7AppsApp = ( { settings, onShowAcfNotice } ) => {
 	};
 
 	const switchApp = async () => {
-		if ( isProTeaser ) {
-			window.open( upgradeUrl, '_blank', 'noopener,noreferrer' );
-			return;
-		}
-
-		if ( isToggleLocked ) {
+	if ( isToggleLocked ) {
 			return;
 		}
 
@@ -123,29 +112,12 @@ const CF7AppsApp = ( { settings, onShowAcfNotice } ) => {
 		lockToggleUntilNoticeEnds();
 	};
 
-	const showSettings = settings.has_admin_settings && ! isProTeaser;
+	const showSettings = settings.has_admin_settings;
 	const titleStyle = theme.titleColor ? { color: theme.titleColor } : undefined;
-
-	const ProTag = () => (
-		<span className="cf7apps-app-card__pro-tag">
-			{ crownIconUrl && (
-				<img
-					className="cf7apps-app-card__pro-tag-icon"
-					src={ crownIconUrl }
-					alt=""
-					width={ 12 }
-					height={ 10 }
-				/>
-			) }
-			<span className="cf7apps-app-card__pro-tag-label">
-				{ __( 'PRO', 'cf7apps' ) }
-			</span>
-		</span>
-	);
 
 	const settingsControl = showSettings ? (
 		<Link
-			to={ `settings/${ settings.id }` }
+			to={ `/settings/${ settings.id }` }
 			className="cf7apps-app-card__settings"
 			aria-label={ __( 'Settings', 'cf7apps' ) }
 		>
@@ -153,40 +125,16 @@ const CF7AppsApp = ( { settings, onShowAcfNotice } ) => {
 		</Link>
 	) : null;
 
-	const handleCardClick = ( event ) => {
-		if ( ! isProTeaser ) {
-			return;
-		}
-
-		if ( event.target.closest( 'a' ) ) {
-			return;
-		}
-
-		switchApp();
-	};
 
 	return (
 		<article
 			className={ `cf7apps-app cf7apps-app-${ settings.id }${
 				isEnabled ? ' is-enabled' : ''
-			}${ isProTeaser ? ' is-pro-teaser' : '' }` }
+			}` }
 		>
 			<div
 				className="cf7apps-app-card"
 				style={ cardStyle }
-				onClick={ isProTeaser ? handleCardClick : undefined }
-				onKeyDown={
-					isProTeaser
-						? ( event ) => {
-								if ( event.key === 'Enter' || event.key === ' ' ) {
-									event.preventDefault();
-									switchApp();
-								}
-						  }
-						: undefined
-				}
-				role={ isProTeaser ? 'button' : undefined }
-				tabIndex={ isProTeaser ? 0 : undefined }
 			>
 				{ theme.decorationLayers?.length > 0 && (
 					<div
@@ -286,51 +234,45 @@ const CF7AppsApp = ( { settings, onShowAcfNotice } ) => {
 					</div>
 
 					<div className="cf7apps-app-card__footer">
-						{ isProTeaser ? (
-							<ProTag />
-						) : (
-							<>
-								<button
-									type="button"
-									className={
-										[
-											'cf7apps-app-toggle',
-											isEnabled ? 'is-on' : '',
-											isToggleLocked ? 'is-loading' : '',
-										]
-											.filter( Boolean )
-											.join( ' ' )
-									}
-									role="switch"
-									aria-checked={ isEnabled }
-									aria-busy={ isToggleLocked }
-									aria-disabled={ isToggleLocked }
-									disabled={ isToggleLocked }
-									aria-label={
-										isToggleLocked
-											? __( 'Updating app…', 'cf7apps' )
-											: isEnabled
-												? __( 'Disable app', 'cf7apps' )
-												: __( 'Enable app', 'cf7apps' )
-									}
-									onClick={ switchApp }
-								>
-									<span className="cf7apps-app-toggle__thumb">
-										{ isToggleLocked && (
-											<span
-												className="cf7apps-app-toggle__spinner"
-												aria-hidden="true"
-											/>
-										) }
-									</span>
-								</button>
-								<span className="cf7apps-app-card__status-label">
-									{ isEnabled
-										? __( 'Enabled', 'cf7apps' )
-										: __( 'Disabled', 'cf7apps' ) }
-								</span>
-							</>
-						) }
+						<button
+							type="button"
+							className={
+								[
+									'cf7apps-app-toggle',
+									isEnabled ? 'is-on' : '',
+									isToggleLocked ? 'is-loading' : '',
+								]
+									.filter( Boolean )
+									.join( ' ' )
+							}
+							role="switch"
+							aria-checked={ isEnabled }
+							aria-busy={ isToggleLocked }
+							aria-disabled={ isToggleLocked }
+							disabled={ isToggleLocked }
+							aria-label={
+								isToggleLocked
+									? __( 'Updating app…', 'cf7apps' )
+									: isEnabled
+										? __( 'Disable app', 'cf7apps' )
+										: __( 'Enable app', 'cf7apps' )
+							}
+							onClick={ switchApp }
+						>
+							<span className="cf7apps-app-toggle__thumb">
+								{ isToggleLocked && (
+									<span
+										className="cf7apps-app-toggle__spinner"
+										aria-hidden="true"
+									/>
+								) }
+							</span>
+						</button>
+						<span className="cf7apps-app-card__status-label">
+							{ isEnabled
+								? __( 'Enabled', 'cf7apps' )
+								: __( 'Disabled', 'cf7apps' ) }
+						</span>
 					</div>
 				</div>
 			</div>

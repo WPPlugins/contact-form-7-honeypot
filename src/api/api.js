@@ -9,6 +9,9 @@ function getRestHeaders() {
     };
 }
 
+
+
+
 function getCf7AppsRestUrl( endpoint ) {
     let base = getCf7AppsRuntime().restURL || '';
     const isPlain = base.indexOf( 'rest_route=' ) !== -1;
@@ -134,25 +137,33 @@ export async function getApps( id = '' ) {
  * 
  * @since 3.0.0
  */
-export async function saveSettings(id, app_settings) {
+export async function saveSettings( id, app_settings, extraPayload = {} ) {
+    const body = {
+        id,
+        app_settings,
+        ...extraPayload,
+    };
+
     const response = await fetch(
         `${getCf7AppsRuntime().restURL}cf7apps/v1/save-app-settings`, {
             headers: getRestHeaders(),
             method: 'POST',
-            body: JSON.stringify({ 
-                id: id,
-                app_settings
-            })
+            body: JSON.stringify( body ),
         }
     );
 
-    if (!response.ok) {
+    let json = null;
+    try {
+        json = await response.json();
+    } catch ( e ) {
+        json = null;
+    }
+
+    if ( ! response.ok || ! json || ! json.success ) {
         return false;
     }
 
-    const json = await response.json();
-
-    return json.data;
+    return json.data ?? true;
 }
 
 /**
@@ -293,12 +304,34 @@ export async function deleteCF7Entries( entryIds = [] ) {
 }
 
 /**
- * Export CF7 entries as CSV.
+ * Fetches all CF7 forms from the server.
  *
- * @since 3.8.0
- * @param {Object} params Export parameters.
- * @returns {Promise<boolean>}
+ * @since 3.1.0
+ * @returns {Promise<*|boolean>}
  */
+export async function getAllCF7Forms() {
+    const response = await fetch(
+        `${getCf7AppsRuntime().restURL}cf7apps/v1/get-all-cf7-forms`, {
+            headers: getRestHeaders(),
+            method: 'GET'
+        }
+    );
+
+    if (!response.ok) {
+        return false;
+    }
+
+    const json = await response.json();
+
+    return json.data;
+}
+
+
+
+
+
+
+
 export async function exportCF7Entries( {
     entryIds = [],
     form_id = 0,
@@ -351,54 +384,7 @@ export async function exportCF7Entries( {
  * @since 3.1.0
  * @returns {Promise<*|boolean>}
  */
-export async function getAllCF7Forms() {
-    const response = await fetch(
-        `${getCf7AppsRuntime().restURL}cf7apps/v1/get-all-cf7-forms`, {
-            headers: getRestHeaders(),
-            method: 'GET'
-        }
-    );
 
-    if (!response.ok) {
-        return false;
-    }
-
-    const json = await response.json();
-
-    return json.data;
-}
-
-/**
- * Fetches payment logs from the server.
- *
- * @since 3.5.0
- * @returns {Promise<*|boolean>}
- */
-export async function getPaymentLogs( { page = 1, perPage = 10, form_id = 0, search = '', payment_method = 'all' } = {} ) {
-    const baseUrl   = `${getCf7AppsRuntime().restURL}cf7apps/v1/get-payment-logs`;
-    const separator = baseUrl.includes( '?' ) ? '&' : '?';
-    const url       = `${ baseUrl }${ separator }page=${ page }&per-page=${ perPage }&form-id=${ form_id }&search=${ encodeURIComponent( search ) }&payment-method=${ encodeURIComponent( payment_method || 'all' ) }`;
-
-    const response = await fetch(
-        url, {
-            headers: getRestHeaders(),
-            method: 'GET'
-        }
-    );
-
-    if ( ! response.ok ) {
-        return false;
-    }
-
-    const json = await response.json();
-    return {
-        logs: json.data || [],
-        total: json.total || 0,
-        entries_on: !! json.entries_on,
-        gateway_on: !! json.gateway_on,
-        is_test_mode: !! json.is_test_mode,
-    };
-}
 
 /**
  * Delete payment logs.
@@ -407,29 +393,51 @@ export async function getPaymentLogs( { page = 1, perPage = 10, form_id = 0, sea
  * @param logIds Array of log IDs to delete.
  * @returns {Promise<*|boolean>}
  */
-export async function deletePaymentLogs( logIds = [] ) {
-    if ( ! Array.isArray( logIds ) || logIds.length === 0 ) {
-        return false;
-    }
 
-    const queryString = logIds.map( id => `log_ids[]=${ encodeURIComponent( id ) }` ).join( '&' );
-    const baseUrl     = `${getCf7AppsRuntime().restURL}cf7apps/v1/delete-payment-logs`;
-    const separator   = baseUrl.includes( '?' ) ? '&' : '?';
-    const url         = `${ baseUrl }${ separator }${ queryString }`;
 
+export async function fetchDashboardOverview() {
     const response = await fetch(
-        url, {
+        `${getCf7AppsRuntime().restURL}cf7apps/v1/dashboard-overview`, {
             headers: getRestHeaders(),
             method: 'GET',
         }
     );
 
     if ( ! response.ok ) {
-        return false;
+        return {
+            total_entries: 0,
+            spam_detections: 0,
+        };
     }
 
     const json = await response.json();
-    return json.data;
+
+    return json.data || {
+        total_entries: 0,
+        spam_detections: 0,
+    };
+}
+
+export async function fetchDomainAuthentication( refresh = false ) {
+    let url = getCf7AppsRestUrl( 'domain-authentication' );
+
+    if ( refresh ) {
+        url += ( url.includes( '?' ) ? '&' : '?' ) + 'refresh=1';
+    }
+
+    const response = await fetch( url, {
+            headers: getRestHeaders(),
+            method: 'GET',
+        }
+    );
+
+    if ( ! response.ok ) {
+        return null;
+    }
+
+    const json = await response.json();
+
+    return json.data || null;
 }
 
 export async function getRecommendedPlugins() {
@@ -479,49 +487,4 @@ export async function fetchSpamCount() {
     const json = await response.json();
 
     return json.data;
-}
-
-export async function fetchDashboardOverview() {
-    const response = await fetch(
-        `${getCf7AppsRuntime().restURL}cf7apps/v1/dashboard-overview`, {
-            headers: getRestHeaders(),
-            method: 'GET',
-        }
-    );
-
-    if ( ! response.ok ) {
-        return {
-            total_entries: 0,
-            spam_detections: 0,
-        };
-    }
-
-    const json = await response.json();
-
-    return json.data || {
-        total_entries: 0,
-        spam_detections: 0,
-    };
-}
-
-export async function fetchDomainAuthentication( refresh = false ) {
-    let url = getCf7AppsRestUrl( 'domain-authentication' );
-
-    if ( refresh ) {
-        url += ( url.includes( '?' ) ? '&' : '?' ) + 'refresh=1';
-    }
-
-    const response = await fetch( url, {
-            headers: getRestHeaders(),
-            method: 'GET',
-        }
-    );
-
-    if ( ! response.ok ) {
-        return null;
-    }
-
-    const json = await response.json();
-
-    return json.data || null;
 }

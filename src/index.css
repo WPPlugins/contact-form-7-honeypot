@@ -9,6 +9,10 @@
     font-display: swap;
 }
 
+.cf7apps-entries-settings .cf7apps-settings-toggle {
+    width: min(500px, 100%);
+}
+
 @font-face {
     font-family: degular;
     src: url(/assets/fonts/degular-14/Degular-Medium.otf);
@@ -2038,6 +2042,24 @@ button:focus {
     color: #717171;
 }
 
+/* HFCF7-686: match Entries/Webhook field spacing (no stacked form-group margin + tab gap). */
+.cf7apps-weekly-summary-settings .cf7apps-app-settings-form .MuiTabPanel-root {
+    gap: 16px;
+}
+
+.cf7apps-weekly-summary-settings .cf7apps-app-settings-form .cf7apps-form-group,
+.cf7apps-weekly-summary-settings .cf7apps-app-settings-form .cf7apps-form-toggle-field,
+.cf7apps-weekly-summary-settings .cf7apps-app-settings-form .cf7apps-app-field-group,
+.cf7apps-weekly-summary-settings .cf7apps-app-settings-form .cf7apps-form-settings-save,
+.cf7apps-weekly-summary-settings .cf7apps-app-settings-save-wrap {
+    margin: 0 !important;
+}
+
+.cf7apps-weekly-summary-settings .cf7apps-form-toggle-field,
+.cf7apps-weekly-summary-settings .cf7apps-form-toggle-block {
+    margin: 0;
+}
+
 .cf7apps-app-card__inner {
     position: relative;
     z-index: 1;
@@ -2101,32 +2123,44 @@ button:focus {
     white-space: nowrap;
 }
 
+/* Figma PRO Tag (node 4574:22672) — teal gradient pill, white crown + label */
+.cf7apps-pro-badge,
 .cf7apps-app-card__pro-tag {
     display: inline-flex;
     align-items: center;
-    gap: 4px;
-    height: 21px;
-    padding: 5px;
-    border-radius: 5px;
-    background: linear-gradient(108.77deg, #0d2149 14.75%, #0d3948 98.73%);
+    justify-content: center;
+    gap: 4.336px;
+    padding: 2.168px 7.588px;
+    border-radius: 6px;
+    background: linear-gradient(180deg, #166a87 0%, #208aae 55.983%, #166a87 100%);
+    color: #ffffff;
+    font-family: degular, sans-serif;
+    font-size: 11.924px;
+    font-weight: 700;
+    line-height: normal;
+    letter-spacing: 0;
     flex-shrink: 0;
     box-sizing: border-box;
 }
 
+.cf7apps-pro-badge__icon,
 .cf7apps-app-card__pro-tag-icon {
     display: block;
-    width: 12px;
-    height: 10px;
+    width: 9.798px;
+    height: 9.756px;
     flex-shrink: 0;
     object-fit: contain;
 }
 
+.cf7apps-pro-badge__label,
 .cf7apps-app-card__pro-tag-label {
-    font-size: 11px;
-    font-weight: 700;
-    line-height: normal;
-    color: #ffd114;
-    letter-spacing: 0;
+    color: #ffffff;
+    font-family: inherit;
+    font-size: inherit;
+    font-weight: inherit;
+    line-height: inherit;
+    letter-spacing: inherit;
+    white-space: nowrap;
 }
 
 .cf7apps-app-card__new-tag {
@@ -2822,6 +2856,18 @@ button:focus {
     --cf7apps-app-settings-gap: 28px;
 }
 
+.cf7apps-webhook-settings {
+    --cf7apps-app-settings-gap: 20px;
+}
+
+.cf7apps-entries-settings {
+    --cf7apps-app-settings-gap: 20px;
+}
+
+.cf7apps-weekly-summary-settings {
+    --cf7apps-app-settings-gap: 16px;
+}
+
 .cf7apps-redirection-settings.cf7apps-settings-panel ,
 .cf7apps-entries-settings.cf7apps-settings-panel ,
 .cf7apps-webhook-settings.cf7apps-settings-panel ,
@@ -3113,7 +3159,8 @@ button:focus {
 .cf7apps-ai-form-settings .cf7apps-app-setting-section  ,
 .cf7apps-honeypot-settings .cf7apps-app-setting-section   ,
 .cf7apps-hcaptcha-settings .cf7apps-app-setting-section   ,
-.cf7apps-weekly-summary-settings .cf7apps-app-setting-section   {
+.cf7apps-weekly-summary-settings .cf7apps-app-setting-section   ,
+.cf7apps-payment-dashboard-settings .cf7apps-app-setting-section   {
 
     max-width: 500px;
 }
@@ -3125,7 +3172,8 @@ button:focus {
 .cf7apps-ai-form-settings .cf7apps-app-settings-form  ,
 .cf7apps-honeypot-settings .cf7apps-app-settings-form   ,
 .cf7apps-hcaptcha-settings .cf7apps-app-settings-form   ,
-.cf7apps-weekly-summary-settings .cf7apps-app-settings-form   {
+.cf7apps-weekly-summary-settings .cf7apps-app-settings-form   ,
+.cf7apps-payment-dashboard-settings .cf7apps-app-settings-form   {
 
     display: flex;
     flex-direction: column;
@@ -3140,7 +3188,8 @@ button:focus {
 .cf7apps-ai-form-settings .cf7apps-app-settings-form .MuiTabPanel-root  ,
 .cf7apps-honeypot-settings .cf7apps-app-settings-form .MuiTabPanel-root   ,
 .cf7apps-hcaptcha-settings .cf7apps-app-settings-form .MuiTabPanel-root   ,
-.cf7apps-weekly-summary-settings .cf7apps-app-settings-form .MuiTabPanel-root   {
+.cf7apps-weekly-summary-settings .cf7apps-app-settings-form .MuiTabPanel-root   ,
+.cf7apps-payment-dashboard-settings .cf7apps-app-settings-form .MuiTabPanel-root   {
 
     display: flex;
     flex-direction: column;
@@ -3149,6 +3198,11 @@ button:focus {
     max-width: 500px;
     margin: 0;
     padding: 0 !important;
+}
+
+.cf7apps-webhook-settings .cf7apps-app-settings-form .MuiTabPanel-root,
+.cf7apps-weekly-summary-settings .cf7apps-app-settings-form .MuiTabPanel-root {
+    gap: 16px;
 }
 
 .cf7apps-redirection-settings .cf7apps-app-settings-form .cf7apps-form-group,
@@ -3320,8 +3374,455 @@ button:focus {
     color: #0d2149;
 }
 
+.cf7apps-entries-settings .cf7apps-form-toggle-block__label-wrap {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 0;
+}
+
+.cf7apps-entries-settings .cf7apps-entries-pro-settings {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    width: 100%;
+    max-width: 500px;
+}
+
+.cf7apps-entries-settings .cf7apps-entries-pro-section {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    width: 100%;
+}
+
+.cf7apps-entries-settings .cf7apps-entries-pro-teasers {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    width: 100%;
+    max-width: 500px;
+    box-sizing: border-box;
+}
+
+.cf7apps-entries-settings .cf7apps-entries-pro-teasers .cf7apps-pro-toggle-teaser {
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+    padding: 0;
+    border-bottom: none;
+}
+
+.cf7apps-entries-settings .cf7apps-entries-pro-settings .cf7apps-form-toggle-field {
+    max-width: 100%;
+    margin: 0;
+    padding: 0;
+    border-bottom: none;
+}
+
+.cf7apps-entries-settings .cf7apps-entries-pro-settings__fields {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    width: 100%;
+    padding: 0;
+    border-bottom: none;
+}
+
+.cf7apps-multi-select {
+    position: relative;
+    width: 100%;
+    max-width: 500px;
+}
+
+.cf7apps-multi-select.is-disabled {
+    opacity: 0.65;
+    pointer-events: none;
+}
+
+.cf7apps-multi-select__control {
+    position: relative;
+    width: 100%;
+}
+
+.cf7apps-multi-select__trigger {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    width: 100%;
+    min-height: 36px;
+    height: 36px;
+    margin: 0;
+    padding: 0 10px;
+    border: 0.6px solid #8a8a8a;
+    border-radius: 6px;
+    background: #ffffff;
+    box-shadow: 0 0.5px 0.75px rgba(0, 0, 0, 0.15);
+    box-sizing: border-box;
+    text-align: left;
+    cursor: pointer;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.cf7apps-multi-select__trigger.has-multiple-chips {
+    height: auto;
+    min-height: 36px;
+    padding: 5px 10px;
+    align-items: flex-start;
+}
+
+.cf7apps-multi-select.is-open .cf7apps-multi-select__trigger,
+.cf7apps-multi-select__trigger:hover {
+    border-color: #208aae;
+    box-shadow: 0 0 0 1px rgba(32, 138, 174, 0.18), 0 0.5px 0.75px rgba(0, 0, 0, 0.12);
+}
+
+.cf7apps-multi-select__chips {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px;
+    flex: 1 1 auto;
+    min-width: 0;
+    padding: 0;
+}
+
+.cf7apps-multi-select__placeholder,
+.cf7apps-multi-select__summary-text {
+    color: #303030;
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 1.4;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.cf7apps-multi-select__placeholder {
+    color: #8a8a8a;
+}
+
+.cf7apps-multi-select__chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    max-width: 100%;
+    min-height: 22px;
+    height: 22px;
+    padding: 0 7px;
+    border-radius: 999px;
+    background: #eef7fb;
+    border: 1px solid #c5e4ef;
+    color: #145a73;
+    font-size: 11px;
+    font-weight: 500;
+    line-height: 1;
+    box-sizing: border-box;
+}
+
+.cf7apps-multi-select__chip.is-all {
+    background: #f3f4f6;
+    border-color: #d1d5db;
+    color: #374151;
+}
+
+.cf7apps-multi-select__chip-label {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 160px;
+}
+
+.cf7apps-multi-select__chip-remove {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 14px;
+    height: 14px;
+    margin-right: -2px;
+    border-radius: 50%;
+    color: #145a73;
+    font-size: 13px;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.cf7apps-multi-select__chip-remove:hover {
+    background: rgba(20, 90, 115, 0.12);
+}
+
+.cf7apps-multi-select__meta {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+    margin-top: 0;
+    align-self: center;
+}
+
+.cf7apps-multi-select__count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 5px;
+    border-radius: 999px;
+    background: #208aae;
+    color: #ffffff;
+    font-size: 10px;
+    font-weight: 600;
+    line-height: 1;
+}
+
+.cf7apps-multi-select__chevron {
+    flex-shrink: 0;
+    width: 12px;
+    height: 12px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12' fill='none'%3E%3Cpath d='M3 5L6 8L9 5' stroke='%23666' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: center;
+    transition: transform 0.15s ease;
+}
+
+.cf7apps-multi-select.is-open .cf7apps-multi-select__chevron {
+    transform: rotate(180deg);
+}
+
+.cf7apps-multi-select__panel {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    right: 0;
+    z-index: 40;
+    overflow: hidden;
+    border: 1px solid #d0d5dd;
+    border-radius: 8px;
+    background: #ffffff;
+    box-shadow: 0 10px 28px rgba(15, 23, 42, 0.14);
+}
+
+.cf7apps-multi-select__panel-head {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 10px 12px 8px;
+    border-bottom: 1px solid #eef0f3;
+    background: #fafbfc;
+}
+
+.cf7apps-multi-select__panel-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: #52606d;
+}
+
+.cf7apps-multi-select__search {
+    width: 100%;
+    min-height: 32px;
+    margin: 0;
+    padding: 6px 10px;
+    border: 0.6px solid #c9ced6;
+    border-radius: 6px;
+    background: #ffffff;
+    color: #303030;
+    font-size: 12px;
+    line-height: 1.4;
+    box-sizing: border-box;
+}
+
+.cf7apps-multi-select__search:focus {
+    outline: none;
+    border-color: #208aae;
+    box-shadow: 0 0 0 1px rgba(32, 138, 174, 0.2);
+}
+
+.cf7apps-multi-select__menu {
+    list-style: none;
+    margin: 0;
+    padding: 6px 0;
+    max-height: 220px;
+    overflow: auto;
+}
+
+.cf7apps-multi-select__divider {
+    height: 1px;
+    margin: 4px 12px;
+    background: #eef0f3;
+}
+
+.cf7apps-multi-select__option {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    margin: 0;
+    padding: 8px 12px;
+    border: 0;
+    background: transparent;
+    color: #2c3338;
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 1.35;
+    text-align: left;
+    cursor: pointer;
+}
+
+.cf7apps-multi-select__item.is-selected .cf7apps-multi-select__option,
+.cf7apps-multi-select__option:hover {
+    background: #f3fafc;
+}
+
+.cf7apps-multi-select__check {
+    flex-shrink: 0;
+    width: 16px;
+    height: 16px;
+    border: 1.5px solid #9aa3af;
+    border-radius: 4px;
+    background: #ffffff;
+    box-sizing: border-box;
+    position: relative;
+}
+
+.cf7apps-multi-select__check.is-checked {
+    border-color: #208aae;
+    background: #208aae;
+}
+
+.cf7apps-multi-select__check.is-checked::after {
+    content: "";
+    position: absolute;
+    left: 4px;
+    top: 1px;
+    width: 5px;
+    height: 9px;
+    border: solid #ffffff;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+}
+
+.cf7apps-multi-select__option-label {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.cf7apps-multi-select__empty {
+    padding: 14px 12px;
+    color: #6b7280;
+    font-size: 12px;
+    text-align: center;
+}
+
+.cf7apps-entries-settings .cf7apps-multi-select {
+    max-width: 500px;
+}
+
+.cf7apps-entries-settings .cf7apps-entries-export {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    width: 100%;
+}
+
+.cf7apps-entries-settings .cf7apps-entries-export-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    width: 100%;
+}
+
+.cf7apps-entries-settings .cf7apps-entries-export-row .cf7apps-form-group,
+.cf7apps-entries-settings .cf7apps-entries-export-row .cf7apps-app-select-group {
+    flex: 1 1 0;
+    min-width: 0;
+    width: auto;
+    margin: 0 !important;
+}
+
+.cf7apps-entries-settings .cf7apps-entries-export-btn {
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: auto;
+    min-height: 36px;
+    height: 36px;
+    margin: 0;
+    padding: 8px 20px;
+    border: none;
+    border-radius: 6px;
+    background: #208aae !important;
+    color: #fff !important;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: normal;
+    box-sizing: border-box;
+    box-shadow: none !important;
+}
+
+.cf7apps-entries-settings .cf7apps-entries-export-btn:hover,
+.cf7apps-entries-settings .cf7apps-entries-export-btn:focus {
+    background: #1a7594 !important;
+    color: #fff !important;
+}
+
+.cf7apps-entries-settings .cf7apps-entries-export-btn img {
+    display: block;
+    width: 13px;
+    height: 13px;
+}
+
+.cf7apps-entries-settings .cf7apps-entries-export-status {
+    margin: 0;
+    color: #717171;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: normal;
+}
+
+.cf7apps-entries-settings .cf7apps-entries-limit-notice {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 10px 20px;
+    border-left: 2px solid #b88c00;
+    border-radius: 6px;
+    background: #fff9e5;
+    box-sizing: border-box;
+}
+
+.cf7apps-entries-settings .cf7apps-entries-limit-notice__icon {
+    flex-shrink: 0;
+    width: 14px;
+    height: 14px;
+}
+
+.cf7apps-entries-settings .cf7apps-entries-limit-notice__text {
+    flex: 1 1 auto;
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    color: #b88c00;
+    font-size: 12px;
+    font-weight: 500;
+    line-height: normal;
+}
+
+.cf7apps-entries-settings .cf7apps-app-field-label {
+    display: block;
+    margin: 0;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: normal;
+    color: #0d2149;
+}
+
 .cf7apps-redirection-settings .cf7apps-app-field-label ,
-.cf7apps-entries-settings .cf7apps-app-field-label ,
 .cf7apps-webhook-settings .cf7apps-app-field-label ,
 .cf7apps-acf-settings .cf7apps-app-field-label ,
 .cf7apps-ai-form-settings .cf7apps-app-field-label ,
@@ -3329,7 +3830,7 @@ button:focus {
 .cf7apps-hcaptcha-settings .cf7apps-app-field-label {
     display: block;
     margin: 0;
-    font-size: 16px;
+    font-size: 18px;
     font-weight: 600;
     line-height: normal;
     color: #0d2149;
@@ -3623,6 +4124,13 @@ button:focus {
     width: 100%;
 }
 
+.cf7apps-entries-settings .cf7apps-app-select-group,
+.cf7apps-entries-settings .cf7apps-app-field-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
 .cf7apps-redirection-settings .cf7apps-app-select-group > div ,
 .cf7apps-entries-settings .cf7apps-app-select-group > div ,
 .cf7apps-webhook-settings .cf7apps-app-select-group > div ,
@@ -3837,28 +4345,6 @@ button:focus {
     color: #0d2149;
 }
 
-.cf7apps-redirection-settings .cf7apps-pro-toggle-teaser__badge ,
-.cf7apps-entries-settings .cf7apps-pro-toggle-teaser__badge ,
-.cf7apps-webhook-settings .cf7apps-pro-toggle-teaser__badge ,
-.cf7apps-acf-settings .cf7apps-pro-toggle-teaser__badge ,
-.cf7apps-ai-form-settings .cf7apps-pro-toggle-teaser__badge  ,
-.cf7apps-honeypot-settings .cf7apps-pro-toggle-teaser__badge   ,
-.cf7apps-hcaptcha-settings .cf7apps-pro-toggle-teaser__badge   {
-
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 4px;
-    min-height: 21px;
-    padding: 3px 5px;
-    border-radius: 5px;
-    background: linear-gradient(108.77deg, #208aae 14.75%, #0e4f66 98.73%);
-    color: #ffd114;
-    font-size: 11px;
-    font-weight: 700;
-    line-height: 1;
-}
-
 .cf7apps-redirection-settings .cf7apps-app-setting-section .MuiTabPanel-root ,
 .cf7apps-entries-settings .cf7apps-app-setting-section .MuiTabPanel-root ,
 .cf7apps-webhook-settings .cf7apps-app-setting-section .MuiTabPanel-root ,
@@ -3866,6 +4352,7 @@ button:focus {
 .cf7apps-ai-form-settings .cf7apps-app-setting-section .MuiTabPanel-root  ,
 .cf7apps-honeypot-settings .cf7apps-app-setting-section .MuiTabPanel-root   ,
 .cf7apps-hcaptcha-settings .cf7apps-app-setting-section .MuiTabPanel-root   ,
+.cf7apps-weekly-summary-settings .cf7apps-app-setting-section .MuiTabPanel-root   ,
 .cf7apps-payment-dashboard-settings .cf7apps-app-setting-section .MuiTabPanel-root   {
 
     padding-top: 0 !important;
@@ -3930,7 +4417,8 @@ button:focus {
 .cf7apps-acf-settings .cf7apps-app-settings-save-wrap ,
 .cf7apps-ai-form-settings .cf7apps-app-settings-save-wrap  ,
 .cf7apps-honeypot-settings .cf7apps-app-settings-save-wrap   ,
-.cf7apps-hcaptcha-settings .cf7apps-app-settings-save-wrap   {
+.cf7apps-hcaptcha-settings .cf7apps-app-settings-save-wrap   ,
+.cf7apps-weekly-summary-settings .cf7apps-app-settings-save-wrap   {
 
     display: flex;
     flex-direction: column;
@@ -4306,21 +4794,70 @@ select.cf7apps-form-input {
     min-width: 0;
 }
 
-.cf7apps-payment-logs-wrapper.is-locked {
-    opacity: 0.5;
+.cf7apps-entries-settings .cf7apps-payment-logs-view .cf7apps-payment-logs-locked-row td {
+    padding: 0;
+    border-top: 1px solid #eee;
+    text-align: center;
+    vertical-align: middle;
 }
 
-.cf7apps-payment-logs-lock {
-    position: absolute;
-    inset: 0;
+.cf7apps-entries-settings .cf7apps-payment-logs-view .cf7apps-payment-logs-locked-empty {
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
-    pointer-events: none;
+    gap: 8px;
+    min-height: 200px;
+    padding: 40px 24px 44px;
+    text-align: center;
 }
 
-.cf7apps-payment-logs-lock .cf7apps-btn {
-    pointer-events: all;
+.cf7apps-entries-settings .cf7apps-payment-logs-view .cf7apps-payment-logs-locked-empty__icon {
+    width: 28px;
+    height: 28px;
+    margin-bottom: 4px;
+    color: #8a9ab5;
+}
+
+.cf7apps-entries-settings .cf7apps-payment-logs-view .cf7apps-payment-logs-locked-empty__title {
+    margin: 0;
+    color: #0d2149;
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 1.35;
+}
+
+.cf7apps-entries-settings .cf7apps-payment-logs-view .cf7apps-payment-logs-locked-empty__message {
+    margin: 0 0 8px;
+    max-width: 380px;
+    color: #6b7a99;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.cf7apps-entries-settings .cf7apps-payment-logs-view .cf7apps-payment-logs-locked-empty__action {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-sizing: border-box;
+    margin-top: 4px;
+    min-width: 200px;
+    background: var(--cf7apps-primary-color) !important;
+    border: none !important;
+    border-radius: 20px !important;
+    color: #fff !important;
+    font-size: 12px !important;
+    font-weight: 600 !important;
+    padding: 10px 18px !important;
+    height: auto !important;
+    min-height: 36px !important;
+    line-height: 1 !important;
+    text-align: center !important;
+}
+
+.cf7apps-entries-settings .cf7apps-payment-logs-view .cf7apps-payment-logs-locked-empty__action:hover:not(:disabled) {
+    background: var(--cf7apps-primary-color-2) !important;
+    color: #fff !important;
 }
 
 .cf7apps-payment-status {
@@ -4650,7 +5187,7 @@ select.cf7apps-form-input {
     flex-direction: row !important;
     flex-wrap: nowrap;
     align-items: flex-start;
-    gap: 16px 24px;
+    gap: 10px;
     width: 100%;
     max-width: 500px;
     box-sizing: border-box;
@@ -4658,8 +5195,18 @@ select.cf7apps-form-input {
 
 .cf7apps-dashboard-settings .cf7apps-webhook-settings .cf7apps-app-setting-section,
 .cf7apps-dashboard-settings .cf7apps-webhook-settings .cf7apps-app-settings-form {
+    width: 100%;
+    max-width: none;
+}
+
+.cf7apps-dashboard-settings .cf7apps-webhook-settings .cf7apps-app-settings-form .cf7apps-app-settings-tabpanel-general {
     width: min(500px, 100%);
     max-width: 500px;
+}
+
+.cf7apps-dashboard-settings .cf7apps-webhook-settings .cf7apps-app-settings-form .cf7apps-app-settings-tabpanel-logs {
+    width: 100%;
+    max-width: none;
 }
 
 .cf7apps-dashboard-settings .cf7apps-acf-settings .cf7apps-app-setting-section,
@@ -4715,6 +5262,19 @@ select.cf7apps-form-input {
     }
 }
 
+.cf7apps-webhook-settings .cf7apps-app-settings-form .MuiTabPanel-root {
+    gap: 20px;
+}
+
+.cf7apps-webhook-settings .cf7apps-app-field-label {
+    display: block;
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    line-height: normal;
+    color: #0d2149;
+}
+
 .cf7apps-webhook-settings .cf7apps-settings-collapsible-trigger,
 .cf7apps-webhook-settings .cf7apps-form-settings-collapsible {
     display: flex;
@@ -4723,10 +5283,11 @@ select.cf7apps-form-input {
     gap: 8px;
     width: 100%;
     max-width: 100%;
-    padding: 10px 12px;
+    padding: 10px !important;
     border-radius: 6px;
     border: none;
-    background: rgba(70, 141, 180, 0.12);
+    background: #f2f2f2 !important;
+    box-shadow: 0 0.5px 0.75px rgba(0, 0, 0, 0.15);
     cursor: pointer;
     transition: background-color 0.2s ease;
     box-sizing: border-box;
@@ -4734,7 +5295,7 @@ select.cf7apps-form-input {
 
 .cf7apps-webhook-settings .cf7apps-settings-collapsible-trigger:hover,
 .cf7apps-webhook-settings .cf7apps-form-settings-collapsible:hover {
-    background: rgba(70, 141, 180, 0.18);
+    background: #ebebeb !important;
 }
 
 .cf7apps-webhook-settings .cf7apps-settings-collapsible-trigger label,
@@ -4742,8 +5303,101 @@ select.cf7apps-form-input {
     margin: 0;
     font-weight: 500;
     font-size: 14px;
-    color: #0d2149;
+    color: #2c3338;
     cursor: inherit;
+}
+
+.cf7apps-webhook-settings .cf7apps-webhook-pro-settings,
+.cf7apps-webhook-settings .cf7apps-webhook-field-selector,
+.cf7apps-webhook-settings .cf7apps-webhook-multi {
+    width: 100%;
+    max-width: 500px;
+    margin: 0;
+}
+
+.cf7apps-webhook-settings .cf7apps-webhook-pro-settings + .cf7apps-form-group,
+.cf7apps-webhook-settings .cf7apps-webhook-pro-settings + .cf7apps-settings {
+    margin-top: 0;
+}
+
+.cf7apps-webhook-settings .cf7apps-webhook-field-selector {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.cf7apps-webhook-settings .cf7apps-webhook-field-selector__heading {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+}
+
+.cf7apps-webhook-settings .cf7apps-webhook-field-selector__title {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: normal;
+    color: #0d2149;
+}
+
+.cf7apps-webhook-settings .cf7apps-webhook-field-selector__help {
+    margin: 0;
+    font-size: 13px;
+    font-weight: 500;
+    color: #717171;
+}
+
+.cf7apps-webhook-settings .cf7apps-webhook-field-selector__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border: none;
+    background: transparent;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px 10px;
+}
+
+.cf7apps-webhook-settings .cf7apps-webhook-field-selector__list label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0;
+    font-size: 13px;
+    font-weight: 500;
+    color: #717171;
+    cursor: pointer;
+}
+
+.cf7apps-webhook-settings .cf7apps-webhook-field-selector__list input[type="checkbox"] {
+    width: 14px;
+    height: 14px;
+    margin: 0;
+    flex-shrink: 0;
+}
+
+.cf7apps-webhook-settings .cf7apps-webhook-selective__note,
+.cf7apps-webhook-settings .cf7apps-help-text.cf7apps-webhook-selective__note {
+    margin: 0;
+    font-size: 13px;
+    font-weight: 500;
+    color: #717171;
+}
+
+.cf7apps-webhook-settings .cf7apps-app-select-group,
+.cf7apps-webhook-settings .cf7apps-app-field-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.cf7apps-webhook-settings .cf7apps-webhook-method-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    width: 100%;
+    max-width: 500px;
 }
 
 .cf7apps-collapsible-chevron,
@@ -4830,6 +5484,1088 @@ select.cf7apps-form-input {
     font-size: 12px;
     line-height: 1.4;
     box-shadow: 0 0.5px 0.75px rgba(0, 0, 0, 0.15);
+}
+
+.cf7apps-webhook-settings .cf7apps-webhook-pro-settings,
+.cf7apps-webhook-settings .cf7apps-webhook-field-selector,
+.cf7apps-webhook-settings .cf7apps-webhook-multi {
+    width: 100%;
+    max-width: 500px;
+    margin: 0;
+}
+
+.cf7apps-webhook-settings .cf7apps-webhook-pro-settings + .cf7apps-form-group,
+.cf7apps-webhook-settings .cf7apps-webhook-pro-settings + .cf7apps-settings {
+    margin-top: 0;
+}
+
+.cf7apps-webhook-settings .cf7apps-webhook-field-selector__header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    margin: 0 0 10px;
+}
+
+.cf7apps-webhook-settings .cf7apps-webhook-multi__card-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    margin: 0;
+}
+
+.cf7apps-webhook-settings .cf7apps-webhook-form-pro-settings .cf7apps-webhook-multi__card-top .cf7apps-help-text {
+    margin: 0;
+    font-size: 13px;
+    font-weight: 500;
+    color: #717171;
+    line-height: 1.4;
+}
+
+.cf7apps-webhook-settings .cf7apps-webhook-form-pro-settings .cf7apps-webhook-multi__card-top strong {
+    font-size: 16px;
+    font-weight: 600;
+    color: #0d2149;
+}
+
+.cf7apps-webhook-settings .cf7apps-webhook-form-pro-settings {
+    margin-top: 6px;
+    width: 100%;
+    max-width: 500px;
+}
+
+.cf7apps-webhook-settings .cf7apps-webhook-form-pro-settings .cf7apps-webhook-method-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    width: 100%;
+}
+
+.cf7apps-webhook-settings .cf7apps-webhook-form-pro-settings .cf7apps-webhook-method-row > * {
+    flex: 1 1 0;
+    min-width: 0;
+    max-width: none;
+}
+
+.cf7apps-webhook-settings .cf7apps-webhook-field-selector {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.cf7apps-webhook-settings .cf7apps-webhook-field-selector__heading {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+}
+
+.cf7apps-webhook-settings .cf7apps-webhook-field-selector__title {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: normal;
+    color: #0d2149;
+}
+
+.cf7apps-webhook-settings .cf7apps-webhook-field-selector__help {
+    margin: 0;
+    font-size: 13px;
+    font-weight: 500;
+    color: #717171;
+}
+
+.cf7apps-webhook-settings .cf7apps-webhook-field-selector__actions {
+    display: none;
+}
+
+.cf7apps-webhook-settings .cf7apps-webhook-field-selector__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border: none;
+    border-radius: 0;
+    background: transparent;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px 10px;
+}
+
+.cf7apps-webhook-settings .cf7apps-webhook-field-selector__list label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0;
+    font-size: 13px;
+    font-weight: 500;
+    color: #717171;
+    cursor: pointer;
+}
+
+.cf7apps-webhook-settings .cf7apps-webhook-field-selector__list input[type="checkbox"] {
+    width: 14px;
+    height: 14px;
+    margin: 0;
+    flex-shrink: 0;
+}
+
+.cf7apps-webhook-settings .cf7apps-webhook-field-selector__help {
+    margin: 0;
+}
+
+.cf7apps-webhook-settings .cf7apps-webhook-card-section {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+    margin: 0;
+}
+
+.cf7apps-webhook-settings .cf7apps-webhook-card-section + .cf7apps-webhook-card-section {
+    margin-top: 8px;
+}
+
+.cf7apps-app-field-label .required,
+.cf7apps-form-group label .required,
+span.required,
+.cf7apps-required,
+.cf7apps-app-field-label .cf7apps-required,
+.cf7apps-form-group label .cf7apps-required,
+.cf7apps-webhook-settings .cf7apps-required {
+    display: inline !important;
+    color: #d63638 !important;
+    margin-left: 2px;
+    font-weight: 700;
+    font-size: inherit;
+    line-height: inherit;
+}
+
+.cf7apps-webhook-settings .cf7apps-webhook-pro-teasers {
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+    width: 100%;
+    max-width: 500px;
+    box-sizing: border-box;
+}
+
+.cf7apps-webhook-settings .cf7apps-webhook-pro-teasers .cf7apps-pro-toggle-teaser {
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+}
+
+.cf7apps-webhook-settings .cf7apps-app-settings-form .cf7apps-form-toggle-field,
+.cf7apps-webhook-settings .cf7apps-app-settings-form .cf7apps-form-toggle-block,
+.cf7apps-webhook-settings .cf7apps-app-settings-form .cf7apps-pro-toggle-teaser,
+.cf7apps-webhook-settings .cf7apps-app-settings-form .cf7apps-form-group,
+.cf7apps-webhook-settings .cf7apps-app-settings-form .cf7apps-app-select-group,
+.cf7apps-webhook-settings .cf7apps-app-settings-form .cf7apps-app-field-group {
+    width: 100%;
+    max-width: 500px;
+    box-sizing: border-box;
+}
+
+.cf7apps-webhook-settings .cf7apps-webhook-multi__card.is-collapsed .cf7apps-webhook-multi__card-top {
+    margin-bottom: 0;
+}
+
+.cf7apps-webhook-settings .cf7apps-webhook-multi__card-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex: 1 1 auto;
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    border: none;
+    background: transparent;
+    text-align: left;
+    cursor: pointer;
+}
+
+.cf7apps-webhook-settings .cf7apps-webhook-multi__card-toggle-copy {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+}
+
+.cf7apps-webhook-settings .cf7apps-webhook-multi__card-toggle .cf7apps-collapsible-chevron {
+    flex-shrink: 0;
+    margin-top: 0;
+    margin-left: 0;
+}
+
+.cf7apps-webhook-settings .cf7apps-webhook-multi__card-top strong {
+    display: block;
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 1.3;
+    color: #0d2149;
+}
+
+.cf7apps-webhook-settings .cf7apps-webhook-multi__card-body {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    width: 100%;
+}
+
+.cf7apps-webhook-settings .cf7apps-webhook-field-selector__actions {
+    display: none;
+}
+
+.cf7apps-webhook-settings .cf7apps-webhook-field-selector__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border: none;
+    border-radius: 0;
+    background: transparent;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px 10px;
+}
+
+.cf7apps-webhook-settings .cf7apps-webhook-field-selector__list label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0;
+    font-size: 13px;
+    font-weight: 500;
+    color: #717171;
+    cursor: pointer;
+}
+
+.cf7apps-webhook-settings .cf7apps-webhook-multi__card {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    border: none;
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 0;
+    background: #f4f4f4;
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 500px;
+}
+
+.cf7apps-webhook-settings .cf7apps-webhook-form-pro-settings .cf7apps-webhook-multi {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+    max-width: 500px;
+}
+
+.cf7apps-webhook-settings .cf7apps-webhook-form-pro-settings .cf7apps-app-field-label {
+    font-size: 14px;
+}
+
+.cf7apps-webhook-settings .cf7apps-webhook-form-pro-settings .cf7apps-webhook-card-collapsible,
+.cf7apps-webhook-settings .cf7apps-webhook-multi__card .cf7apps-webhook-card-collapsible {
+    background: #ffffff !important;
+    box-shadow: 0 0.5px 0.75px rgba(0, 0, 0, 0.15);
+    padding: 10px !important;
+}
+
+.cf7apps-webhook-settings .cf7apps-webhook-form-pro-settings .cf7apps-webhook-card-collapsible:hover,
+.cf7apps-webhook-settings .cf7apps-webhook-multi__card .cf7apps-webhook-card-collapsible:hover {
+    background: #fafafa !important;
+}
+
+.cf7apps-webhook-settings .cf7apps-webhook-form-pro-settings .cf7apps-webhook-card-collapsible label {
+    font-weight: 500;
+    font-size: 14px;
+    color: #2c3338;
+}
+
+.cf7apps-webhook-settings .cf7apps-webhook-card-section {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+    margin: 0;
+}
+
+.cf7apps-webhook-settings .cf7apps-webhook-card-section + .cf7apps-webhook-card-section {
+    margin-top: 0;
+}
+
+.cf7apps-webhook-settings .cf7apps-webhook-multi__card-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.cf7apps-webhook-settings .cf7apps-webhook-param-map__row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.cf7apps-webhook-settings .cf7apps-webhook-param-map__row input {
+    flex: 1;
+}
+
+.cf7apps-webhook-settings .cf7apps-app-setting-section {
+    max-width: none;
+    overflow: visible;
+}
+
+.cf7apps-webhook-settings .cf7apps-app-settings-form {
+    max-width: none;
+    width: 100%;
+}
+
+.cf7apps-webhook-settings .cf7apps-app-settings-form .MuiTabPanel-root,
+.cf7apps-webhook-settings .cf7apps-app-settings-form .cf7apps-app-settings-tabpanel-general,
+.cf7apps-webhook-settings .cf7apps-app-settings-form .cf7apps-app-settings-tabpanel-logs {
+    max-width: none;
+}
+
+.cf7apps-webhook-settings .cf7apps-app-settings-form .cf7apps-app-settings-tabpanel-general {
+    width: min(500px, 100%);
+    max-width: 500px;
+    padding-top: 16px !important;
+}
+
+.cf7apps-webhook-settings .cf7apps-app-settings-tabs {
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+    gap: 20px;
+    width: 100%;
+    max-width: none;
+    margin: 0 0 4px;
+    padding: 0;
+    border-bottom: none;
+}
+
+.cf7apps-webhook-settings .cf7apps-app-settings-tabs::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 1px;
+    background: #dddddd;
+    pointer-events: none;
+}
+
+.cf7apps-webhook-settings .cf7apps-app-settings-tabs__tab {
+    position: relative;
+    z-index: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    box-sizing: border-box;
+    min-width: 80px;
+    height: 41px;
+    margin: 0;
+    padding: 10px 14px;
+    border: none;
+    border-bottom: none;
+    border-radius: 0;
+    background: transparent;
+    color: #717171;
+    font-family: inherit;
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 21px;
+    white-space: nowrap;
+    cursor: pointer;
+    box-shadow: none;
+    transition: color 0.15s ease;
+}
+
+.cf7apps-webhook-settings .cf7apps-app-settings-tabs__label {
+    display: inline-block;
+}
+
+.cf7apps-webhook-settings .cf7apps-app-settings-tabs__pro-badge.cf7apps-pro-badge,
+.cf7apps-webhook-settings .cf7apps-app-settings-tabs__tab .cf7apps-pro-badge {
+    transform: translateY(-0.5px);
+}
+
+.cf7apps-webhook-settings .cf7apps-app-settings-tabs__tab.is-active {
+    color: #0d2149;
+    font-weight: 600;
+    background: transparent;
+    box-shadow: inset 0 -2px 0 #208aae;
+}
+
+.cf7apps-webhook-settings .cf7apps-app-settings-tabs__tab:not(.is-active):hover {
+    color: #717171;
+    background: transparent;
+    box-shadow: none;
+}
+
+.cf7apps-webhook-settings .cf7apps-app-settings-tabs__tab.is-active:hover {
+    color: #0d2149;
+    background: transparent;
+    box-shadow: inset 0 -2px 0 #208aae;
+}
+
+.cf7apps-webhook-settings .cf7apps-app-settings-tabs__tab:focus-visible {
+    outline: 2px solid #208aae;
+    outline-offset: 2px;
+}
+
+.cf7apps-webhook-settings .cf7apps-app-settings-form .cf7apps-app-settings-tabpanel-logs,
+.cf7apps-webhook-settings .cf7apps-app-setting-section .cf7apps-app-settings-tabpanel-logs,
+.cf7apps-dashboard-settings .cf7apps-webhook-settings .cf7apps-app-settings-form .cf7apps-app-settings-tabpanel-logs {
+    max-width: none !important;
+    width: 100% !important;
+    padding-top: 28px !important;
+    padding-bottom: 0 !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    gap: 0 !important;
+    display: block !important;
+}
+
+.cf7apps-webhook-settings .cf7apps-webhook-logs {
+    width: 100%;
+    max-width: none;
+    padding-top: 0;
+    margin-top: 0;
+}
+
+.cf7apps-webhook-settings .cf7apps-webhook-logs-toolbar,
+.cf7apps-webhook-settings .cf7apps-webhook-logs-toolbar.cf7apps-table-nav.cf7apps-nav-header {
+    display: flex !important;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: nowrap;
+    width: 100%;
+    margin: 0 0 14px;
+    padding: 0;
+    overflow: visible;
+}
+
+.cf7apps-webhook-settings .cf7apps-webhook-logs-toolbar::after {
+    display: none;
+}
+
+.cf7apps-webhook-settings .cf7apps-webhook-logs-toolbar .cf7apps-left,
+.cf7apps-webhook-settings .cf7apps-webhook-logs-toolbar .cf7apps-right,
+.cf7apps-webhook-settings .cf7apps-webhook-logs-toolbar .cf7apps-entries-toolbar__left,
+.cf7apps-webhook-settings .cf7apps-webhook-logs-toolbar .cf7apps-entries-toolbar__right {
+    float: none !important;
+    display: flex !important;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: nowrap;
+    flex-shrink: 0;
+    width: auto;
+    max-width: none;
+}
+
+.cf7apps-webhook-settings .cf7apps-webhook-logs-toolbar .cf7apps-entries-toolbar__right,
+.cf7apps-webhook-settings .cf7apps-webhook-logs-toolbar .cf7apps-right {
+    justify-content: flex-end;
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.cf7apps-webhook-settings .cf7apps-webhook-logs-toolbar .cf7apps-entries-toolbar__field {
+    flex: 0 0 auto;
+    width: auto !important;
+    max-width: none !important;
+    margin: 0 !important;
+}
+
+.cf7apps-webhook-settings .cf7apps-webhook-logs-toolbar .cf7apps-entries-toolbar__field .cf7apps-form-group,
+.cf7apps-webhook-settings .cf7apps-webhook-logs-toolbar .cf7apps-entries-toolbar__field .cf7apps-app-select-group {
+    display: block !important;
+    width: auto !important;
+    max-width: none !important;
+    margin: 0 !important;
+}
+
+.cf7apps-webhook-settings .cf7apps-webhook-logs-toolbar .cf7apps-entries-toolbar__field .cf7apps-form-group > div,
+.cf7apps-webhook-settings .cf7apps-webhook-logs-toolbar .cf7apps-entries-toolbar__field .cf7apps-app-select-group > div,
+.cf7apps-webhook-settings .cf7apps-webhook-logs-toolbar .cf7apps-app-select-group .cf7apps-select-wrap {
+    position: relative;
+    width: auto !important;
+    max-width: none !important;
+    margin: 0 !important;
+}
+
+.cf7apps-webhook-settings .cf7apps-webhook-logs-toolbar select.cf7apps-form-input,
+.cf7apps-webhook-settings .cf7apps-webhook-logs-toolbar input.cf7apps-form-input,
+.cf7apps-webhook-settings .cf7apps-webhook-logs-toolbar input.cf7apps-app-select-field,
+.cf7apps-webhook-settings .cf7apps-webhook-logs-toolbar .cf7apps-calendar-wrapper input {
+    width: 130px !important;
+    min-width: 130px !important;
+    max-width: 160px !important;
+    min-height: 32px !important;
+    height: 32px !important;
+    margin: 0 !important;
+    padding: 6px 28px 6px 10px !important;
+    border: 0.6px solid #8a8a8a !important;
+    border-radius: 6px !important;
+    background-color: #fff !important;
+    color: #303030 !important;
+    font-size: 12px !important;
+    line-height: 1.2 !important;
+    box-sizing: border-box !important;
+    box-shadow: 0 0.5px 0.75px rgba(0, 0, 0, 0.15) !important;
+    vertical-align: middle;
+}
+
+.cf7apps-webhook-settings .cf7apps-webhook-logs-toolbar select.cf7apps-form-input,
+.cf7apps-webhook-settings .cf7apps-webhook-logs-toolbar select.cf7apps-app-select-field {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12' fill='none'%3E%3Cpath d='M3 5L6 8L9 5' stroke='%23666666' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") !important;
+    background-repeat: no-repeat !important;
+    background-position: right 10px center !important;
+    background-size: 12px 12px !important;
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+}
+
+.cf7apps-webhook-settings .cf7apps-webhook-logs-toolbar .cf7apps-app-select-group .cf7apps-select-wrap > svg {
+    display: none !important;
+}
+
+.cf7apps-webhook-settings .cf7apps-webhook-logs-toolbar .cf7apps-filter-text-field {
+    width: 140px !important;
+    max-width: 160px !important;
+    padding-right: 10px !important;
+}
+
+.cf7apps-webhook-settings .cf7apps-webhook-logs-toolbar .cf7apps-entries-toolbar__field--calendar .cf7apps-calendar-wrapper {
+    display: inline-block !important;
+    width: 160px !important;
+    max-width: 170px !important;
+}
+
+.cf7apps-webhook-settings .cf7apps-webhook-logs-toolbar .cf7apps-entries-toolbar__field--calendar input {
+    width: 100% !important;
+    max-width: 100% !important;
+    padding-right: 10px !important;
+}
+
+.cf7apps-webhook-settings .cf7apps-webhook-logs-toolbar .cf7apps-btn,
+.cf7apps-webhook-settings .cf7apps-webhook-logs-toolbar .components-button {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    min-height: 32px !important;
+    height: 32px !important;
+    margin: 0 !important;
+    padding: 0 14px !important;
+    border-radius: 6px !important;
+    font-size: 12px !important;
+    line-height: 1 !important;
+    white-space: nowrap;
+}
+
+.cf7apps-webhook-settings .cf7apps-webhook-logs-toolbar .cf7apps-entries-toolbar__clear {
+    border: 0.8px solid #e3e3e3 !important;
+    background: #f2f2f2 !important;
+    color: #616161 !important;
+    box-shadow: none !important;
+}
+
+.cf7apps-webhook-settings .cf7apps-webhook-logs-table-wrap {
+    width: 100%;
+    overflow-x: auto;
+    border: 0.5px solid #d4d4e4;
+    border-radius: 6px;
+    background: #fff;
+}
+
+.cf7apps-webhook-settings .cf7apps-webhook-logs-table {
+    width: 100% !important;
+    min-width: 820px;
+    margin: 0;
+    border: 0 !important;
+    border-collapse: separate;
+    border-spacing: 0;
+    table-layout: fixed;
+    overflow: hidden;
+}
+
+.cf7apps-webhook-settings .cf7apps-webhook-logs-table thead {
+    background: #f9f9f9;
+}
+
+.cf7apps-webhook-settings .cf7apps-webhook-logs-table thead th,
+.cf7apps-webhook-settings .cf7apps-webhook-logs-table tbody td {
+    padding: 10px 16px;
+    text-align: left;
+    border-bottom: 0.5px solid #d4d4e4;
+    font-size: 14px;
+    line-height: 16px;
+    vertical-align: middle;
+    color: #2c3338;
+}
+
+.cf7apps-webhook-settings .cf7apps-webhook-logs-table thead th {
+    background: #f9f9f9;
+    color: #2c3338;
+    font-weight: 600;
+    border-bottom: 0.5px solid #d4d4e4;
+}
+
+.cf7apps-webhook-settings .cf7apps-webhook-logs-table tbody tr {
+    height: 36px;
+    background: #fff;
+}
+
+.cf7apps-webhook-settings .cf7apps-webhook-logs-table tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+.cf7apps-webhook-settings .cf7apps-webhook-logs-table thead th:first-child,
+.cf7apps-webhook-settings .cf7apps-webhook-logs-table tbody td:first-child {
+    width: 44px;
+    padding-left: 16px;
+    padding-right: 8px;
+    text-align: center;
+}
+
+.cf7apps-webhook-settings .cf7apps-webhook-logs-table thead th:nth-child(2),
+.cf7apps-webhook-settings .cf7apps-webhook-logs-table tbody td:nth-child(2) {
+    width: 16%;
+}
+
+.cf7apps-webhook-settings .cf7apps-webhook-logs-table thead th:nth-child(3),
+.cf7apps-webhook-settings .cf7apps-webhook-logs-table tbody td:nth-child(3) {
+    width: 18%;
+    white-space: nowrap;
+}
+
+.cf7apps-webhook-settings .cf7apps-webhook-logs-table thead th:nth-child(4),
+.cf7apps-webhook-settings .cf7apps-webhook-logs-table tbody td:nth-child(4) {
+    width: 12%;
+}
+
+.cf7apps-webhook-settings .cf7apps-webhook-logs-table thead th:nth-child(5),
+.cf7apps-webhook-settings .cf7apps-webhook-logs-table tbody td:nth-child(5) {
+    width: 10%;
+}
+
+.cf7apps-webhook-settings .cf7apps-webhook-logs-table thead th:nth-child(6),
+.cf7apps-webhook-settings .cf7apps-webhook-logs-table tbody td:nth-child(6) {
+    width: 20%;
+}
+
+.cf7apps-webhook-settings .cf7apps-webhook-logs-table thead th:nth-child(7),
+.cf7apps-webhook-settings .cf7apps-webhook-logs-table tbody td:nth-child(7) {
+    width: 18%;
+}
+
+.cf7apps-webhook-settings .cf7apps-webhook-logs-table tbody td[colspan] {
+    text-align: center;
+    color: #8a8a8a;
+    padding: 28px 12px;
+}
+
+.cf7apps-webhook-settings .cf7apps-webhook-log-status {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 65px;
+    height: 18px;
+    padding: 0 10px;
+    border-radius: 20px;
+    border: 0.5px solid transparent;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1;
+    text-transform: capitalize;
+}
+
+.cf7apps-webhook-settings .cf7apps-webhook-log-status.is-success {
+    background: #ebfbef;
+    border-color: #34a853;
+    color: #1e4620;
+}
+
+.cf7apps-webhook-settings .cf7apps-webhook-log-status.is-failed {
+    background: #fdecea;
+    border-color: #ea4335;
+    color: #611a15;
+}
+
+.cf7apps-webhook-settings .cf7apps-webhook-log-method {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 16px;
+    padding: 1px 6px;
+    border-radius: 5px;
+    background: #ededed;
+    color: #2c3338;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    line-height: 1.2;
+}
+
+.cf7apps-webhook-settings .cf7apps-webhook-log-actions {
+    white-space: nowrap;
+}
+
+.cf7apps-webhook-settings .cf7apps-webhook-log-actions .cf7apps-entries-row-actions {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.cf7apps-webhook-settings .cf7apps-webhook-log-actions .cf7apps-entries-row-action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    min-width: 0;
+    height: 24px;
+    padding: 0 4px;
+    border: 0;
+    border-radius: 2px;
+    background: transparent;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1;
+    box-shadow: none;
+    cursor: pointer;
+}
+
+.cf7apps-webhook-settings .cf7apps-webhook-log-actions .cf7apps-entries-row-action svg {
+    font-size: 12px !important;
+    width: 12px;
+    height: 12px;
+}
+
+.cf7apps-webhook-settings .cf7apps-webhook-log-action--view {
+    color: #1e4620 !important;
+}
+
+.cf7apps-webhook-settings .cf7apps-webhook-log-action--retry {
+    color: #208aae !important;
+}
+
+.cf7apps-webhook-settings .cf7apps-webhook-log-actions .cf7apps-entries-row-action:hover {
+    text-decoration: underline;
+    background: transparent;
+}
+
+.cf7apps-webhook-settings .cf7apps-webhook-logs--demo .cf7apps-webhook-logs-demo-stage {
+    filter: blur(1px);
+    opacity: 0.7;
+    pointer-events: none;
+    user-select: none;
+}
+
+.cf7apps-webhook-settings .cf7apps-webhook-logs-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 14px;
+    width: 100%;
+}
+
+.cf7apps-webhook-settings .cf7apps-webhook-logs-count {
+    font-size: 14px;
+    font-weight: 500;
+    color: #717171;
+}
+
+.cf7apps-webhook-settings .cf7apps-webhook-logs-footer .cf7apps-entries-pagination {
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 6px;
+    margin: 0;
+    width: auto;
+}
+
+.cf7apps-webhook-settings .cf7apps-webhook-logs-footer .cf7apps-entries-pagination .cf7apps-btn,
+.cf7apps-webhook-settings .cf7apps-webhook-logs-footer .cf7apps-entries-pagination .components-button,
+.cf7apps-webhook-settings .cf7apps-webhook-logs-footer .cf7apps-entries-pagination span {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    min-width: 32px;
+    width: 32px;
+    min-height: 32px !important;
+    height: 32px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0.6px solid #cfcfcf !important;
+    border-radius: 6px !important;
+    background: #fff !important;
+    color: #303030 !important;
+    font-size: 13px !important;
+    line-height: 1 !important;
+    box-shadow: none !important;
+}
+
+.cf7apps-webhook-settings .cf7apps-webhook-logs-footer .cf7apps-entries-pagination .cf7apps-btn:disabled,
+.cf7apps-webhook-settings .cf7apps-webhook-logs-footer .cf7apps-entries-pagination .components-button:disabled {
+    opacity: 0.45;
+}
+
+.cf7apps-webhook-settings .cf7apps-webhook-log-delete-popup {
+    text-align: center;
+    width: min(420px, 92vw);
+    padding: 28px 28px 24px;
+}
+
+.cf7apps-webhook-settings .cf7apps-webhook-log-delete-popup > h2 {
+    margin: 0 0 12px;
+    padding: 0 28px 0 0;
+    font-size: 18px;
+    font-weight: 600;
+    line-height: 1.35;
+    color: #0d2149;
+}
+
+.cf7apps-webhook-settings .cf7apps-webhook-log-delete-popup .cf7apps-popup-data {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.cf7apps-webhook-settings .cf7apps-webhook-log-delete-message {
+    margin: 0 0 24px;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1.5;
+    color: #303030;
+}
+
+.cf7apps-webhook-settings .cf7apps-webhook-log-delete-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    width: 100%;
+}
+
+.cf7apps-webhook-settings .cf7apps-webhook-log-delete-actions .cf7apps-btn,
+.cf7apps-webhook-settings .cf7apps-webhook-log-delete-actions .components-button {
+    min-width: 120px;
+    margin: 0 !important;
+    justify-content: center;
+}
+
+.cf7apps-webhook-settings .cf7apps-webhook-log-detail-popup {
+    text-align: left;
+    width: min(720px, 92vw);
+    padding: 28px 28px 24px;
+}
+
+.cf7apps-webhook-settings .cf7apps-webhook-log-detail-popup > h2 {
+    margin: 0 0 20px;
+    padding-right: 28px;
+    font-size: 20px;
+    font-weight: 600;
+    line-height: 1.3;
+    color: #0d2149;
+    text-align: left;
+}
+
+.cf7apps-webhook-settings .cf7apps-webhook-log-detail {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    width: 100%;
+    text-align: left;
+}
+
+.cf7apps-webhook-settings .cf7apps-webhook-log-detail__meta {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin: 0;
+    padding: 16px;
+    border: 1px solid #e6ebf0;
+    border-radius: 8px;
+    background: #f8fafc;
+}
+
+.cf7apps-webhook-settings .cf7apps-webhook-log-detail__row {
+    display: grid;
+    grid-template-columns: 140px minmax(0, 1fr);
+    gap: 12px 16px;
+    align-items: start;
+}
+
+.cf7apps-webhook-settings .cf7apps-webhook-log-detail__label {
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.4;
+    color: #0d2149;
+}
+
+.cf7apps-webhook-settings .cf7apps-webhook-log-detail__value {
+    font-size: 13px;
+    font-weight: 400;
+    line-height: 1.5;
+    color: #303030;
+    word-break: break-word;
+}
+
+.cf7apps-webhook-settings .cf7apps-webhook-log-detail__value--mono {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 12px;
+}
+
+.cf7apps-webhook-settings .cf7apps-webhook-log-detail__block {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+}
+
+.cf7apps-webhook-settings .cf7apps-webhook-log-detail__block-title {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.3;
+    color: #0d2149;
+}
+
+.cf7apps-webhook-settings .cf7apps-webhook-log-detail pre,
+.cf7apps-webhook-settings .cf7apps-webhook-log-detail__code {
+    margin: 0;
+    max-height: 260px;
+    overflow: auto;
+    padding: 14px 16px;
+    border: 1px solid #e1e7ee;
+    border-radius: 8px;
+    background: #f6f8fa;
+    color: #24292f;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 12px;
+    line-height: 1.55;
+    text-align: left;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+@media (max-width: 600px) {
+    .cf7apps-webhook-settings .cf7apps-webhook-log-detail__row {
+        grid-template-columns: 1fr;
+        gap: 4px;
+    }
+}
+
+@media (max-width: 1100px) {
+    .cf7apps-webhook-settings .cf7apps-webhook-logs-toolbar,
+    .cf7apps-webhook-settings .cf7apps-webhook-logs-toolbar.cf7apps-table-nav.cf7apps-nav-header {
+        flex-wrap: wrap;
+    }
+
+    .cf7apps-webhook-settings .cf7apps-webhook-logs-toolbar .cf7apps-entries-toolbar__left,
+    .cf7apps-webhook-settings .cf7apps-webhook-logs-toolbar .cf7apps-entries-toolbar__right,
+    .cf7apps-webhook-settings .cf7apps-webhook-logs-toolbar .cf7apps-left,
+    .cf7apps-webhook-settings .cf7apps-webhook-logs-toolbar .cf7apps-right {
+        flex-wrap: wrap;
+        width: 100%;
+        justify-content: flex-start;
+    }
+}
+
+.cf7apps-webhook-settings .cf7apps-webhook-multi__delete {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    align-self: center;
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    border: 0;
+    border-radius: 6px;
+    background: transparent;
+    color: #c0392b;
+    cursor: pointer;
+}
+
+.cf7apps-webhook-settings .cf7apps-webhook-multi__delete:hover {
+    background: #fdecec;
+}
+
+.cf7apps-webhook-settings .cf7apps-webhook-add-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    max-width: 500px;
+    min-height: 40px;
+    margin: 0;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 6px;
+    background: #208aae;
+    color: #ffffff;
+    font-size: 16px;
+    font-weight: 600;
+    line-height: normal;
+    cursor: pointer;
+    box-sizing: border-box;
+}
+
+.cf7apps-webhook-settings .cf7apps-webhook-add-btn:hover:not(:disabled) {
+    background: #1a7594;
+    color: #ffffff;
+}
+
+.cf7apps-webhook-settings .cf7apps-webhook-add-btn:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+.cf7apps-webhook-settings .cf7apps-webhook-add-btn .MuiSvgIcon-root {
+    color: #ffffff;
+    font-size: 15px;
+}
+
+.cf7apps-webhook-settings .cf7apps-webhook-body-warning {
+    margin: 0 0 10px;
+    padding: 10px 12px;
+    border-radius: 6px;
+    background: #fff6e8;
+    color: #7a4a00;
+    font-size: 13px;
+}
+
+.cf7apps-webhook-settings .cf7apps-webhook-body-preview {
+    margin: 10px 0;
+    padding: 12px;
+    border-radius: 6px;
+    background: #f3f5f7;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 12px;
+    white-space: pre-wrap;
+}
+
+.cf7apps-webhook-settings .cf7apps-pro-collapsible-teaser__trigger {
+    pointer-events: none;
+    opacity: 0.92;
+}
+
+.cf7apps-webhook-settings .cf7apps-pro-collapsible-teaser__trigger label {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
 }
 
 .cf7apps-entries-settings {
@@ -4929,7 +6665,7 @@ select.cf7apps-form-input {
     background: transparent;
     color: #717171;
     font-family: inherit;
-    font-size: 14px;
+    font-size: 16px;
     font-weight: 500;
     line-height: 21px;
     white-space: nowrap;
@@ -5363,7 +7099,7 @@ select.cf7apps-form-input {
     background: transparent;
     color: #717171;
     font-family: degular, sans-serif;
-    font-size: 14px;
+    font-size: 16px;
     font-weight: 500;
     line-height: 1;
     cursor: pointer;
@@ -6558,4 +8294,110 @@ select.cf7apps-form-input {
         max-width: 90vw;
         padding: 16px;
     }
+}
+
+/* Disabled app / payment gateway overlay (dashboard + Pro admin) */
+.cf7apps-settings-content-wrapper {
+    position: relative;
+}
+
+.cf7apps-disabled-content {
+    filter: blur(1px);
+    pointer-events: none;
+}
+
+.cf7apps-enabled-content {
+    filter: none;
+    pointer-events: auto;
+}
+
+.cf7apps-disabled-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(1px);
+}
+
+/* HFCF7-686: weekly summary — compact field stack (no flex stretch in tall panel). */
+.cf7apps-weekly-summary-settings .cf7apps-app-setting-section,
+.cf7apps-weekly-summary-settings .cf7apps-app-settings-form,
+.cf7apps-weekly-summary-settings .cf7apps-app-settings-form .MuiTabPanel-root,
+.cf7apps-weekly-summary-settings .cf7apps-weekly-summary-settings-panel {
+    flex: 0 0 auto;
+    align-self: flex-start;
+    height: auto;
+    min-height: 0;
+    justify-content: flex-start;
+}
+
+.cf7apps-weekly-summary-settings .cf7apps-app-settings-form .MuiTabPanel-root,
+.cf7apps-weekly-summary-settings .cf7apps-weekly-summary-settings-panel {
+    gap: 16px !important;
+}
+
+.cf7apps-weekly-summary-settings .cf7apps-weekly-summary-settings-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    width: 100%;
+    max-width: 500px;
+}
+
+.cf7apps-weekly-summary-settings .cf7apps-app-settings-form .MuiTabPanel-root > *,
+.cf7apps-weekly-summary-settings .cf7apps-weekly-summary-settings-stack > * {
+    flex: 0 0 auto;
+}
+
+.cf7apps-weekly-summary-settings .cf7apps-app-settings-save-wrap {
+    gap: 0;
+}
+
+.cf7apps-weekly-summary-settings .cf7apps-form-settings-save .cf7apps-btn.tertiary-primary {
+    width: auto;
+    max-width: 100%;
+}
+
+.cf7apps-disabled-message {
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 40px;
+    text-align: center;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e0e0e0;
+    max-width: 400px;
+    margin: 20px;
+}
+
+.cf7apps-disabled-message p {
+    margin: 0 0 24px 0;
+    color: #666;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.cf7apps-enable-button {
+    background: var(--cf7apps-primary-color) !important;
+    border-color: var(--cf7apps-primary-color) !important;
+    color: #ffffff !important;
+    font-weight: 600 !important;
+    padding: 10px 24px !important;
+    border-radius: 6px !important;
+    text-decoration: none !important;
+    display: inline-block !important;
+    transition: all 0.2s ease !important;
+}
+
+.cf7apps-enable-button:hover {
+    background: var(--cf7apps-primary-color-2) !important;
+    border-color: var(--cf7apps-primary-color-2) !important;
+    transform: translateY(-1px) !important;
+    box-shadow:
+        0 12px 28px rgba(13, 33, 73, 0.48),
+        0 0 0 3px rgba(255, 255, 255, 0.9) !important;
 }

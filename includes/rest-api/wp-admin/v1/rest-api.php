@@ -99,26 +99,6 @@ class CF7Apps_Rest_API_WP_Admin_V1 extends CF7Apps_Base_Rest_API {
 			)
 		);
 
-		register_rest_route(
-			'cf7apps/v1',
-			'/get-payment-logs',
-			array(
-				'methods'             => 'GET',
-				'callback'            => array( $this, 'get_payment_logs' ),
-				'permission_callback' => array( $this, 'authenticate' ),
-			)
-		);
-
-		register_rest_route(
-			'cf7apps/v1',
-			'/delete-payment-logs',
-			array(
-				'methods'             => 'GET',
-				'callback'            => array( $this, 'delete_payment_logs' ),
-				'permission_callback' => array( $this, 'authenticate' ),
-			)
-		);
-
         register_rest_route(
             'cf7apps/v1',
             '/spam-count',
@@ -377,6 +357,22 @@ class CF7Apps_Rest_API_WP_Admin_V1 extends CF7Apps_Base_Rest_API {
 
         $settings['app_settings'] = $this->sanitize_app_settings( $settings['app_settings'] );
 
+		if ( 'webhook' === ( $settings['id'] ?? '' ) && is_array( $settings['app_settings'] ) ) {
+			$settings['app_settings'] = $this->normalize_webhook_app_settings( $settings['app_settings'] );
+		}
+
+		if (
+			'cf7-entries' === ( $settings['id'] ?? '' )
+			&& ! empty( $settings['entries_pro_settings'] )
+			&& is_array( $settings['entries_pro_settings'] )
+			&& class_exists( 'CF7Apps_Pro_Entries' )
+		) {
+			$pro_result = CF7Apps_Pro_Entries::persist_entries_pro_settings( $settings['entries_pro_settings'] );
+			if ( is_wp_error( $pro_result ) ) {
+				wp_send_json_error( $pro_result->get_error_message(), 400 );
+			}
+		}
+
         $settings_for = isset( $settings['settings-for'] ) ? $settings['settings-for'] : '';
         if ( 'internal-settings' === $settings_for ) {
             $form_id = isset( $settings['form_id'] ) ? absint( $settings['form_id'] ) : 0;
@@ -390,6 +386,19 @@ class CF7Apps_Rest_API_WP_Admin_V1 extends CF7Apps_Base_Rest_API {
             $response = cf7apps_save_internal_app_settings( $settings['id'], $form_id, $settings['app_settings'] );
         } else {
             $response = cf7apps_save_app_settings( $settings['id'], $settings['app_settings'] );
+        }
+
+        if ( 'cf7-entries' === ( $settings['id'] ?? '' ) ) {
+            if ( class_exists( 'CF7Apps_Pro_Entries' ) ) {
+                // Pro REST save already ran; queue auto-delete after is_enabled is persisted.
+                $entries_pro = CF7Apps_Pro_Entries::get_pro_settings();
+                if ( ! empty( $entries_pro['auto_delete']['enabled'] ) ) {
+                    CF7Apps_Pro_Entries::schedule_deferred_auto_delete_run();
+                }
+                CF7Apps_Pro_Entries::reschedule_auto_delete_event();
+            } else {
+                do_action( 'cf7apps_entries_pro_settings_saved' );
+            }
         }
 
         if( $response ) {
@@ -560,10 +569,6 @@ class CF7Apps_Rest_API_WP_Admin_V1 extends CF7Apps_Base_Rest_API {
 						'details'            => ! empty( $payment ) ? $payment : null,
 					);
 				}
-			}
-
-			if ( empty( $entries ) ) {
-				wp_send_json_error( 'No entries found.', 404 );
 			}
 		}
 
@@ -870,12 +875,28 @@ class CF7Apps_Rest_API_WP_Admin_V1 extends CF7Apps_Base_Rest_API {
      * @return WP_REST_Response
      */
     public function get_dashboard_overview() {
-        return rest_ensure_response(
-            array(
-                'success' => true,
-                'data'    => CF7Apps_Domain_Authentication::get_overview_stats(),
-            )
-        );
+        if ( ! class_exists( 'CF7Apps_Domain_Authentication' ) ) {
+            return new WP_Error(
+                'cf7apps_missing_dependency',
+                __( 'Domain authentication module is unavailable.', 'cf7apps' ),
+                array( 'status' => 500 )
+            );
+        }
+
+        try {
+            return rest_ensure_response(
+                array(
+                    'success' => true,
+                    'data'    => CF7Apps_Domain_Authentication::get_overview_stats(),
+                )
+            );
+        } catch ( Throwable $e ) {
+            return new WP_Error(
+                'cf7apps_dashboard_overview_failed',
+                $e->getMessage(),
+                array( 'status' => 500 )
+            );
+        }
     }
 
     /**
@@ -883,17 +904,45 @@ class CF7Apps_Rest_API_WP_Admin_V1 extends CF7Apps_Base_Rest_API {
      *
      * @since 3.9.0
      * @param WP_REST_Request $request Request.
-     * @return WP_REST_Response
+     * @return WP_REST_Response|WP_Error
      */
     public function get_domain_authentication( $request ) {
+        if ( ! class_exists( 'CF7Apps_Domain_Authentication' ) ) {
+            return rest_ensure_response(
+                array(
+                    'success' => true,
+                    'data'    => array(
+                        'domain'               => wp_parse_url( home_url(), PHP_URL_HOST ),
+                        'deliverability_score' => 0,
+                        'checks'               => array(),
+                    ),
+                )
+            );
+        }
+
         $force_refresh = rest_sanitize_boolean( $request->get_param( 'refresh' ) );
 
-        return rest_ensure_response(
-            array(
-                'success' => true,
-                'data'    => CF7Apps_Domain_Authentication::get_payload( $force_refresh ),
-            )
-        );
+        try {
+            return rest_ensure_response(
+                array(
+                    'success' => true,
+                    'data'    => CF7Apps_Domain_Authentication::get_payload( $force_refresh ),
+                )
+            );
+        } catch ( Throwable $e ) {
+            // Keep the dashboard usable even if lookups fail hard.
+            return rest_ensure_response(
+                array(
+                    'success' => true,
+                    'data'    => array(
+                        'domain'               => wp_parse_url( home_url(), PHP_URL_HOST ),
+                        'deliverability_score' => 0,
+                        'checks'               => array(),
+                        'error'                => $e->getMessage(),
+                    ),
+                )
+            );
+        }
     }
 
     /**
@@ -937,6 +986,132 @@ class CF7Apps_Rest_API_WP_Admin_V1 extends CF7Apps_Base_Rest_API {
 
         wp_send_json_success( $result );
     }
+
+	/**
+	 * Strip Pro-only webhook settings for free installs and normalize Pro payload.
+	 *
+	 * @param array $app_settings Settings.
+	 * @return array
+	 */
+	private function normalize_webhook_app_settings( $app_settings ) {
+		if ( ! is_array( $app_settings ) ) {
+			return $app_settings;
+		}
+
+		$has_pro = function_exists( 'cf7apps_has_pro' ) && cf7apps_has_pro();
+		$allowed_methods = $has_pro
+			? array( 'POST', 'GET', 'PATCH', 'PUT', 'DELETE' )
+			: array( 'POST', 'GET' );
+
+		if ( isset( $app_settings['method'] ) ) {
+			$method = is_array( $app_settings['method'] )
+				? strtoupper( (string) ( $app_settings['method']['value'] ?? 'POST' ) )
+				: strtoupper( (string) $app_settings['method'] );
+			$app_settings['method'] = in_array( $method, $allowed_methods, true ) ? $method : 'POST';
+		}
+
+		if ( ! $has_pro ) {
+			unset(
+				$app_settings['selected_fields'],
+				$app_settings['selected_fields_mode'],
+				$app_settings['failure_notifications'],
+				$app_settings['webhooks'],
+				$app_settings['parameter_map'],
+				$app_settings['webhook_pro_settings'],
+				$app_settings['webhook_field_options'],
+				$app_settings['form_field_options'],
+				$app_settings['has_pro']
+			);
+			return $app_settings;
+		}
+
+		if ( isset( $app_settings['selected_fields'] ) ) {
+			$selected = is_array( $app_settings['selected_fields'] ) && isset( $app_settings['selected_fields']['value'] )
+				? $app_settings['selected_fields']['value']
+				: $app_settings['selected_fields'];
+			$app_settings['selected_fields'] = is_array( $selected )
+				? array_values( array_map( 'sanitize_text_field', $selected ) )
+				: array();
+		}
+
+		if ( isset( $app_settings['selected_fields_mode'] ) ) {
+			$mode = is_array( $app_settings['selected_fields_mode'] )
+				? (string) ( $app_settings['selected_fields_mode']['value'] ?? 'all' )
+				: (string) $app_settings['selected_fields_mode'];
+			$app_settings['selected_fields_mode'] = ( 'selected' === $mode ) ? 'selected' : 'all';
+		}
+
+		if ( isset( $app_settings['failure_notifications'] ) ) {
+			$app_settings['failure_notifications'] = is_array( $app_settings['failure_notifications'] )
+				? ! empty( $app_settings['failure_notifications']['value'] )
+				: ! empty( $app_settings['failure_notifications'] );
+		}
+
+		if ( isset( $app_settings['parameter_map'] ) && is_array( $app_settings['parameter_map'] ) ) {
+			$param_map = array();
+			$raw_map   = isset( $app_settings['parameter_map']['value'] ) ? $app_settings['parameter_map']['value'] : $app_settings['parameter_map'];
+			if ( is_array( $raw_map ) ) {
+				foreach ( $raw_map as $from => $to ) {
+					$param_map[ sanitize_text_field( (string) $from ) ] = sanitize_text_field( (string) $to );
+				}
+			}
+			$app_settings['parameter_map'] = $param_map;
+		}
+
+		if ( isset( $app_settings['webhooks'] ) ) {
+			$raw        = isset( $app_settings['webhooks']['value'] ) ? $app_settings['webhooks']['value'] : $app_settings['webhooks'];
+			$normalized = array();
+			if ( is_array( $raw ) ) {
+				foreach ( $raw as $webhook ) {
+					if ( ! is_array( $webhook ) ) {
+						continue;
+					}
+					$wh_method = strtoupper( (string) ( $webhook['method'] ?? 'POST' ) );
+					if ( ! in_array( $wh_method, $allowed_methods, true ) ) {
+						$wh_method = 'POST';
+					}
+					$selected = isset( $webhook['selected_fields'] ) && is_array( $webhook['selected_fields'] )
+						? array_values( array_map( 'sanitize_text_field', $webhook['selected_fields'] ) )
+						: array();
+					$param_map = array();
+					if ( ! empty( $webhook['parameter_map'] ) && is_array( $webhook['parameter_map'] ) ) {
+						foreach ( $webhook['parameter_map'] as $from => $to ) {
+							$param_map[ sanitize_text_field( (string) $from ) ] = sanitize_text_field( (string) $to );
+						}
+					}
+					$data_type = (string) ( $webhook['data_type'] ?? 'json' );
+					if ( ! in_array( $data_type, array( 'json', 'form' ), true ) ) {
+						$data_type = 'json';
+					}
+					$headers = $webhook['headers'] ?? '{"Content-Type":"application/json"}';
+					$payload = $webhook['payload'] ?? '{"form_id":"{{form_id}}","fields":{{fields}}}';
+					$normalized[] = array(
+						'id'                    => sanitize_text_field( (string) ( $webhook['id'] ?? wp_generate_uuid4() ) ),
+						'enabled'               => ! isset( $webhook['enabled'] ) || ! empty( $webhook['enabled'] ),
+						'webhook_url'           => esc_url_raw( (string) ( $webhook['webhook_url'] ?? '' ) ),
+						'method'                => $wh_method,
+						'data_type'             => $data_type,
+						'selected_fields'       => $selected,
+						'selected_fields_mode'  => ( isset( $webhook['selected_fields_mode'] ) && 'selected' === $webhook['selected_fields_mode'] ) ? 'selected' : 'all',
+						'parameter_map'         => $param_map,
+						'headers'               => is_string( $headers ) ? $headers : wp_json_encode( $headers ),
+						'payload'               => is_string( $payload ) ? $payload : wp_json_encode( $payload ),
+						'failure_notifications' => ! empty( $webhook['failure_notifications'] ),
+					);
+				}
+			}
+			$app_settings['webhooks'] = $normalized;
+		}
+
+		unset(
+			$app_settings['webhook_pro_settings'],
+			$app_settings['webhook_field_options'],
+			$app_settings['form_field_options'],
+			$app_settings['has_pro']
+		);
+
+		return $app_settings;
+	}
 }
 
 new CF7Apps_Rest_API_WP_Admin_V1();

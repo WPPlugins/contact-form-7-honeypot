@@ -353,6 +353,16 @@ if ( ! class_exists( 'CF7Apps_Redirection' ) && class_exists( 'CF7Apps_App' ) ) 
         public function fetch_app_settings() {
             if ( $this->get_option( 'is_enabled' ) ) {
 
+                // HFCF7-640: Preview Form must not redirect.
+                if ( function_exists( 'cf7apps_is_form_preview_request' ) && cf7apps_is_form_preview_request() ) {
+                    wp_send_json_error(
+                        array(
+                            'message' => __( 'Redirection is disabled in form preview.', 'cf7apps' ),
+                        ),
+                        403
+                    );
+                }
+
                 if ( isset( $_POST['formId'] ) ) {
                     $form_id             = intval( wp_unslash( $_POST['formId'] ) );
                     if ( function_exists( 'cf7apps_get_form_enabled_payment_gateway' ) ) {

@@ -1,7 +1,10 @@
 import { createRoot, StrictMode } from '@wordpress/element';
 import domReady from '@wordpress/dom-ready';
 import { HashRouter } from 'react-router';
+import { registerCf7appsReactToastifyGlobal } from '../../../../src/utils/cf7appsReactToastifyBridge';
 import CF7AppsToastNotification from './components/CF7AppsToastNotification';
+
+registerCf7appsReactToastifyGlobal();
 import CF7AppsHeader from './components/CF7AppsHeader';
 import CF7AppsMenuBar from './layout/CF7AppsMenuBar';
 import CF7AppsBody from './layout/CF7AppsBody';

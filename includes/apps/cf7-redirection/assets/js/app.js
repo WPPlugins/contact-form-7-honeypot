@@ -24,6 +24,11 @@
     }
 
     function shouldSkipRedirection( detail ) {
+        // HFCF7-640: Preview Form is display-only.
+        if ( document.body && document.body.classList.contains( 'cf7apps-form-preview-page' ) ) {
+            return true;
+        }
+
         if ( getPaymentCheckoutUrl( detail ) ) {
             return true;
         }

@@ -14,7 +14,7 @@ class CF7Apps_Domain_Authentication {
 
 	const CACHE_KEY = 'cf7apps_domain_authentication_v3';
 
-	const CACHE_TTL = HOUR_IN_SECONDS;
+	const CACHE_TTL = 3600;
 
 	/**
 	 * Post SMTP Mail Tester API (same integration as Post SMTP plugin).
@@ -32,25 +32,73 @@ class CF7Apps_Domain_Authentication {
 	 * @return array
 	 */
 	public static function get_payload( $force_refresh = false ) {
-		if ( ! $force_refresh ) {
-			$cached = get_transient( self::CACHE_KEY );
-			if ( is_array( $cached ) ) {
-				return self::normalize_payload( $cached );
+		try {
+			if ( ! $force_refresh ) {
+				$cached = get_transient( self::CACHE_KEY );
+				if ( is_array( $cached ) ) {
+					return self::normalize_payload( $cached );
+				}
 			}
+
+			$domain  = self::get_site_domain();
+			$checks  = self::run_checks( $domain );
+			$score   = self::calculate_score( $checks );
+			$payload = array(
+				'domain'               => $domain,
+				'deliverability_score' => $score,
+				'checks'               => $checks,
+			);
+
+			set_transient( self::CACHE_KEY, $payload, self::CACHE_TTL );
+
+			return self::normalize_payload( $payload );
+		} catch ( Throwable $e ) {
+			// Never break the dashboard REST route — return a safe empty payload.
+			return self::normalize_payload(
+				array(
+					'domain'               => self::get_site_domain(),
+					'deliverability_score' => 0,
+					'checks'               => self::get_failed_checks_fallback(),
+				)
+			);
+		}
+	}
+
+	/**
+	 * Fallback checks used when DNS/Mail Tester lookups fatally fail.
+	 *
+	 * @return array<int, array<string, string>>
+	 */
+	private static function get_failed_checks_fallback() {
+		$smtp_status = 'fail';
+		try {
+			$smtp_status = self::check_smtp_connection() ? 'pass' : 'fail';
+		} catch ( Throwable $e ) {
+			$smtp_status = 'fail';
 		}
 
-		$domain  = self::get_site_domain();
-		$checks  = self::run_checks( $domain );
-		$score   = self::calculate_score( $checks );
-		$payload = array(
-			'domain'               => $domain,
-			'deliverability_score' => $score,
-			'checks'               => $checks,
+		return array(
+			array(
+				'id'     => 'smtp',
+				'label'  => __( 'SMTP Connection', 'cf7apps' ),
+				'status' => $smtp_status,
+			),
+			array(
+				'id'     => 'spf',
+				'label'  => __( 'SPF', 'cf7apps' ),
+				'status' => 'fail',
+			),
+			array(
+				'id'     => 'dkim',
+				'label'  => __( 'DKIM', 'cf7apps' ),
+				'status' => 'fail',
+			),
+			array(
+				'id'     => 'dmarc',
+				'label'  => __( 'DMARC', 'cf7apps' ),
+				'status' => 'fail',
+			),
 		);
-
-		set_transient( self::CACHE_KEY, $payload, self::CACHE_TTL );
-
-		return self::normalize_payload( $payload );
 	}
 
 	/**
@@ -152,30 +200,122 @@ class CF7Apps_Domain_Authentication {
 	 * @return array<int, array<string, string>>
 	 */
 	private static function run_checks( $domain ) {
-		$mail_tester = self::fetch_mail_tester_auth_results();
+		// Temporary/staging hosts rarely have real SPF/DKIM/DMARC — skip slow DNS/API.
+		if ( self::is_ephemeral_domain( $domain ) ) {
+			return array(
+				array(
+					'id'     => 'smtp',
+					'label'  => __( 'SMTP Connection', 'cf7apps' ),
+					'status' => self::safe_bool_status( array( __CLASS__, 'check_smtp_connection' ) ),
+				),
+				array(
+					'id'     => 'spf',
+					'label'  => __( 'SPF', 'cf7apps' ),
+					'status' => 'fail',
+				),
+				array(
+					'id'     => 'dkim',
+					'label'  => __( 'DKIM', 'cf7apps' ),
+					'status' => 'fail',
+				),
+				array(
+					'id'     => 'dmarc',
+					'label'  => __( 'DMARC', 'cf7apps' ),
+					'status' => 'fail',
+				),
+			);
+		}
+
+		// Only hit Mail Tester when Post SMTP is active — otherwise DNS-only (fast, no hangs).
+		$mail_tester = array();
+		if ( self::is_post_smtp_active() ) {
+			try {
+				$mail_tester = self::fetch_mail_tester_auth_results();
+			} catch ( Throwable $e ) {
+				$mail_tester = array();
+			}
+		}
 
 		return array(
 			array(
 				'id'     => 'smtp',
 				'label'  => __( 'SMTP Connection', 'cf7apps' ),
-				'status' => self::check_smtp_connection() ? 'pass' : 'fail',
+				'status' => self::safe_bool_status( array( __CLASS__, 'check_smtp_connection' ) ),
 			),
 			array(
 				'id'     => 'spf',
 				'label'  => __( 'SPF', 'cf7apps' ),
-				'status' => self::resolve_auth_check_status( 'spf', $mail_tester, $domain ),
+				'status' => self::safe_resolve_status( 'spf', $mail_tester, $domain ),
 			),
 			array(
 				'id'     => 'dkim',
 				'label'  => __( 'DKIM', 'cf7apps' ),
-				'status' => self::resolve_auth_check_status( 'dkim', $mail_tester, $domain ),
+				'status' => self::safe_resolve_status( 'dkim', $mail_tester, $domain ),
 			),
 			array(
 				'id'     => 'dmarc',
 				'label'  => __( 'DMARC', 'cf7apps' ),
-				'status' => self::resolve_auth_check_status( 'dmarc', $mail_tester, $domain ),
+				'status' => self::safe_resolve_status( 'dmarc', $mail_tester, $domain ),
 			),
 		);
+	}
+
+	/**
+	 * Whether the site domain looks like temporary/staging hosting.
+	 *
+	 * @param string $domain Domain host.
+	 * @return bool
+	 */
+	private static function is_ephemeral_domain( $domain ) {
+		$domain = strtolower( (string) $domain );
+		$suffixes = array(
+			'tastewp.com',
+			'instawp.xyz',
+			'instawp.co',
+			'wpengine.com',
+			'localsite',
+			'local',
+			'localhost',
+			'test',
+		);
+
+		foreach ( $suffixes as $suffix ) {
+			if ( $domain === $suffix || substr( $domain, -1 - strlen( $suffix ) ) === '.' . $suffix ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Resolve a check status without letting DNS/API errors escape.
+	 *
+	 * @param string               $check_id    Check id.
+	 * @param array<string, mixed> $mail_tester Mail Tester data.
+	 * @param string               $domain      Domain.
+	 * @return string
+	 */
+	private static function safe_resolve_status( $check_id, $mail_tester, $domain ) {
+		try {
+			return self::resolve_auth_check_status( $check_id, $mail_tester, $domain );
+		} catch ( Throwable $e ) {
+			return 'fail';
+		}
+	}
+
+	/**
+	 * Run a boolean checker and map to pass/fail without throwing.
+	 *
+	 * @param callable $callback Checker.
+	 * @return string
+	 */
+	private static function safe_bool_status( $callback ) {
+		try {
+			return call_user_func( $callback ) ? 'pass' : 'fail';
+		} catch ( Throwable $e ) {
+			return 'fail';
+		}
 	}
 
 	/**
@@ -249,8 +389,9 @@ class CF7Apps_Domain_Authentication {
 		$response = wp_remote_post(
 			$url,
 			array(
-				'timeout' => 20,
-				'headers' => $headers,
+				'timeout'   => 5,
+				'sslverify' => true,
+				'headers'   => $headers,
 			)
 		);
 
@@ -425,10 +566,12 @@ class CF7Apps_Domain_Authentication {
 	 * @return bool
 	 */
 	private static function check_dkim( $domain ) {
-		$selectors = array( 'default', 'google', 'selector1', 'selector2', 'k1', 'mail', 'smtp', 'dkim' );
+		// Keep the list short — each selector can trigger multiple DNS lookups.
+		$selectors = array( 'default', 'google', 'selector1', 'selector2' );
 
 		foreach ( $selectors as $selector ) {
-			if ( self::has_dns_records( $selector . '._domainkey.' . $domain ) ) {
+			if ( self::txt_record_contains( $selector . '._domainkey.' . $domain, 'v=DKIM1' )
+				|| self::has_dns_records( $selector . '._domainkey.' . $domain ) ) {
 				return true;
 			}
 		}
@@ -453,13 +596,23 @@ class CF7Apps_Domain_Authentication {
 	 * @return bool
 	 */
 	private static function has_dns_records( $host ) {
-		if ( ! function_exists( 'dns_get_record' ) ) {
+		$host = self::sanitize_dns_host( $host );
+		if ( '' === $host || ! function_exists( 'dns_get_record' ) ) {
 			return false;
 		}
 
-		$records = @dns_get_record( $host, DNS_ALL ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+		// Prefer TXT only for DKIM hosts — cheapest and most relevant.
+		$type = defined( 'DNS_TXT' ) ? DNS_TXT : ( defined( 'DNS_A' ) ? DNS_A : null );
+		if ( null === $type ) {
+			return false;
+		}
 
-		return is_array( $records ) && ! empty( $records );
+		try {
+			$records = @dns_get_record( $host, $type ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+			return is_array( $records ) && ! empty( $records );
+		} catch ( Throwable $e ) {
+			return false;
+		}
 	}
 
 	/**
@@ -470,11 +623,16 @@ class CF7Apps_Domain_Authentication {
 	 * @return bool
 	 */
 	private static function txt_record_contains( $host, $needle ) {
-		if ( ! function_exists( 'dns_get_record' ) ) {
+		$host = self::sanitize_dns_host( $host );
+		if ( '' === $host || ! function_exists( 'dns_get_record' ) || ! defined( 'DNS_TXT' ) ) {
 			return false;
 		}
 
-		$records = @dns_get_record( $host, DNS_TXT ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+		try {
+			$records = @dns_get_record( $host, DNS_TXT ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+		} catch ( Throwable $e ) {
+			return false;
+		}
 
 		if ( ! is_array( $records ) ) {
 			return false;
@@ -491,5 +649,27 @@ class CF7Apps_Domain_Authentication {
 		}
 
 		return false;
+	}
+
+	/**
+	 * Normalize a hostname for dns_get_record (rejects empty/invalid hosts).
+	 *
+	 * @param string $host Raw host.
+	 * @return string
+	 */
+	private static function sanitize_dns_host( $host ) {
+		$host = strtolower( trim( (string) $host ) );
+		$host = preg_replace( '/\.$/', '', $host );
+
+		if ( '' === $host || false !== strpos( $host, '..' ) ) {
+			return '';
+		}
+
+		// Basic hostname validation — prevents ValueError from dns_get_record on PHP 8+.
+		if ( ! preg_match( '/^[a-z0-9]([a-z0-9\-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9\-]*[a-z0-9])?)*$/i', $host ) ) {
+			return '';
+		}
+
+		return $host;
 	}
 }

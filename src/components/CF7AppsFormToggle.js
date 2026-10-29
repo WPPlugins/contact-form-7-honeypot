@@ -6,6 +6,7 @@ const CF7AppsFormToggle = ( {
 	help,
 	onChange,
 	disabled,
+	labelExtra = null,
 } ) => {
 	const handleToggle = () => {
 		if ( disabled || ! onChange ) {
@@ -18,7 +19,10 @@ const CF7AppsFormToggle = ( {
 	return (
 		<div className="cf7apps-form-toggle-block">
 			<div className="cf7apps-form-toggle-block__row">
-				<span className="cf7apps-form-toggle-block__label">{ label }</span>
+				<div className="cf7apps-form-toggle-block__label-wrap">
+					<span className="cf7apps-form-toggle-block__label">{ label }</span>
+					{ labelExtra }
+				</div>
 				<button
 					type="button"
 					className={
